@@ -46,40 +46,40 @@ func (r *InstallResource) Metadata(ctx context.Context, req resource.MetadataReq
 
 func (r *InstallResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Install",
+		Description: "Create an install to release an app to.",
 		Attributes: map[string]schema.Attribute{
 			"name": schema.StringAttribute{
-				MarkdownDescription: "Name of the application.",
-				Optional:            false,
-				Required:            true,
+				Description: "The unique ID of the install.",
+				Optional:    false,
+				Required:    true,
 			},
 			"app_id": schema.StringAttribute{
-				MarkdownDescription: "ID of the app this install belongs too.",
-				Optional:            false,
-				Required:            true,
+				Description: "The human-readable name of the install.",
+				Optional:    false,
+				Required:    true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
 			"region": schema.StringAttribute{
-				MarkdownDescription: "AWS region",
-				Optional:            false,
-				Required:            true,
+				Description: "The AWS region to create in the install in.",
+				Optional:    false,
+				Required:    true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
 			"iam_role_arn": schema.StringAttribute{
-				MarkdownDescription: "ARN of the role to use for provisioning.",
-				Optional:            false,
-				Required:            true,
+				Description: "The ARN of the AWS IAM role to provision the install with.",
+				Optional:    false,
+				Required:    true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
 			"id": schema.StringAttribute{
-				Computed:            true,
-				MarkdownDescription: "ID of the install",
+				Computed:    true,
+				Description: "The unique ID of the install",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},

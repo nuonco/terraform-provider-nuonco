@@ -61,65 +61,63 @@ func (r *ContainerImageComponentResource) Metadata(ctx context.Context, req reso
 
 func (r *ContainerImageComponentResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Container images are used to connect any Docker, ECR or OCI compatible image to your app.",
+		Description: "Use a Docker, ECR or OCI compatible image as a component.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				MarkdownDescription: "Component id",
-				Computed:            true,
+				Description: "The unique ID of the component.",
+				Computed:    true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"name": schema.StringAttribute{
-				MarkdownDescription: "Component name",
-				Optional:            false,
-				Required:            true,
+				Description: "The human-readable name of the component.",
+				Optional:    false,
+				Required:    true,
 			},
 			"app_id": schema.StringAttribute{
-				MarkdownDescription: "ID of the app this component belongs too.",
-				Optional:            false,
-				Required:            true,
+				Description: "The unique ID of the app this component belongs too.",
+				Optional:    false,
+				Required:    true,
 			},
 			"sync_only": schema.BoolAttribute{
-				MarkdownDescription: "Set to true to only use this image for syncing (ie: no deployment).",
-				Optional:            true,
-				Required:            false,
+				Description: "If true, this component will be synced to install registries, but not released.",
+				Optional:    true,
+				Required:    false,
 			},
-
-			// public
 			"public": schema.SingleNestedAttribute{
-				Description: "any public, Docker or oci image",
+				Description: "Use a publically-accessible image.",
 				Optional:    true,
 				Attributes: map[string]schema.Attribute{
 					"image_url": schema.StringAttribute{
-						MarkdownDescription: "full image url, or docker hub alias (kennethreitz/httpbin)",
-						Required:            true,
+						Description: "The full image URL or docker hub alias (e.g. kennethreitz/httpbin).",
+						Required:    true,
 					},
 					"tag": schema.StringAttribute{
-						MarkdownDescription: "tag",
-						Required:            true,
+						Description: "The image tag.",
+						Required:    true,
 					},
 				},
 			},
 			"aws_ecr": schema.SingleNestedAttribute{
 				Optional:    true,
-				Description: "any image stored in ECR, with an IAM role that your org can assume.",
+				Description: "Use an image stored in AWS ECR.",
 				Attributes: map[string]schema.Attribute{
-					"region": schema.StringAttribute{
-						MarkdownDescription: "ECR region",
-						Required:            true,
+					"image_url": schema.StringAttribute{
+						Description: "The full URL of your ECR repo.",
+						Required:    true,
 					},
 					"tag": schema.StringAttribute{
-						MarkdownDescription: "tag",
-						Required:            true,
+						Description: "The image tag.",
+						Required:    true,
 					},
-					"image_url": schema.StringAttribute{
-						MarkdownDescription: "image_url",
-						Required:            true,
+					"region": schema.StringAttribute{
+						Description: "The region of your ECR repo.",
+						Required:    true,
 					},
 					"iam_role_arn": schema.StringAttribute{
-						MarkdownDescription: "iam_role_arn",
-						Required:            true,
+						Description: "The AWS IAM role needed to access your ECR repo.",
+						Required:    true,
 					},
 				},
 			},

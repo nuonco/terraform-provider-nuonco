@@ -43,24 +43,28 @@ func (d *ConnectedRepoDataSource) Schema(ctx context.Context, req datasource.Sch
 		Description: "Get a connected repo tied to your org.",
 		Attributes: map[string]schema.Attribute{
 			"name": schema.StringAttribute{
-				Description: "Name or URL of connected repo",
+				Description: "The name or URL of the connected repo",
 				Required:    true,
 			},
 			"default_branch": schema.StringAttribute{
-				Computed: true,
+				Description: "The default branch of the repo.",
+				Computed:    true,
 			},
 			"full_name": schema.StringAttribute{
-				Computed: true,
+				Description: "The full name of the repo.",
+				Computed:    true,
 			},
 			"repo": schema.StringAttribute{
-				Description: "this is the attribute to link to a connected config",
+				Description: "The name of the repo.",
 				Computed:    true,
 			},
 			"owner": schema.StringAttribute{
-				Computed: true,
+				Description: "The owner of the repo.",
+				Computed:    true,
 			},
 			"url": schema.StringAttribute{
-				Computed: true,
+				Description: "The URL of the repo.",
+				Computed:    true,
 			},
 		},
 	}
