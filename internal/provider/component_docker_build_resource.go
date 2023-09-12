@@ -49,36 +49,36 @@ func (r *DockerBuildComponentResource) Metadata(ctx context.Context, req resourc
 
 func (r *DockerBuildComponentResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Build any image in a connected or public github repo.",
+		Description: "Build and release any image in a connected or public github repo.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				MarkdownDescription: "ID",
-				Computed:            true,
-				Required:            false,
+				Description: "The unique ID of the component.",
+				Computed:    true,
+				Required:    false,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"name": schema.StringAttribute{
-				MarkdownDescription: "Component name",
-				Optional:            false,
-				Required:            true,
+				Description: "The human-readable name of the component.",
+				Optional:    false,
+				Required:    true,
 			},
 			"app_id": schema.StringAttribute{
-				MarkdownDescription: "ID of the app this component belongs too.",
-				Optional:            false,
-				Required:            true,
+				Description: "The unique ID of the app this component belongs too.",
+				Optional:    false,
+				Required:    true,
 			},
 			"sync_only": schema.BoolAttribute{
-				MarkdownDescription: "Set to true to only use this image for syncing (ie: no deployment).",
-				Optional:            true,
-				Required:            false,
+				Description: "If true, this component will be synced to install registries, but not released.",
+				Optional:    true,
+				Required:    false,
 			},
 			"dockerfile": schema.StringAttribute{
-				MarkdownDescription: "dockerfile",
-				Optional:            true,
-				Default:             stringdefault.StaticString("Dockerfile"),
-				Computed:            true,
+				Description: "The Dockerfile to build from.",
+				Optional:    true,
+				Default:     stringdefault.StaticString("Dockerfile"),
+				Computed:    true,
 			},
 			"public_repo":    publicRepoAttribute(),
 			"connected_repo": connectedRepoAttribute(),

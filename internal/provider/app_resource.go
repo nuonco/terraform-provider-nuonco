@@ -39,16 +39,16 @@ func (r *AppResource) Metadata(ctx context.Context, req resource.MetadataRequest
 
 func (r *AppResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Application",
+		Description: "A Nuon application, required to set up components and installs.",
 		Attributes: map[string]schema.Attribute{
 			"name": schema.StringAttribute{
-				MarkdownDescription: "Name of the application.",
+				MarkdownDescription: "The human readable name of the app.",
 				Optional:            false,
 				Required:            true,
 			},
 			"id": schema.StringAttribute{
 				Computed:            true,
-				MarkdownDescription: "ID of the app",
+				MarkdownDescription: "The unique ID of the app",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},

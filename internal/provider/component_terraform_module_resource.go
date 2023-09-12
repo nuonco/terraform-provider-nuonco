@@ -46,30 +46,30 @@ func (r *TerraformModuleComponentResource) Metadata(ctx context.Context, req res
 
 func (r *TerraformModuleComponentResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Deploy a terraform module in a public connected repo.",
+		Description: "Release a terraform module.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				MarkdownDescription: "Component id",
-				Computed:            true,
+				Description: "The unique ID of the component.",
+				Computed:    true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"name": schema.StringAttribute{
-				MarkdownDescription: "Component name",
-				Optional:            false,
-				Required:            true,
+				Description: "The human-readable name of the component.",
+				Optional:    false,
+				Required:    true,
 			},
 			"app_id": schema.StringAttribute{
-				MarkdownDescription: "ID of the app this component belongs too.",
-				Optional:            false,
-				Required:            true,
+				Description: "The unique ID of the app this component belongs too.",
+				Optional:    false,
+				Required:    true,
 			},
 			"terraform_version": schema.StringAttribute{
-				MarkdownDescription: "Terraform version to run as.",
-				Optional:            true,
-				Default:             stringdefault.StaticString("1.5.3"),
-				Computed:            true,
+				Description: "The version of Terraform to use.",
+				Optional:    true,
+				Default:     stringdefault.StaticString("1.5.3"),
+				Computed:    true,
 			},
 			"public_repo":    publicRepoAttribute(),
 			"connected_repo": connectedRepoAttribute(),

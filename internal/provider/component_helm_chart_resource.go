@@ -27,6 +27,11 @@ type HelmChartComponentResource struct {
 	baseResource
 }
 
+type HelmValue struct {
+	Name  types.String `tfsdk:"name"`
+	Value types.String `tfsdk:"value"`
+}
+
 // HelmChartComponentResourceModel describes the resource data model.
 type HelmChartComponentResourceModel struct {
 	ID types.String `tfsdk:"id"`
@@ -47,29 +52,29 @@ func (r *HelmChartComponentResource) Metadata(ctx context.Context, req resource.
 
 func (r *HelmChartComponentResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Deploy any helm chart",
+		Description: "Release a helm chart.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				MarkdownDescription: "Component id",
-				Computed:            true,
+				Description: "The unique ID of the component.",
+				Computed:    true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"name": schema.StringAttribute{
-				MarkdownDescription: "Component name",
-				Optional:            false,
-				Required:            true,
+				Description: "The human-readable name of the component.",
+				Optional:    false,
+				Required:    true,
 			},
 			"app_id": schema.StringAttribute{
-				MarkdownDescription: "ID of the app this component belongs too.",
-				Optional:            false,
-				Required:            true,
+				Description: "The unique ID of the app this component belongs too.",
+				Optional:    false,
+				Required:    true,
 			},
 			"chart_name": schema.StringAttribute{
-				MarkdownDescription: "Name that the chart will get installed as.",
-				Optional:            false,
-				Required:            true,
+				Description: "The name to install the chart with.",
+				Optional:    false,
+				Required:    true,
 			},
 			"public_repo":    publicRepoAttribute(),
 			"connected_repo": connectedRepoAttribute(),

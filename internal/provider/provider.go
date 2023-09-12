@@ -56,16 +56,16 @@ func (p *Provider) Schema(ctx context.Context, req provider.SchemaRequest, resp 
 		Description: "A Terraform provider for managing apps on the Nuon platform.",
 		Attributes: map[string]schema.Attribute{
 			"api_url": schema.StringAttribute{
-				MarkdownDescription: "Override the url to use a custom endpoint.",
-				Optional:            true,
+				Description: "Override the API url to use a custom endpoint.",
+				Optional:    true,
 			},
 			"api_token": schema.StringAttribute{
-				MarkdownDescription: "API token to access the api.",
-				Optional:            true,
+				Description: "A valid API token to access the api.",
+				Optional:    true,
 			},
 			"org_id": schema.StringAttribute{
-				MarkdownDescription: "Nuon org ID.",
-				Optional:            true,
+				Description: "Your Nuon organization ID.",
+				Optional:    true,
 			},
 		},
 	}

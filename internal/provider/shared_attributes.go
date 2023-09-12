@@ -15,20 +15,20 @@ type PublicRepo struct {
 
 func publicRepoAttribute() schema.SingleNestedAttribute {
 	return schema.SingleNestedAttribute{
-		Description: "any public git/github repo",
+		Description: "A publically-accessible git repo.",
 		Optional:    true,
 		Attributes: map[string]schema.Attribute{
 			"repo": schema.StringAttribute{
-				MarkdownDescription: "Public https: clone url  (eg: https://github.com/jonmorehouse/go-httpbin.git)",
-				Required:            true,
+				Description: "The https clone url",
+				Required:    true,
 			},
 			"branch": schema.StringAttribute{
-				MarkdownDescription: "Default branch to create new builds from.",
-				Required:            true,
+				Description: "The default branch to create new builds from.",
+				Required:    true,
 			},
 			"directory": schema.StringAttribute{
-				MarkdownDescription: "Directory",
-				Optional:            true,
+				Description: "The directory the component code is in.",
+				Optional:    true,
 			},
 		},
 	}
@@ -42,20 +42,20 @@ type ConnectedRepo struct {
 
 func connectedRepoAttribute() schema.SingleNestedAttribute {
 	return schema.SingleNestedAttribute{
-		Description: "Repo accessible via your Nuon connected github account",
+		Description: "A repo accessible via your Nuon connected github account",
 		Optional:    true,
 		Attributes: map[string]schema.Attribute{
 			"repo": schema.StringAttribute{
-				MarkdownDescription: "Public https: clone url  (eg: https://github.com/jonmorehouse/go-httpbin.git)",
-				Required:            true,
+				Description: "The https clone url",
+				Required:    true,
 			},
 			"branch": schema.StringAttribute{
-				MarkdownDescription: "Default branch to create new builds from.",
-				Required:            true,
+				Description: "The default branch to create new builds from.",
+				Required:    true,
 			},
 			"directory": schema.StringAttribute{
-				MarkdownDescription: "Static git ref to create new builds from.",
-				Optional:            true,
+				Description: "The directory the component code is in.",
+				Optional:    true,
 			},
 		},
 	}
@@ -73,20 +73,20 @@ func basicDeployAttribute() schema.SingleNestedAttribute {
 		Description: "Create a basic deployment of this image with a listener.",
 		Attributes: map[string]schema.Attribute{
 			"port": schema.Int64Attribute{
-				MarkdownDescription: "Listen port",
-				Required:            true,
+				Description: "The port to listen on.",
+				Required:    true,
 			},
 			"instance_count": schema.Int64Attribute{
-				MarkdownDescription: "Number of instances to run",
-				Default:             int64default.StaticInt64(1),
-				Optional:            true,
-				Computed:            true,
+				Description: "The number of instances to run.",
+				Default:     int64default.StaticInt64(1),
+				Optional:    true,
+				Computed:    true,
 			},
 			"health_check_path": schema.StringAttribute{
-				MarkdownDescription: "image_url",
-				Optional:            true,
-				Default:             stringdefault.StaticString("/"),
-				Computed:            true,
+				Description: "The path to use for health checks.",
+				Optional:    true,
+				Default:     stringdefault.StaticString("/"),
+				Computed:    true,
 			},
 		},
 	}

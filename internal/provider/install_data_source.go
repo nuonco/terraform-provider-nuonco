@@ -31,19 +31,16 @@ func (d *InstallDataSource) Metadata(ctx context.Context, req datasource.Metadat
 
 func (d *InstallDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		Description:         "`nuon_install` provides information about a Nuon install.\nThis data source can be useful when adding components and installs to an install created in the UI.",
-		MarkdownDescription: "`nuon_install` provides information about a Nuon install.\nThis data source can be useful when adding components and installs to an install created in the UI.",
+		Description: "Provides information about a Nuon install. This data source can be useful if you need to begin programmatically managing an install created in the UI.",
 
 		Attributes: map[string]schema.Attribute{
 			"name": schema.StringAttribute{
-				Description:         "install name",
-				MarkdownDescription: "install name",
-				Optional:            true,
+				Description: "The human-readable name of the install.",
+				Optional:    true,
 			},
 			"id": schema.StringAttribute{
-				Description:         "Install id",
-				MarkdownDescription: "Install id",
-				Optional:            true,
+				Description: "The unique ID of the install.",
+				Optional:    true,
 			},
 		},
 	}
