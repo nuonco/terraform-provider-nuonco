@@ -13,7 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/provider/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/nuonco/terraform-provider-nuon/internal/api/client"
+	"github.com/nuonco/nuon-go"
 )
 
 const (
@@ -43,7 +43,7 @@ type ProviderModel struct {
 
 type ProviderData struct {
 	OrgID      string
-	RestClient client.Client
+	RestClient nuon.Client
 }
 
 func (p *Provider) Metadata(ctx context.Context, req provider.MetadataRequest, resp *provider.MetadataResponse) {
@@ -116,13 +116,13 @@ func (p *Provider) Configure(ctx context.Context, req provider.ConfigureRequest,
 		return
 	}
 
-	restClient, err := client.New(validator.New(),
-		client.WithAuthToken(data.APIAuthToken.ValueString()),
-		client.WithURL(data.APIURL.ValueString()),
-		client.WithOrgID(data.OrgID.ValueString()),
+	restClient, err := nuon.New(validator.New(),
+		nuon.WithAuthToken(data.APIAuthToken.ValueString()),
+		nuon.WithURL(data.APIURL.ValueString()),
+		nuon.WithOrgID(data.OrgID.ValueString()),
 	)
 	if err != nil {
-		writeDiagnosticsErr(ctx, &resp.Diagnostics, err, "initialize client")
+		writeDiagnosticsErr(ctx, &resp.Diagnostics, err, "initialize nuon")
 		return
 	}
 

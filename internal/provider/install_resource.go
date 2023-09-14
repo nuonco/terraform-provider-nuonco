@@ -13,7 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
-	"github.com/nuonco/terraform-provider-nuon/internal/api/client/models"
+	"github.com/nuonco/nuon-go/models"
 )
 
 // Ensure provider defined types fully satisfy framework interfaces.

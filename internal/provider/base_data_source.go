@@ -5,11 +5,11 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
-	"github.com/nuonco/terraform-provider-nuon/internal/api/client"
+	"github.com/nuonco/nuon-go"
 )
 
 type baseDataSource struct {
-	restClient client.Client
+	restClient nuon.Client
 }
 
 func (r *baseDataSource) Configure(ctx context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
