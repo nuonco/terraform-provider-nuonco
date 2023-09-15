@@ -25,6 +25,11 @@ resource "nuon_helm_chart_component" "my_component" {
         branch = %s
         directory = %s
     }
+
+    value {
+        name = %s
+        value = %s
+    }
 }
 `,
 		app.Name,
@@ -33,6 +38,8 @@ resource "nuon_helm_chart_component" "my_component" {
 		component.PublicRepo.Repo,
 		component.PublicRepo.Branch,
 		component.PublicRepo.Directory,
+		component.Value[0].Name,
+		component.Value[0].Value,
 	)
 }
 
@@ -44,9 +51,15 @@ func TestComponentHelmChartResource(t *testing.T) {
 		Name:      types.StringValue(acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)),
 		ChartName: types.StringValue(acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)),
 		PublicRepo: &PublicRepo{
-			Repo:      types.StringValue("my-github-org/" + acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)),
-			Branch:    types.StringValue("foobar"),
+			Repo:      types.StringValue(acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)),
+			Branch:    types.StringValue(acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)),
 			Directory: types.StringValue(acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)),
+		},
+		Value: []HelmValue{
+			{
+				Name:  types.StringValue(acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)),
+				Value: types.StringValue(acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)),
+			},
 		},
 	}
 
@@ -54,9 +67,15 @@ func TestComponentHelmChartResource(t *testing.T) {
 		Name:      types.StringValue(acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)),
 		ChartName: types.StringValue(acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)),
 		PublicRepo: &PublicRepo{
-			Repo:      types.StringValue("my-github-org/" + acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)),
+			Repo:      types.StringValue(acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)),
 			Branch:    types.StringValue(acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)),
 			Directory: types.StringValue(acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)),
+		},
+		Value: []HelmValue{
+			{
+				Name:  types.StringValue(acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)),
+				Value: types.StringValue(acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)),
+			},
 		},
 	}
 

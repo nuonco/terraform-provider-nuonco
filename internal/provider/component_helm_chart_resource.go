@@ -135,21 +135,21 @@ func (r *HelmChartComponentResource) Create(ctx context.Context, req resource.Cr
 }
 
 func (r *HelmChartComponentResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	// get terraform model
 	var data *HelmChartComponentResourceModel
-
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
+	// get component from api
 	compResp, err := r.restClient.GetComponent(ctx, data.ID.ValueString())
 	if err != nil {
 		writeDiagnosticsErr(ctx, &resp.Diagnostics, err, "get component")
 		return
 	}
-	data.Name = types.StringValue(compResp.Name)
-	data.AppID = types.StringValue(compResp.AppID)
 
+	// get latest config from api
 	configResp, err := r.restClient.GetComponentLatestConfig(ctx, data.ID.ValueString())
 	if err != nil {
 		writeDiagnosticsErr(ctx, &resp.Diagnostics, err, "get component config")
@@ -160,6 +160,10 @@ func (r *HelmChartComponentResource) Read(ctx context.Context, req resource.Read
 		return
 	}
 	helmConfig := configResp.Helm
+
+	// populate terraform model with data from api
+	data.Name = types.StringValue(compResp.Name)
+	data.AppID = types.StringValue(compResp.AppID)
 	data.ChartName = types.StringValue(helmConfig.ChartName)
 	if helmConfig.PublicGitVcsConfig != nil {
 		public := helmConfig.PublicGitVcsConfig
@@ -176,13 +180,18 @@ func (r *HelmChartComponentResource) Read(ctx context.Context, req resource.Read
 			Repo:      types.StringValue(connected.Repo),
 		}
 	}
+	apiValues := []HelmValue{}
 	for key, val := range helmConfig.Values {
-		data.Value = append(data.Value, HelmValue{
-			Name:  types.StringValue(key),
-			Value: types.StringValue(val),
+		name := types.StringValue(key)
+		value := types.StringValue(val)
+		apiValues = append(apiValues, HelmValue{
+			Name:  name,
+			Value: value,
 		})
 	}
+	data.Value = apiValues
 
+	// return populated terraform model
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 	tflog.Trace(ctx, "successfully read component")
 }
