@@ -28,6 +28,11 @@ type TerraformModuleComponentResource struct {
 	baseResource
 }
 
+type TerraformVariable struct {
+	Name  types.String `tfsdk:"name"`
+	Value types.String `tfsdk:"value"`
+}
+
 // TerraformModuleComponentResourceModel describes the resource data model.
 type TerraformModuleComponentResourceModel struct {
 	ID types.String `tfsdk:"id"`
@@ -75,7 +80,21 @@ func (r *TerraformModuleComponentResource) Schema(ctx context.Context, req resou
 			"connected_repo": connectedRepoAttribute(),
 		},
 		Blocks: map[string]schema.Block{
-			"var": terraformVariableSharedBlock(),
+			"var": schema.ListNestedBlock{
+				Description: "Terraform variables to set when applying the Terraform configuration.",
+				NestedObject: schema.NestedBlockObject{
+					Attributes: map[string]schema.Attribute{
+						"name": schema.StringAttribute{
+							Description: "The variable name to write to the terraform.tfvars file (e.g. bucket_name or db_name.)",
+							Required:    true,
+						},
+						"value": schema.StringAttribute{
+							Description: "The variable value to write to the terraform.tfvars file. Can be any valid Terraform value, or interpolated from Nuon.",
+							Required:    true,
+						},
+					},
+				},
+			},
 		},
 	}
 }

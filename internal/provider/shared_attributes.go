@@ -91,3 +91,8 @@ func basicDeployAttribute() schema.SingleNestedAttribute {
 		},
 	}
 }
+
+type EnvVar struct {
+	Name  types.String `tfsdk:"name"`
+	Value types.String `tfsdk:"value"`
+}
