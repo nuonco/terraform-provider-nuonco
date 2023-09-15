@@ -9,10 +9,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-func testAccComponentTerraformModuleResource(args TerraformModuleComponentResourceModel) string {
+func testAccComponentTerraformModuleResource(app AppResourceModel, component TerraformModuleComponentResourceModel) string {
 	return fmt.Sprintf(providerConfig+`
 resource "nuon_app" "my_app" {
-    name = "My App"
+    name = %s
 }
 
 resource "nuon_terraform_module_component" "my_component" {
@@ -26,15 +26,19 @@ resource "nuon_terraform_module_component" "my_component" {
     }
 }
 `,
-		args.Name,
-		args.PublicRepo.Repo,
-		args.PublicRepo.Branch,
-		args.PublicRepo.Directory,
+		app.Name,
+		component.Name,
+		component.PublicRepo.Repo,
+		component.PublicRepo.Branch,
+		component.PublicRepo.Directory,
 	)
 }
 
 func TestComponentTerraformModuleResource(t *testing.T) {
-	createArgs := TerraformModuleComponentResourceModel{
+	app := AppResourceModel{
+		Name: types.StringValue(acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)),
+	}
+	component := TerraformModuleComponentResourceModel{
 		Name: types.StringValue(acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)),
 		PublicRepo: &PublicRepo{
 			Repo:      types.StringValue("my-github-org/" + acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)),
@@ -43,7 +47,7 @@ func TestComponentTerraformModuleResource(t *testing.T) {
 		},
 	}
 
-	updateArgs := TerraformModuleComponentResourceModel{
+	updatedComponent := TerraformModuleComponentResourceModel{
 		Name: types.StringValue(acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)),
 		PublicRepo: &PublicRepo{
 			Repo:      types.StringValue("my-github-org/" + acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)),
@@ -57,12 +61,12 @@ func TestComponentTerraformModuleResource(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Create and Read
 			{
-				Config: testAccComponentTerraformModuleResource(createArgs),
+				Config: testAccComponentTerraformModuleResource(app, component),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("nuon_terraform_module_component.my_component", "name", createArgs.Name.ValueString()),
-					resource.TestCheckResourceAttr("nuon_terraform_module_component.my_component", "public_repo.repo", createArgs.PublicRepo.Repo.ValueString()),
-					resource.TestCheckResourceAttr("nuon_terraform_module_component.my_component", "public_repo.branch", createArgs.PublicRepo.Branch.ValueString()),
-					resource.TestCheckResourceAttr("nuon_terraform_module_component.my_component", "public_repo.directory", createArgs.PublicRepo.Directory.ValueString()),
+					resource.TestCheckResourceAttr("nuon_terraform_module_component.my_component", "name", component.Name.ValueString()),
+					resource.TestCheckResourceAttr("nuon_terraform_module_component.my_component", "public_repo.repo", component.PublicRepo.Repo.ValueString()),
+					resource.TestCheckResourceAttr("nuon_terraform_module_component.my_component", "public_repo.branch", component.PublicRepo.Branch.ValueString()),
+					resource.TestCheckResourceAttr("nuon_terraform_module_component.my_component", "public_repo.directory", component.PublicRepo.Directory.ValueString()),
 				),
 			},
 			// Import State
@@ -73,12 +77,12 @@ func TestComponentTerraformModuleResource(t *testing.T) {
 			},
 			// Update and Read
 			{
-				Config: testAccComponentTerraformModuleResource(updateArgs),
+				Config: testAccComponentTerraformModuleResource(app, updatedComponent),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("nuon_terraform_module_component.my_component", "name", updateArgs.Name.ValueString()),
-					resource.TestCheckResourceAttr("nuon_terraform_module_component.my_component", "public_repo.repo", updateArgs.PublicRepo.Repo.ValueString()),
-					resource.TestCheckResourceAttr("nuon_terraform_module_component.my_component", "public_repo.branch", updateArgs.PublicRepo.Branch.ValueString()),
-					resource.TestCheckResourceAttr("nuon_terraform_module_component.my_component", "public_repo.directory", updateArgs.PublicRepo.Directory.ValueString()),
+					resource.TestCheckResourceAttr("nuon_terraform_module_component.my_component", "name", updatedComponent.Name.ValueString()),
+					resource.TestCheckResourceAttr("nuon_terraform_module_component.my_component", "public_repo.repo", updatedComponent.PublicRepo.Repo.ValueString()),
+					resource.TestCheckResourceAttr("nuon_terraform_module_component.my_component", "public_repo.branch", updatedComponent.PublicRepo.Branch.ValueString()),
+					resource.TestCheckResourceAttr("nuon_terraform_module_component.my_component", "public_repo.directory", updatedComponent.PublicRepo.Directory.ValueString()),
 				),
 			},
 			// Delete testing will happen automatically.
