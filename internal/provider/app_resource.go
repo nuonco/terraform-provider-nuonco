@@ -91,14 +91,14 @@ func (r *AppResource) Schema(ctx context.Context, req resource.SchemaRequest, re
 }
 
 func (r *AppResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// get terraform model
 	var data *AppResourceModel
-
-	// Read Terraform plan data into the model
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
+	// create app
 	tflog.Trace(ctx, "creating app")
 	appResp, err := r.restClient.CreateApp(ctx, &models.ServiceCreateAppRequest{
 		Name: data.Name.ValueStringPointer(),
@@ -108,53 +108,77 @@ func (r *AppResource) Create(ctx context.Context, req resource.CreateRequest, re
 		return
 	}
 
+	// populate terraform model with data from api
 	data.Name = types.StringValue(appResp.Name)
 	data.Id = types.StringValue(appResp.ID)
 	data.SandboxRelease = convertSandboxRelease(*appResp.SandboxRelease)
 
+	// return populated terraform model
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 	tflog.Trace(ctx, "successfully created app")
 }
 
 func (r *AppResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	// get terraform model
 	var data *AppResourceModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
+	tflog.Trace(ctx, "reading app")
+
+	// get app from api
 	appResp, err := r.restClient.GetApp(ctx, data.Id.ValueString())
 	if err != nil {
-		writeDiagnosticsErr(ctx, &resp.Diagnostics, err, "get app")
+		writeDiagnosticsErr(ctx, &resp.Diagnostics, err, "read app")
 		return
 	}
 
+	// populate terraform model with data from api
 	data.Name = types.StringValue(appResp.Name)
 	data.Id = types.StringValue(appResp.ID)
 	data.SandboxRelease = convertSandboxRelease(*appResp.SandboxRelease)
 
+	// return populated terraform model
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
+	tflog.Trace(ctx, "successfully read app")
 }
 
 func (r *AppResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	// get terraform model
 	var data *AppResourceModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	appResp, err := r.restClient.UpdateApp(ctx, data.Id.ValueString(), &models.ServiceUpdateAppRequest{
+	tflog.Trace(ctx, "updating app")
+
+	// update app
+	_, err := r.restClient.UpdateApp(ctx, data.Id.ValueString(), &models.ServiceUpdateAppRequest{
 		Name: data.Name.ValueString(),
 	})
 	if err != nil {
-		writeDiagnosticsErr(ctx, &resp.Diagnostics, err, "upsert app")
+		writeDiagnosticsErr(ctx, &resp.Diagnostics, err, "update app")
 		return
 	}
 
+	// get app from api
+	appResp, err := r.restClient.GetApp(ctx, data.Id.ValueString())
+	if err != nil {
+		writeDiagnosticsErr(ctx, &resp.Diagnostics, err, "update app")
+		return
+	}
+
+	// populate terraform model with data from api
 	data.Name = types.StringValue(appResp.Name)
 	data.Id = types.StringValue(appResp.ID)
+	data.SandboxRelease = convertSandboxRelease(*appResp.SandboxRelease)
 
+	// return populated terraform model
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
+	tflog.Trace(ctx, "successfully updated app")
 }
 
 func (r *AppResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
@@ -163,6 +187,8 @@ func (r *AppResource) Delete(ctx context.Context, req resource.DeleteRequest, re
 	if resp.Diagnostics.HasError() {
 		return
 	}
+
+	tflog.Trace(ctx, "deleting app")
 
 	deleted, err := r.restClient.DeleteApp(ctx, data.Id.ValueString())
 	if err != nil {
@@ -177,6 +203,7 @@ func (r *AppResource) Delete(ctx context.Context, req resource.DeleteRequest, re
 		return
 	}
 
+	tflog.Trace(ctx, "successfully deleted app")
 }
 
 func (r *AppResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
