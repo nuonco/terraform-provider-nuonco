@@ -4,12 +4,15 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/objectplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/nuonco/nuon-go/models"
 )
@@ -27,10 +30,35 @@ type AppResource struct {
 	baseResource
 }
 
+func convertSandboxRelease(sandboxRelease models.AppSandboxRelease) basetypes.ObjectValue {
+	obj, _ := basetypes.NewObjectValue(
+		map[string]attr.Type{
+			"id":                          types.StringType,
+			"version":                     types.StringType,
+			"terraform_version":           types.StringType,
+			"provision_policy_url":        types.StringType,
+			"deprovision_policy_url":      types.StringType,
+			"trust_policy_url":            types.StringType,
+			"one_click_role_template_url": types.StringType,
+		},
+		map[string]attr.Value{
+			"id":                          types.StringValue(sandboxRelease.ID),
+			"version":                     types.StringValue(sandboxRelease.Version),
+			"terraform_version":           types.StringValue(sandboxRelease.TerraformVersion),
+			"provision_policy_url":        types.StringValue(sandboxRelease.ProvisionPolicyURL),
+			"deprovision_policy_url":      types.StringValue(sandboxRelease.DeprovisionPolicyURL),
+			"trust_policy_url":            types.StringValue(sandboxRelease.TrustPolicyURL),
+			"one_click_role_template_url": types.StringValue(sandboxRelease.OneClickRoleTemplateURL),
+		},
+	)
+	return obj
+}
+
 // AppResourceModel describes the resource data model.
 type AppResourceModel struct {
-	Name types.String `tfsdk:"name"`
-	Id   types.String `tfsdk:"id"`
+	Name           types.String          `tfsdk:"name"`
+	Id             types.String          `tfsdk:"id"`
+	SandboxRelease basetypes.ObjectValue `tfsdk:"sandbox_release"`
 }
 
 func (r *AppResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -47,10 +75,40 @@ func (r *AppResource) Schema(ctx context.Context, req resource.SchemaRequest, re
 				Required:            true,
 			},
 			"id": schema.StringAttribute{
-				Computed:            true,
-				MarkdownDescription: "The unique ID of the app",
+				Computed:    true,
+				Description: "The unique ID of the app.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"sandbox_release": schema.SingleNestedAttribute{
+				Computed:    true,
+				Description: "The sandbox being used for this app's installs.",
+				PlanModifiers: []planmodifier.Object{
+					objectplanmodifier.UseStateForUnknown(),
+				},
+				Attributes: map[string]schema.Attribute{
+					"id": schema.StringAttribute{
+						Computed: true,
+					},
+					"version": schema.StringAttribute{
+						Computed: true,
+					},
+					"terraform_version": schema.StringAttribute{
+						Computed: true,
+					},
+					"provision_policy_url": schema.StringAttribute{
+						Computed: true,
+					},
+					"deprovision_policy_url": schema.StringAttribute{
+						Computed: true,
+					},
+					"trust_policy_url": schema.StringAttribute{
+						Computed: true,
+					},
+					"one_click_role_template_url": schema.StringAttribute{
+						Computed: true,
+					},
 				},
 			},
 		},
@@ -74,8 +132,11 @@ func (r *AppResource) Create(ctx context.Context, req resource.CreateRequest, re
 		writeDiagnosticsErr(ctx, &resp.Diagnostics, err, "create app")
 		return
 	}
+
 	data.Name = types.StringValue(appResp.Name)
 	data.Id = types.StringValue(appResp.ID)
+	obj := convertSandboxRelease(*appResp.SandboxRelease)
+	data.SandboxRelease = obj
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 	tflog.Trace(ctx, "successfully created app")
@@ -97,6 +158,9 @@ func (r *AppResource) Read(ctx context.Context, req resource.ReadRequest, resp *
 
 	data.Name = types.StringValue(appResp.Name)
 	data.Id = types.StringValue(appResp.ID)
+	obj := convertSandboxRelease(*appResp.SandboxRelease)
+	data.SandboxRelease = obj
+
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 

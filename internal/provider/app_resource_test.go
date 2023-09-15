@@ -4,32 +4,38 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-func testAccAppResource(name string) string {
+func testAccAppResource(app AppResourceModel) string {
 	return fmt.Sprintf(providerConfig+`
 resource "nuon_app" "my_app" {
-    name = "%s"
+    name = %s
 }
 `,
-		name,
+		app.Name,
 	)
 }
 
 func TestAppResource(t *testing.T) {
-	appName := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
-	updatedName := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
+	app := AppResourceModel{
+		Name: types.StringValue(acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)),
+	}
+
+	updatedApp := AppResourceModel{
+		Name: types.StringValue(acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)),
+	}
 
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			// Create and Read
 			{
-				Config: testAccAppResource(appName),
+				Config: testAccAppResource(app),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("nuon_app.my_app", "name", appName),
+					resource.TestCheckResourceAttr("nuon_app.my_app", "name", app.Name.ValueString()),
 				),
 			},
 			// ImportState
@@ -40,9 +46,9 @@ func TestAppResource(t *testing.T) {
 			},
 			// Update and Read
 			{
-				Config: testAccAppResource(updatedName),
+				Config: testAccAppResource(updatedApp),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("nuon_app.my_app", "name", updatedName),
+					resource.TestCheckResourceAttr("nuon_app.my_app", "name", updatedApp.Name.ValueString()),
 				),
 			},
 			// Delete testing will happen automatically.
