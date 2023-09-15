@@ -110,8 +110,7 @@ func (r *AppResource) Create(ctx context.Context, req resource.CreateRequest, re
 
 	data.Name = types.StringValue(appResp.Name)
 	data.Id = types.StringValue(appResp.ID)
-	obj := convertSandboxRelease(*appResp.SandboxRelease)
-	data.SandboxRelease = obj
+	data.SandboxRelease = convertSandboxRelease(*appResp.SandboxRelease)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 	tflog.Trace(ctx, "successfully created app")
@@ -139,7 +138,6 @@ func (r *AppResource) Read(ctx context.Context, req resource.ReadRequest, resp *
 
 func (r *AppResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var data *AppResourceModel
-
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -155,6 +153,7 @@ func (r *AppResource) Update(ctx context.Context, req resource.UpdateRequest, re
 
 	data.Name = types.StringValue(appResp.Name)
 	data.Id = types.StringValue(appResp.ID)
+
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
