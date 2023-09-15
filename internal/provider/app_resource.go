@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -28,30 +27,6 @@ func NewAppResource() resource.Resource {
 // AppResource defines the resource implementation.
 type AppResource struct {
 	baseResource
-}
-
-func convertSandboxRelease(sandboxRelease models.AppSandboxRelease) basetypes.ObjectValue {
-	obj, _ := basetypes.NewObjectValue(
-		map[string]attr.Type{
-			"id":                          types.StringType,
-			"version":                     types.StringType,
-			"terraform_version":           types.StringType,
-			"provision_policy_url":        types.StringType,
-			"deprovision_policy_url":      types.StringType,
-			"trust_policy_url":            types.StringType,
-			"one_click_role_template_url": types.StringType,
-		},
-		map[string]attr.Value{
-			"id":                          types.StringValue(sandboxRelease.ID),
-			"version":                     types.StringValue(sandboxRelease.Version),
-			"terraform_version":           types.StringValue(sandboxRelease.TerraformVersion),
-			"provision_policy_url":        types.StringValue(sandboxRelease.ProvisionPolicyURL),
-			"deprovision_policy_url":      types.StringValue(sandboxRelease.DeprovisionPolicyURL),
-			"trust_policy_url":            types.StringValue(sandboxRelease.TrustPolicyURL),
-			"one_click_role_template_url": types.StringValue(sandboxRelease.OneClickRoleTemplateURL),
-		},
-	)
-	return obj
 }
 
 // AppResourceModel describes the resource data model.
@@ -144,7 +119,6 @@ func (r *AppResource) Create(ctx context.Context, req resource.CreateRequest, re
 
 func (r *AppResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	var data *AppResourceModel
-
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -158,8 +132,7 @@ func (r *AppResource) Read(ctx context.Context, req resource.ReadRequest, resp *
 
 	data.Name = types.StringValue(appResp.Name)
 	data.Id = types.StringValue(appResp.ID)
-	obj := convertSandboxRelease(*appResp.SandboxRelease)
-	data.SandboxRelease = obj
+	data.SandboxRelease = convertSandboxRelease(*appResp.SandboxRelease)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
