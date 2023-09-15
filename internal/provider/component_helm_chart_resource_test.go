@@ -9,10 +9,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-func testAccComponentHelmChartResource(args HelmChartComponentResourceModel) string {
+func testAccComponentHelmChartResource(app AppResourceModel, component HelmChartComponentResourceModel) string {
 	return fmt.Sprintf(providerConfig+`
 resource "nuon_app" "my_app" {
-    name = "My App"
+    name = %s
 }
 
 resource "nuon_helm_chart_component" "my_component" {
@@ -27,16 +27,20 @@ resource "nuon_helm_chart_component" "my_component" {
     }
 }
 `,
-		args.Name,
-		args.ChartName,
-		args.PublicRepo.Repo,
-		args.PublicRepo.Branch,
-		args.PublicRepo.Directory,
+		app.Name,
+		component.Name,
+		component.ChartName,
+		component.PublicRepo.Repo,
+		component.PublicRepo.Branch,
+		component.PublicRepo.Directory,
 	)
 }
 
 func TestComponentHelmChartResource(t *testing.T) {
-	createArgs := HelmChartComponentResourceModel{
+	app := AppResourceModel{
+		Name: types.StringValue(acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)),
+	}
+	component := HelmChartComponentResourceModel{
 		Name:      types.StringValue(acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)),
 		ChartName: types.StringValue(acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)),
 		PublicRepo: &PublicRepo{
@@ -46,7 +50,7 @@ func TestComponentHelmChartResource(t *testing.T) {
 		},
 	}
 
-	updateArgs := HelmChartComponentResourceModel{
+	updatedComponent := HelmChartComponentResourceModel{
 		Name:      types.StringValue(acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)),
 		ChartName: types.StringValue(acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)),
 		PublicRepo: &PublicRepo{
@@ -61,13 +65,13 @@ func TestComponentHelmChartResource(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Create and Read
 			{
-				Config: testAccComponentHelmChartResource(createArgs),
+				Config: testAccComponentHelmChartResource(app, component),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("nuon_helm_chart_component.my_component", "name", createArgs.Name.ValueString()),
-					resource.TestCheckResourceAttr("nuon_helm_chart_component.my_component", "chart_name", createArgs.ChartName.ValueString()),
-					resource.TestCheckResourceAttr("nuon_helm_chart_component.my_component", "public_repo.repo", createArgs.PublicRepo.Repo.ValueString()),
-					resource.TestCheckResourceAttr("nuon_helm_chart_component.my_component", "public_repo.branch", createArgs.PublicRepo.Branch.ValueString()),
-					resource.TestCheckResourceAttr("nuon_helm_chart_component.my_component", "public_repo.directory", createArgs.PublicRepo.Directory.ValueString()),
+					resource.TestCheckResourceAttr("nuon_helm_chart_component.my_component", "name", component.Name.ValueString()),
+					resource.TestCheckResourceAttr("nuon_helm_chart_component.my_component", "chart_name", component.ChartName.ValueString()),
+					resource.TestCheckResourceAttr("nuon_helm_chart_component.my_component", "public_repo.repo", component.PublicRepo.Repo.ValueString()),
+					resource.TestCheckResourceAttr("nuon_helm_chart_component.my_component", "public_repo.branch", component.PublicRepo.Branch.ValueString()),
+					resource.TestCheckResourceAttr("nuon_helm_chart_component.my_component", "public_repo.directory", component.PublicRepo.Directory.ValueString()),
 				),
 			},
 			// Import State
@@ -78,13 +82,13 @@ func TestComponentHelmChartResource(t *testing.T) {
 			},
 			// Update and Read
 			{
-				Config: testAccComponentHelmChartResource(updateArgs),
+				Config: testAccComponentHelmChartResource(app, updatedComponent),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("nuon_helm_chart_component.my_component", "name", updateArgs.Name.ValueString()),
-					resource.TestCheckResourceAttr("nuon_helm_chart_component.my_component", "chart_name", updateArgs.ChartName.ValueString()),
-					resource.TestCheckResourceAttr("nuon_helm_chart_component.my_component", "public_repo.repo", updateArgs.PublicRepo.Repo.ValueString()),
-					resource.TestCheckResourceAttr("nuon_helm_chart_component.my_component", "public_repo.branch", updateArgs.PublicRepo.Branch.ValueString()),
-					resource.TestCheckResourceAttr("nuon_helm_chart_component.my_component", "public_repo.directory", updateArgs.PublicRepo.Directory.ValueString()),
+					resource.TestCheckResourceAttr("nuon_helm_chart_component.my_component", "name", updatedComponent.Name.ValueString()),
+					resource.TestCheckResourceAttr("nuon_helm_chart_component.my_component", "chart_name", updatedComponent.ChartName.ValueString()),
+					resource.TestCheckResourceAttr("nuon_helm_chart_component.my_component", "public_repo.repo", updatedComponent.PublicRepo.Repo.ValueString()),
+					resource.TestCheckResourceAttr("nuon_helm_chart_component.my_component", "public_repo.branch", updatedComponent.PublicRepo.Branch.ValueString()),
+					resource.TestCheckResourceAttr("nuon_helm_chart_component.my_component", "public_repo.directory", updatedComponent.PublicRepo.Directory.ValueString()),
 				),
 			},
 			// Delete testing will happen automatically.

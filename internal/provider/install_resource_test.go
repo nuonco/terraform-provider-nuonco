@@ -4,40 +4,47 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-func testAccInstallResource(args ...string) string {
+func testAccInstallResource(app AppResourceModel, install InstallResourceModel) string {
 	return fmt.Sprintf(providerConfig+`
 resource "nuon_app" "my_app" {
-    name = "My App"
+    name = %s
 }
 
 resource "nuon_install" "my_install" {
     app_id = nuon_app.my_app.id
-    name = "%s"
-    region = "%s"
-    iam_role_arn = "%s"
+    name = %s
+    region = %s
+    iam_role_arn = %s
 }
 `,
-		args[0],
-		args[1],
-		args[2],
+		app.Name,
+		install.Name,
+		install.Region,
+		install.IAMRoleARN,
 	)
 }
 
 func TestInstallResource(t *testing.T) {
-	createArgs := []string{
-		acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum),
-		"us-west-2",
-		acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum),
+	app := AppResourceModel{
+		Name: types.StringValue(acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)),
+	}
+	install := InstallResourceModel{
+		AppID:      app.Id,
+		Name:       types.StringValue(acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)),
+		Region:     types.StringValue("us-west-2"),
+		IAMRoleARN: types.StringValue(acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)),
 	}
 
-	updateArgs := []string{
-		acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum),
-		createArgs[1],
-		createArgs[2],
+	updatedInstall := InstallResourceModel{
+		AppID:      app.Id,
+		Name:       types.StringValue(acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)),
+		Region:     types.StringValue("us-west-2"),
+		IAMRoleARN: types.StringValue(acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)),
 	}
 
 	resource.Test(t, resource.TestCase{
@@ -45,11 +52,11 @@ func TestInstallResource(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Create and Read
 			{
-				Config: testAccInstallResource(createArgs...),
+				Config: testAccInstallResource(app, install),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("nuon_install.my_install", "name", createArgs[0]),
-					resource.TestCheckResourceAttr("nuon_install.my_install", "region", createArgs[1]),
-					resource.TestCheckResourceAttr("nuon_install.my_install", "iam_role_arn", createArgs[2]),
+					resource.TestCheckResourceAttr("nuon_install.my_install", "name", install.Name.ValueString()),
+					resource.TestCheckResourceAttr("nuon_install.my_install", "region", install.Region.ValueString()),
+					resource.TestCheckResourceAttr("nuon_install.my_install", "iam_role_arn", install.IAMRoleARN.ValueString()),
 				),
 			},
 			// Import State
@@ -60,11 +67,11 @@ func TestInstallResource(t *testing.T) {
 			},
 			// Update and Read
 			{
-				Config: testAccInstallResource(updateArgs...),
+				Config: testAccInstallResource(app, updatedInstall),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("nuon_install.my_install", "name", updateArgs[0]),
-					resource.TestCheckResourceAttr("nuon_install.my_install", "region", updateArgs[1]),
-					resource.TestCheckResourceAttr("nuon_install.my_install", "iam_role_arn", updateArgs[2]),
+					resource.TestCheckResourceAttr("nuon_install.my_install", "name", updatedInstall.Name.ValueString()),
+					resource.TestCheckResourceAttr("nuon_install.my_install", "region", updatedInstall.Region.ValueString()),
+					resource.TestCheckResourceAttr("nuon_install.my_install", "iam_role_arn", updatedInstall.IAMRoleARN.ValueString()),
 				),
 			},
 			// Delete testing will happen automatically.
