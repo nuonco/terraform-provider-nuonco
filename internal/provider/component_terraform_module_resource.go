@@ -132,21 +132,21 @@ func (r *TerraformModuleComponentResource) Create(ctx context.Context, req resou
 }
 
 func (r *TerraformModuleComponentResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	// get terraform model
 	var data *TerraformModuleComponentResourceModel
-
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
+	// get component from api
 	compResp, err := r.restClient.GetComponent(ctx, data.ID.ValueString())
 	if err != nil {
 		writeDiagnosticsErr(ctx, &resp.Diagnostics, err, "get component")
 		return
 	}
-	data.Name = types.StringValue(compResp.Name)
-	data.AppID = types.StringValue(compResp.AppID)
 
+	// get latest config from api
 	configResp, err := r.restClient.GetComponentLatestConfig(ctx, data.ID.ValueString())
 	if err != nil {
 		writeDiagnosticsErr(ctx, &resp.Diagnostics, err, "get component config")
@@ -157,13 +157,11 @@ func (r *TerraformModuleComponentResource) Read(ctx context.Context, req resourc
 		return
 	}
 	terraformConfig := configResp.TerraformModule
+
+	// populate terraform model with data from api
+	data.Name = types.StringValue(compResp.Name)
+	data.AppID = types.StringValue(compResp.AppID)
 	data.TerraformVersion = types.StringValue(terraformConfig.Version)
-	for key, val := range terraformConfig.Variables {
-		data.Var = append(data.Var, TerraformVariable{
-			Name:  types.StringValue(key),
-			Value: types.StringValue(val),
-		})
-	}
 	if terraformConfig.ConnectedGithubVcsConfig != nil {
 		connected := terraformConfig.ConnectedGithubVcsConfig
 		data.ConnectedRepo = &ConnectedRepo{
@@ -179,7 +177,16 @@ func (r *TerraformModuleComponentResource) Read(ctx context.Context, req resourc
 			Repo:      types.StringValue(public.Repo),
 		}
 	}
+	apiVars := []TerraformVariable{}
+	for key, val := range terraformConfig.Variables {
+		apiVars = append(apiVars, TerraformVariable{
+			Name:  types.StringValue(key),
+			Value: types.StringValue(val),
+		})
+	}
+	data.Var = apiVars
 
+	// return populated terraform model
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 	tflog.Trace(ctx, "successfully read component")
 }

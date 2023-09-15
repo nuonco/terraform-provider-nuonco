@@ -24,6 +24,11 @@ resource "nuon_terraform_module_component" "my_component" {
         branch = %s
         directory = %s
     }
+
+    var {
+        name = %s
+        value = %s
+    }
 }
 `,
 		app.Name,
@@ -31,6 +36,8 @@ resource "nuon_terraform_module_component" "my_component" {
 		component.PublicRepo.Repo,
 		component.PublicRepo.Branch,
 		component.PublicRepo.Directory,
+		component.Var[0].Name,
+		component.Var[0].Value,
 	)
 }
 
@@ -45,6 +52,12 @@ func TestComponentTerraformModuleResource(t *testing.T) {
 			Branch:    types.StringValue("foobar"),
 			Directory: types.StringValue(acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)),
 		},
+		Var: []TerraformVariable{
+			{
+				Name:  types.StringValue(acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)),
+				Value: types.StringValue(acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)),
+			},
+		},
 	}
 
 	updatedComponent := TerraformModuleComponentResourceModel{
@@ -53,6 +66,12 @@ func TestComponentTerraformModuleResource(t *testing.T) {
 			Repo:      types.StringValue("my-github-org/" + acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)),
 			Branch:    types.StringValue(acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)),
 			Directory: types.StringValue(acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)),
+		},
+		Var: []TerraformVariable{
+			{
+				Name:  types.StringValue(acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)),
+				Value: types.StringValue(acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)),
+			},
 		},
 	}
 
