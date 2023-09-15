@@ -6,6 +6,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
@@ -22,8 +23,9 @@ type AppDataSource struct {
 
 // AppDataSourceModel describes the data source data model.
 type AppDataSourceModel struct {
-	Name types.String `tfsdk:"name"`
-	Id   types.String `tfsdk:"id"`
+	Name           types.String          `tfsdk:"name"`
+	Id             types.String          `tfsdk:"id"`
+	SandboxRelease basetypes.ObjectValue `tfsdk:"sandbox_release"`
 }
 
 func (d *AppDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
@@ -59,7 +61,10 @@ func (d *AppDataSource) Read(ctx context.Context, req datasource.ReadRequest, re
 		writeDiagnosticsErr(ctx, &resp.Diagnostics, err, "get app")
 		return
 	}
+
 	data.Name = types.StringValue(appResp.Name)
+	data.Id = types.StringValue(appResp.ID)
+	data.SandboxRelease = convertSandboxRelease(*appResp.SandboxRelease)
 
 	// Save data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)

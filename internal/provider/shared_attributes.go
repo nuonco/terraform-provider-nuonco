@@ -1,10 +1,13 @@
 package provider
 
 import (
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
+	"github.com/nuonco/nuon-go/models"
 )
 
 type PublicRepo struct {
@@ -95,4 +98,28 @@ func basicDeployAttribute() schema.SingleNestedAttribute {
 type EnvVar struct {
 	Name  types.String `tfsdk:"name"`
 	Value types.String `tfsdk:"value"`
+}
+
+func convertSandboxRelease(sandboxRelease models.AppSandboxRelease) basetypes.ObjectValue {
+	obj, _ := basetypes.NewObjectValue(
+		map[string]attr.Type{
+			"id":                          types.StringType,
+			"version":                     types.StringType,
+			"terraform_version":           types.StringType,
+			"provision_policy_url":        types.StringType,
+			"deprovision_policy_url":      types.StringType,
+			"trust_policy_url":            types.StringType,
+			"one_click_role_template_url": types.StringType,
+		},
+		map[string]attr.Value{
+			"id":                          types.StringValue(sandboxRelease.ID),
+			"version":                     types.StringValue(sandboxRelease.Version),
+			"terraform_version":           types.StringValue(sandboxRelease.TerraformVersion),
+			"provision_policy_url":        types.StringValue(sandboxRelease.ProvisionPolicyURL),
+			"deprovision_policy_url":      types.StringValue(sandboxRelease.DeprovisionPolicyURL),
+			"trust_policy_url":            types.StringValue(sandboxRelease.TrustPolicyURL),
+			"one_click_role_template_url": types.StringValue(sandboxRelease.OneClickRoleTemplateURL),
+		},
+	)
+	return obj
 }
