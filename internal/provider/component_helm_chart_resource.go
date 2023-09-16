@@ -136,7 +136,7 @@ func (r *HelmChartComponentResource) Create(ctx context.Context, req resource.Cr
 		}
 	}
 	for _, value := range data.Value {
-		configRequest.Values[value.Name.String()] = value.Value.String()
+		configRequest.Values[value.Name.ValueString()] = value.Value.ValueString()
 	}
 	_, err = r.restClient.CreateHelmComponentConfig(ctx, compResp.ID, configRequest)
 	if err != nil {
@@ -271,7 +271,7 @@ func (r *HelmChartComponentResource) Update(ctx context.Context, req resource.Up
 		}
 	}
 	for _, value := range data.Value {
-		configRequest.Values[value.Name.String()] = value.Value.String()
+		configRequest.Values[value.Name.ValueString()] = value.Value.ValueString()
 	}
 	_, err = r.restClient.CreateHelmComponentConfig(ctx, compResp.ID, configRequest)
 	if err != nil {
