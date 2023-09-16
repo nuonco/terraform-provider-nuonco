@@ -124,8 +124,8 @@ func (r *TerraformModuleComponentResource) Create(ctx context.Context, req resou
 		Variables:                map[string]string{},
 		Version:                  data.TerraformVersion.ValueString(),
 	}
-	for _, value := range data.Var {
-		configRequest.Variables[value.Name.String()] = value.Value.String()
+	for _, val := range data.Var {
+		configRequest.Variables[val.Name.ValueString()] = val.Value.ValueString()
 	}
 	if data.PublicRepo != nil {
 		configRequest.PublicGitVcsConfig = &models.ServicePublicGitVCSConfigRequest{
@@ -140,6 +140,7 @@ func (r *TerraformModuleComponentResource) Create(ctx context.Context, req resou
 			Repo:      data.ConnectedRepo.Repo.ValueStringPointer(),
 		}
 	}
+
 	_, err = r.restClient.CreateTerraformModuleComponentConfig(ctx, compResp.ID, configRequest)
 	if err != nil {
 		writeDiagnosticsErr(ctx, &resp.Diagnostics, err, "create component config")
@@ -256,7 +257,7 @@ func (r *TerraformModuleComponentResource) Update(ctx context.Context, req resou
 		Version:                  data.TerraformVersion.ValueString(),
 	}
 	for _, value := range data.Var {
-		configRequest.Variables[value.Name.String()] = value.Value.String()
+		configRequest.Variables[value.Name.ValueString()] = value.Value.ValueString()
 	}
 	if data.PublicRepo != nil {
 		configRequest.PublicGitVcsConfig = &models.ServicePublicGitVCSConfigRequest{
