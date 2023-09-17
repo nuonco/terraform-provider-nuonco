@@ -23,8 +23,8 @@ type AppDataSource struct {
 
 // AppDataSourceModel describes the data source data model.
 type AppDataSourceModel struct {
-	Name           types.String          `tfsdk:"name"`
-	Id             types.String          `tfsdk:"id"`
+	Name	       types.String	     `tfsdk:"name"`
+	Id	       types.String	     `tfsdk:"id"`
 	SandboxRelease basetypes.ObjectValue `tfsdk:"sandbox_release"`
 }
 
@@ -43,6 +43,33 @@ func (d *AppDataSource) Schema(ctx context.Context, req datasource.SchemaRequest
 			"id": schema.StringAttribute{
 				Description: "The unique ID of the app.",
 				Required:    true,
+			},
+			"sandbox_release": schema.SingleNestedAttribute{
+				Computed:    true,
+				Description: "The sandbox being used for this app's installs.",
+				Attributes: map[string]schema.Attribute{
+					"id": schema.StringAttribute{
+						Computed: true,
+					},
+					"version": schema.StringAttribute{
+						Computed: true,
+					},
+					"terraform_version": schema.StringAttribute{
+						Computed: true,
+					},
+					"provision_policy_url": schema.StringAttribute{
+						Computed: true,
+					},
+					"deprovision_policy_url": schema.StringAttribute{
+						Computed: true,
+					},
+					"trust_policy_url": schema.StringAttribute{
+						Computed: true,
+					},
+					"one_click_role_template_url": schema.StringAttribute{
+						Computed: true,
+					},
+				},
 			},
 		},
 	}
