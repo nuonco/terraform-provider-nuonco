@@ -5,7 +5,6 @@ package provider
 
 import (
 	"context"
-	"os"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
@@ -14,13 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/nuonco/nuon-go"
-)
-
-const (
-	apiTokenEnvVarName string = "NUON_API_TOKEN"
-	apiURLEnvVarName   string = "NUON_API_URL"
-	orgIDEnvVarName    string = "NUON_ORG_ID"
-	defaultAPIURL      string = "https://ctl.prod.nuon.co"
+	"github.com/nuonco/terraform-provider-nuon/internal/config"
 )
 
 // Ensure ScaffoldingProvider satisfies various provider interfaces.
@@ -36,7 +29,6 @@ type Provider struct {
 
 // ProviderModel describes the provider data model.
 type ProviderModel struct {
-	APIURL       types.String `tfsdk:"api_url"`
 	APIAuthToken types.String `tfsdk:"api_token"`
 	OrgID        types.String `tfsdk:"org_id"`
 }
@@ -55,10 +47,6 @@ func (p *Provider) Schema(ctx context.Context, req provider.SchemaRequest, resp 
 	resp.Schema = schema.Schema{
 		Description: "A Terraform provider for managing apps on the Nuon platform.",
 		Attributes: map[string]schema.Attribute{
-			"api_url": schema.StringAttribute{
-				Description: "Override the API url to use a custom endpoint.",
-				Optional:    true,
-			},
 			"api_token": schema.StringAttribute{
 				Description: "A valid API token to access the api.",
 				Optional:    true,
@@ -78,48 +66,33 @@ func (p *Provider) Configure(ctx context.Context, req provider.ConfigureRequest,
 		return
 	}
 
-	// set overrides using env vars
-	orgIDEnvVar := os.Getenv(orgIDEnvVarName)
-	if orgIDEnvVar != "" {
-		data.OrgID = types.StringValue(orgIDEnvVar)
-	}
-	if data.OrgID.ValueString() == "" {
-		resp.Diagnostics.AddError(
-			"Org ID must be set",
-			"Please set `org_id` on the provider, or the `NUON_ORG_ID` env var.",
-		)
+	// read sdk config from config file, env vars, then terraform
+	cfg, err := config.NewConfig()
+	if err != nil {
+		writeDiagnosticsErr(ctx, &resp.Diagnostics, err, "initialize nuon")
 		return
 	}
-
-	apiTokenEnvVar := os.Getenv(apiTokenEnvVarName)
-	if orgIDEnvVar != "" {
-		data.APIAuthToken = types.StringValue(apiTokenEnvVar)
+	apiToken := cfg.GetString("api-token")
+	if val := data.APIAuthToken.ValueString(); val != "" {
+		apiToken = val
 	}
-	if data.APIAuthToken.ValueString() == "" {
-		resp.Diagnostics.AddError(
-			"api token must be set",
-			"Please set `api_token` on the provider, or the `NUON_API_TOKEN` env var.",
-		)
-		return
+	orgID := cfg.GetString("org-id")
+	if val := data.OrgID.ValueString(); val != "" {
+		orgID = val
 	}
 
-	apiURLEnvVar := os.Getenv(apiURLEnvVarName)
-	if apiURLEnvVar == "" {
-		apiURLEnvVar = defaultAPIURL
-	}
-	data.APIURL = types.StringValue(apiURLEnvVar)
-	if data.APIURL.ValueString() == "" {
-		resp.Diagnostics.AddError(
-			"api url must be set",
-			"Please set `api_url` on the provider, or the `NUON_API_URL` env var.",
-		)
-		return
+	// enable overriding the API URL for testing
+	apiURL := cfg.GetString("api-url")
+	if apiURL == "" {
+		apiURL = "https://ctl.prod.nuon.co"
 	}
 
-	restClient, err := nuon.New(validator.New(),
-		nuon.WithAuthToken(data.APIAuthToken.ValueString()),
-		nuon.WithURL(data.APIURL.ValueString()),
-		nuon.WithOrgID(data.OrgID.ValueString()),
+	// initialize sdk
+	restClient, err := nuon.New(
+		validator.New(),
+		nuon.WithAuthToken(apiToken),
+		nuon.WithOrgID(orgID),
+		nuon.WithURL(apiURL),
 	)
 	if err != nil {
 		writeDiagnosticsErr(ctx, &resp.Diagnostics, err, "initialize nuon")
@@ -128,11 +101,9 @@ func (p *Provider) Configure(ctx context.Context, req provider.ConfigureRequest,
 
 	resp.DataSourceData = &ProviderData{
 		RestClient: restClient,
-		OrgID:      data.OrgID.ValueString(),
 	}
 	resp.ResourceData = &ProviderData{
 		RestClient: restClient,
-		OrgID:      data.OrgID.ValueString(),
 	}
 }
 
