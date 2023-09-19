@@ -69,6 +69,9 @@ func (r *TerraformModuleComponentResource) Schema(ctx context.Context, req resou
 				Description: "The unique ID of the app this component belongs too.",
 				Optional:    false,
 				Required:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 			"terraform_version": schema.StringAttribute{
 				Description: "The version of Terraform to use.",
