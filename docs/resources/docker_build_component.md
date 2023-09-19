@@ -3,12 +3,12 @@
 page_title: "nuon_docker_build_component Resource - terraform-provider-nuon"
 subcategory: ""
 description: |-
-  Build any image in a connected or public github repo.
+  Build and release any image in a connected or public github repo.
 ---
 
 # nuon_docker_build_component (Resource)
 
-Build any image in a connected or public github repo.
+Build and release any image in a connected or public github repo.
 
 
 
@@ -17,33 +17,33 @@ Build any image in a connected or public github repo.
 
 ### Required
 
-- `app_id` (String) ID of the app this component belongs too.
-- `name` (String) Component name
+- `app_id` (String) The unique ID of the app this component belongs too.
+- `name` (String) The human-readable name of the component.
 
 ### Optional
 
 - `basic_deploy` (Attributes) Create a basic deployment of this image with a listener. (see [below for nested schema](#nestedatt--basic_deploy))
-- `connected_repo` (Attributes) Repo accessible via your Nuon connected github account (see [below for nested schema](#nestedatt--connected_repo))
-- `dockerfile` (String) dockerfile
-- `env_var` (Block List) (see [below for nested schema](#nestedblock--env_var))
-- `public_repo` (Attributes) any public git/github repo (see [below for nested schema](#nestedatt--public_repo))
-- `sync_only` (Boolean) Set to true to only use this image for syncing (ie: no deployment).
+- `connected_repo` (Attributes) A repo accessible via your Nuon connected github account (see [below for nested schema](#nestedatt--connected_repo))
+- `dockerfile` (String) The Dockerfile to build from.
+- `env_var` (Block List) Environment variables to export into the env when running the image. (see [below for nested schema](#nestedblock--env_var))
+- `public_repo` (Attributes) A publically-accessible git repo. (see [below for nested schema](#nestedatt--public_repo))
+- `sync_only` (Boolean) If true, this component will be synced to install registries, but not released.
 
 ### Read-Only
 
-- `id` (String) ID
+- `id` (String) The unique ID of the component.
 
 <a id="nestedatt--basic_deploy"></a>
 ### Nested Schema for `basic_deploy`
 
 Required:
 
-- `port` (Number) Listen port
+- `port` (Number) The port to listen on.
 
 Optional:
 
-- `health_check_path` (String) image_url
-- `instance_count` (Number) Number of instances to run
+- `health_check_path` (String) The path to use for health checks.
+- `instance_count` (Number) The number of instances to run.
 
 
 <a id="nestedatt--connected_repo"></a>
@@ -51,12 +51,12 @@ Optional:
 
 Required:
 
-- `branch` (String) Default branch to create new builds from.
-- `repo` (String) Public https: clone url  (eg: https://github.com/jonmorehouse/go-httpbin.git)
+- `branch` (String) The default branch to create new builds from.
+- `repo` (String) The https clone url
 
 Optional:
 
-- `directory` (String) Static git ref to create new builds from.
+- `directory` (String) The directory the component code is in.
 
 
 <a id="nestedblock--env_var"></a>
@@ -64,8 +64,8 @@ Optional:
 
 Required:
 
-- `name` (String) env var key
-- `value` (String) Value - can be interpolated from any nuon value
+- `name` (String) The variable name to export to the env (e.g. API_TOKEN or PORT.)
+- `value` (String) The variable value to export to the env. Can be any valid env var value, or interpolated from Nuon.
 
 
 <a id="nestedatt--public_repo"></a>
@@ -73,9 +73,9 @@ Required:
 
 Required:
 
-- `branch` (String) Default branch to create new builds from.
-- `repo` (String) Public https: clone url  (eg: https://github.com/jonmorehouse/go-httpbin.git)
+- `branch` (String) The default branch to create new builds from.
+- `repo` (String) The https clone url
 
 Optional:
 
-- `directory` (String) Directory
+- `directory` (String) The directory the component code is in.

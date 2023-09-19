@@ -3,12 +3,12 @@
 page_title: "nuon_terraform_module_component Resource - terraform-provider-nuon"
 subcategory: ""
 description: |-
-  Deploy a terraform module in a public connected repo.
+  Release a terraform module.
 ---
 
 # nuon_terraform_module_component (Resource)
 
-Deploy a terraform module in a public connected repo.
+Release a terraform module.
 
 
 
@@ -17,31 +17,31 @@ Deploy a terraform module in a public connected repo.
 
 ### Required
 
-- `app_id` (String) ID of the app this component belongs too.
-- `name` (String) Component name
+- `app_id` (String) The unique ID of the app this component belongs too.
+- `name` (String) The human-readable name of the component.
 
 ### Optional
 
-- `connected_repo` (Attributes) Repo accessible via your Nuon connected github account (see [below for nested schema](#nestedatt--connected_repo))
-- `public_repo` (Attributes) any public git/github repo (see [below for nested schema](#nestedatt--public_repo))
-- `terraform_version` (String) Terraform version to run as.
-- `var` (Block List) (see [below for nested schema](#nestedblock--var))
+- `connected_repo` (Attributes) A repo accessible via your Nuon connected github account (see [below for nested schema](#nestedatt--connected_repo))
+- `public_repo` (Attributes) A publically-accessible git repo. (see [below for nested schema](#nestedatt--public_repo))
+- `terraform_version` (String) The version of Terraform to use.
+- `var` (Block List) Terraform variables to set when applying the Terraform configuration. (see [below for nested schema](#nestedblock--var))
 
 ### Read-Only
 
-- `id` (String) Component id
+- `id` (String) The unique ID of the component.
 
 <a id="nestedatt--connected_repo"></a>
 ### Nested Schema for `connected_repo`
 
 Required:
 
-- `branch` (String) Default branch to create new builds from.
-- `repo` (String) Public https: clone url  (eg: https://github.com/jonmorehouse/go-httpbin.git)
+- `branch` (String) The default branch to create new builds from.
+- `repo` (String) The https clone url
 
 Optional:
 
-- `directory` (String) Static git ref to create new builds from.
+- `directory` (String) The directory the component code is in.
 
 
 <a id="nestedatt--public_repo"></a>
@@ -49,12 +49,12 @@ Optional:
 
 Required:
 
-- `branch` (String) Default branch to create new builds from.
-- `repo` (String) Public https: clone url  (eg: https://github.com/jonmorehouse/go-httpbin.git)
+- `branch` (String) The default branch to create new builds from.
+- `repo` (String) The https clone url
 
 Optional:
 
-- `directory` (String) Directory
+- `directory` (String) The directory the component code is in.
 
 
 <a id="nestedblock--var"></a>
@@ -62,5 +62,5 @@ Optional:
 
 Required:
 
-- `name` (String) Terraform variable to get set. By default is rendered into a tfvars file in the run
-- `value` (String) Value - can be interpolated from any nuon value
+- `name` (String) The variable name to write to the terraform.tfvars file (e.g. bucket_name or db_name.)
+- `value` (String) The variable value to write to the terraform.tfvars file. Can be any valid Terraform value, or interpolated from Nuon.

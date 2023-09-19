@@ -3,12 +3,12 @@
 page_title: "nuon_app Resource - terraform-provider-nuon"
 subcategory: ""
 description: |-
-  Application
+  A Nuon application, required to set up components and installs.
 ---
 
 # nuon_app (Resource)
 
-Application
+A Nuon application, required to set up components and installs.
 
 
 
@@ -17,8 +17,22 @@ Application
 
 ### Required
 
-- `name` (String) Name of the application.
+- `name` (String) The human readable name of the app.
 
 ### Read-Only
 
-- `id` (String) ID of the app
+- `id` (String) The unique ID of the app.
+- `sandbox_release` (Attributes) The sandbox being used for this app's installs. (see [below for nested schema](#nestedatt--sandbox_release))
+
+<a id="nestedatt--sandbox_release"></a>
+### Nested Schema for `sandbox_release`
+
+Read-Only:
+
+- `deprovision_policy_url` (String)
+- `id` (String)
+- `one_click_role_template_url` (String)
+- `provision_policy_url` (String)
+- `terraform_version` (String)
+- `trust_policy_url` (String)
+- `version` (String)

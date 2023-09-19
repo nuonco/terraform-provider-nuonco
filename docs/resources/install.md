@@ -3,12 +3,12 @@
 page_title: "nuon_install Resource - terraform-provider-nuon"
 subcategory: ""
 description: |-
-  Install
+  Create an install to release an app to.
 ---
 
 # nuon_install (Resource)
 
-Install
+Create an install to release an app to.
 
 
 
@@ -17,11 +17,11 @@ Install
 
 ### Required
 
-- `app_id` (String) ID of the app this install belongs too.
-- `iam_role_arn` (String) ARN of the role to use for provisioning.
-- `name` (String) Name of the application.
-- `region` (String) AWS region
+- `app_id` (String) The human-readable name of the install.
+- `iam_role_arn` (String) The ARN of the AWS IAM role to provision the install with.
+- `name` (String) The unique ID of the install.
+- `region` (String) The AWS region to create in the install in.
 
 ### Read-Only
 
-- `id` (String) ID of the install
+- `id` (String) The unique ID of the install

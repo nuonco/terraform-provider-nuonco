@@ -3,12 +3,12 @@
 page_title: "nuon_container_image_component Resource - terraform-provider-nuon"
 subcategory: ""
 description: |-
-  Container images are used to connect any Docker, ECR or OCI compatible image to your app.
+  Use a Docker, ECR or OCI compatible image as a component.
 ---
 
 # nuon_container_image_component (Resource)
 
-Container images are used to connect any Docker, ECR or OCI compatible image to your app.
+Use a Docker, ECR or OCI compatible image as a component.
 
 
 
@@ -17,30 +17,30 @@ Container images are used to connect any Docker, ECR or OCI compatible image to 
 
 ### Required
 
-- `app_id` (String) ID of the app this component belongs too.
-- `name` (String) Component name
+- `app_id` (String) The unique ID of the app this component belongs too.
+- `name` (String) The human-readable name of the component.
 
 ### Optional
 
-- `aws_ecr` (Attributes) any image stored in ECR, with an IAM role that your org can assume. (see [below for nested schema](#nestedatt--aws_ecr))
+- `aws_ecr` (Attributes) Use an image stored in AWS ECR. (see [below for nested schema](#nestedatt--aws_ecr))
 - `basic_deploy` (Attributes) Create a basic deployment of this image with a listener. (see [below for nested schema](#nestedatt--basic_deploy))
-- `env_var` (Block List) (see [below for nested schema](#nestedblock--env_var))
-- `public` (Attributes) any public, Docker or oci image (see [below for nested schema](#nestedatt--public))
-- `sync_only` (Boolean) Set to true to only use this image for syncing (ie: no deployment).
+- `env_var` (Block List) Environment variables to export into the env when running the image. (see [below for nested schema](#nestedblock--env_var))
+- `public` (Attributes) Use a publically-accessible image. (see [below for nested schema](#nestedatt--public))
+- `sync_only` (Boolean) If true, this component will be synced to install registries, but not released.
 
 ### Read-Only
 
-- `id` (String) Component id
+- `id` (String) The unique ID of the component.
 
 <a id="nestedatt--aws_ecr"></a>
 ### Nested Schema for `aws_ecr`
 
 Required:
 
-- `iam_role_arn` (String) iam_role_arn
-- `image_url` (String) image_url
-- `region` (String) ECR region
-- `tag` (String) tag
+- `iam_role_arn` (String) The AWS IAM role needed to access your ECR repo.
+- `image_url` (String) The full URL of your ECR repo.
+- `region` (String) The region of your ECR repo.
+- `tag` (String) The image tag.
 
 
 <a id="nestedatt--basic_deploy"></a>
@@ -48,12 +48,12 @@ Required:
 
 Required:
 
-- `port` (Number) Listen port
+- `port` (Number) The port to listen on.
 
 Optional:
 
-- `health_check_path` (String) image_url
-- `instance_count` (Number) Number of instances to run
+- `health_check_path` (String) The path to use for health checks.
+- `instance_count` (Number) The number of instances to run.
 
 
 <a id="nestedblock--env_var"></a>
@@ -61,8 +61,8 @@ Optional:
 
 Required:
 
-- `name` (String) env var key
-- `value` (String) Value - can be interpolated from any nuon value
+- `name` (String) The variable name to export to the env (e.g. API_TOKEN or PORT.)
+- `value` (String) The variable value to export to the env. Can be any valid env var value, or interpolated from Nuon.
 
 
 <a id="nestedatt--public"></a>
@@ -70,5 +70,5 @@ Required:
 
 Required:
 
-- `image_url` (String) full image url, or docker hub alias (kennethreitz/httpbin)
-- `tag` (String) tag
+- `image_url` (String) The full image URL or docker hub alias (e.g. kennethreitz/httpbin).
+- `tag` (String) The image tag.
