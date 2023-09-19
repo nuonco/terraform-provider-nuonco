@@ -3,12 +3,12 @@
 page_title: "nuon_helm_chart_component Resource - terraform-provider-nuon"
 subcategory: ""
 description: |-
-  Deploy any helm chart
+  Release a helm chart.
 ---
 
 # nuon_helm_chart_component (Resource)
 
-Deploy any helm chart
+Release a helm chart.
 
 
 
@@ -17,31 +17,31 @@ Deploy any helm chart
 
 ### Required
 
-- `app_id` (String) ID of the app this component belongs too.
-- `chart_name` (String) Name that the chart will get installed as.
-- `name` (String) Component name
+- `app_id` (String) The unique ID of the app this component belongs too.
+- `chart_name` (String) The name to install the chart with.
+- `name` (String) The human-readable name of the component.
 
 ### Optional
 
-- `connected_repo` (Attributes) Repo accessible via your Nuon connected github account (see [below for nested schema](#nestedatt--connected_repo))
-- `public_repo` (Attributes) any public git/github repo (see [below for nested schema](#nestedatt--public_repo))
-- `value` (Block List) (see [below for nested schema](#nestedblock--value))
+- `connected_repo` (Attributes) A repo accessible via your Nuon connected github account (see [below for nested schema](#nestedatt--connected_repo))
+- `public_repo` (Attributes) A publically-accessible git repo. (see [below for nested schema](#nestedatt--public_repo))
+- `value` (Block List) Environment variables to export into the env when running the image. (see [below for nested schema](#nestedblock--value))
 
 ### Read-Only
 
-- `id` (String) Component id
+- `id` (String) The unique ID of the component.
 
 <a id="nestedatt--connected_repo"></a>
 ### Nested Schema for `connected_repo`
 
 Required:
 
-- `branch` (String) Default branch to create new builds from.
-- `repo` (String) Public https: clone url  (eg: https://github.com/jonmorehouse/go-httpbin.git)
+- `branch` (String) The default branch to create new builds from.
+- `repo` (String) The https clone url
 
 Optional:
 
-- `directory` (String) Static git ref to create new builds from.
+- `directory` (String) The directory the component code is in.
 
 
 <a id="nestedatt--public_repo"></a>
@@ -49,12 +49,12 @@ Optional:
 
 Required:
 
-- `branch` (String) Default branch to create new builds from.
-- `repo` (String) Public https: clone url  (eg: https://github.com/jonmorehouse/go-httpbin.git)
+- `branch` (String) The default branch to create new builds from.
+- `repo` (String) The https clone url
 
 Optional:
 
-- `directory` (String) Directory
+- `directory` (String) The directory the component code is in.
 
 
 <a id="nestedblock--value"></a>
@@ -62,5 +62,5 @@ Optional:
 
 Required:
 
-- `name` (String) helm values to set, such as `env.secret` or `server.container.image`
-- `value` (String) Value - can be interpolated from any nuon value
+- `name` (String) The variable name to export to the env (e.g. API_TOKEN or PORT.)
+- `value` (String) The variable value to export to the env. Can be any valid env var value, or interpolated from Nuon.

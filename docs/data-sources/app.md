@@ -3,14 +3,12 @@
 page_title: "nuon_app Data Source - terraform-provider-nuon"
 subcategory: ""
 description: |-
-  nuon_app provides information about a Nuon app.
-  This data source can be useful when adding components and installs to an app created in the UI.
+  Provides information about a Nuon app.
 ---
 
 # nuon_app (Data Source)
 
-`nuon_app` provides information about a Nuon app.
-This data source can be useful when adding components and installs to an app created in the UI.
+Provides information about a Nuon app.
 
 
 
@@ -24,3 +22,17 @@ This data source can be useful when adding components and installs to an app cre
 ### Read-Only
 
 - `name` (String) The human readable name of the app.
+- `sandbox_release` (Attributes) The sandbox being used for this app's installs. (see [below for nested schema](#nestedatt--sandbox_release))
+
+<a id="nestedatt--sandbox_release"></a>
+### Nested Schema for `sandbox_release`
+
+Read-Only:
+
+- `deprovision_policy_url` (String)
+- `id` (String)
+- `one_click_role_template_url` (String)
+- `provision_policy_url` (String)
+- `terraform_version` (String)
+- `trust_policy_url` (String)
+- `version` (String)

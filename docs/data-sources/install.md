@@ -3,14 +3,12 @@
 page_title: "nuon_install Data Source - terraform-provider-nuon"
 subcategory: ""
 description: |-
-  nuon_install provides information about a Nuon install.
-  This data source can be useful when adding components and installs to an install created in the UI.
+  Provides information about a Nuon install. This data source can be useful if you need to begin programmatically managing an install created in the UI.
 ---
 
 # nuon_install (Data Source)
 
-`nuon_install` provides information about a Nuon install.
-This data source can be useful when adding components and installs to an install created in the UI.
+Provides information about a Nuon install. This data source can be useful if you need to begin programmatically managing an install created in the UI.
 
 
 
@@ -19,5 +17,5 @@ This data source can be useful when adding components and installs to an install
 
 ### Optional
 
-- `id` (String) Install id
-- `name` (String) install name
+- `id` (String) The unique ID of the install.
+- `name` (String) The human-readable name of the install.

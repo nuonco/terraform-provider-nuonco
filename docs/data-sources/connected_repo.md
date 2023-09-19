@@ -17,12 +17,12 @@ Get a connected repo tied to your org.
 
 ### Required
 
-- `name` (String) Name or URL of connected repo
+- `name` (String) The name or URL of the connected repo
 
 ### Read-Only
 
-- `default_branch` (String)
-- `full_name` (String)
-- `owner` (String)
-- `repo` (String) this is the attribute to link to a connected config
-- `url` (String)
+- `default_branch` (String) The default branch of the repo.
+- `full_name` (String) The full name of the repo.
+- `owner` (String) The owner of the repo.
+- `repo` (String) The name of the repo.
+- `url` (String) The URL of the repo.
