@@ -79,6 +79,9 @@ func (r *ContainerImageComponentResource) Schema(ctx context.Context, req resour
 				Description: "The unique ID of the app this component belongs too.",
 				Optional:    false,
 				Required:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 			"sync_only": schema.BoolAttribute{
 				Description: "If true, this component will be synced to install registries, but not released.",

@@ -70,6 +70,9 @@ func (r *HelmChartComponentResource) Schema(ctx context.Context, req resource.Sc
 				Description: "The unique ID of the app this component belongs too.",
 				Optional:    false,
 				Required:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 			"chart_name": schema.StringAttribute{
 				Description: "The name to install the chart with.",
