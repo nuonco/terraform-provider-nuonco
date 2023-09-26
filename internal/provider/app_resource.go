@@ -3,6 +3,7 @@ package provider
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -13,6 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/nuonco/nuon-go/models"
 )
 
@@ -116,6 +118,38 @@ func (r *AppResource) Create(ctx context.Context, req resource.CreateRequest, re
 	// return populated terraform model
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 	tflog.Trace(ctx, "successfully created app")
+
+	// poll app to completion status
+	stateConf := &retry.StateChangeConf{
+		Pending: []string{statusQueued, statusProvisioning},
+		Target:  []string{statusActive},
+		Refresh: func() (interface{}, string, error) {
+			tflog.Trace(ctx, "refreshing app status")
+			app, err := r.restClient.GetApp(ctx, appResp.ID)
+			if err != nil {
+				writeDiagnosticsErr(ctx, &resp.Diagnostics, err, "poll status")
+				return nil, "unknown", err
+			}
+			return app.Status, string(app.Status), nil
+		},
+		Timeout:    time.Minute * 20,
+		Delay:      time.Second * 10,
+		MinTimeout: 3 * time.Second,
+	}
+	statusRaw, err := stateConf.WaitForState()
+	if err != nil {
+		writeDiagnosticsErr(ctx, &resp.Diagnostics, err, "get app")
+		return
+	}
+	status, ok := statusRaw.(string)
+	if !ok {
+		writeDiagnosticsErr(ctx, &resp.Diagnostics, fmt.Errorf("invalid app %s status", status), "create app")
+		return
+	}
+	if status != statusActive {
+		writeDiagnosticsErr(ctx, &resp.Diagnostics, fmt.Errorf("status %s", status), "create app")
+		return
+	}
 }
 
 func (r *AppResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {

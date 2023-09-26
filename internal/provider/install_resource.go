@@ -142,6 +142,10 @@ func (r *InstallResource) Create(ctx context.Context, req resource.CreateRequest
 		writeDiagnosticsErr(ctx, &resp.Diagnostics, fmt.Errorf("invalid install %s", status), "create install")
 		return
 	}
+	if status != statusActive {
+		writeDiagnosticsErr(ctx, &resp.Diagnostics, fmt.Errorf("status %s", status), "create install")
+		return
+	}
 }
 
 func (r *InstallResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
