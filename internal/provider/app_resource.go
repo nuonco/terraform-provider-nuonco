@@ -125,12 +125,12 @@ func (r *AppResource) Create(ctx context.Context, req resource.CreateRequest, re
 		Target:  []string{statusActive},
 		Refresh: func() (interface{}, string, error) {
 			tflog.Trace(ctx, "refreshing app status")
-			install, err := r.restClient.GetApp(ctx, appResp.ID)
+			app, err := r.restClient.GetApp(ctx, appResp.ID)
 			if err != nil {
 				writeDiagnosticsErr(ctx, &resp.Diagnostics, err, "poll status")
 				return nil, "unknown", err
 			}
-			return install.Status, string(install.Status), nil
+			return app.Status, string(app.Status), nil
 		},
 		Timeout:    time.Minute * 20,
 		Delay:      time.Second * 10,
@@ -138,7 +138,7 @@ func (r *AppResource) Create(ctx context.Context, req resource.CreateRequest, re
 	}
 	statusRaw, err := stateConf.WaitForState()
 	if err != nil {
-		writeDiagnosticsErr(ctx, &resp.Diagnostics, err, "get install")
+		writeDiagnosticsErr(ctx, &resp.Diagnostics, err, "get app")
 		return
 	}
 	status, ok := statusRaw.(string)
