@@ -8,7 +8,7 @@ description: |-
 
 ## Overview
 
-The components of your application can get custom configuration settings applied by using variables. Each deployed component instance can make use of a set of key/value variables to handle configuration settings that need to be set differently on each customer's instance. Nuon brings in a tree of information from the sources detailed below, which can then be accessed by the component using a templating syntax inspired by Go templates. This variable replacement templating syntax is used by several other infrastructure management tools.
+The components of your application can get custom configuration settings applied by using variables. Each deployed component instance can make use of a set of name/value variables to handle configuration settings that need to be set differently on each customer's instance. Nuon brings in a tree of information from the sources detailed below, which can then be accessed by the component using a templating syntax inspired by Go templates. This variable replacement templating syntax is used by several other infrastructure management tools.
 
 You can set these variables as vars in your Terraform configuration.
 
@@ -96,7 +96,7 @@ Each deployed instance of this component will get a different value correspondin
 - **Nuon Install ID** `{{ .nuon.install.id }}`
 - **Nuon Install Public Domain** `{{ .nuon.install.public_domain }}`
 - **Nuon Install Internal Domain** `{{ .nuon.install.internal_domain }}`
-- **Nuon Install Sandbox Type** `"{{ .nuon.install.sandbox.type }}`
+- **Nuon Install Sandbox Type** `{{ .nuon.install.sandbox.type }}`
   * Example: `aws-eks`
 - **Nuon Install Sandbox Version** `{{ .nuon.install.sandbox.version }}`
   * Example: `0.11.1`
@@ -124,13 +124,6 @@ Each deployed instance of this component will get a different value correspondin
 - `{{ .nuon.install.sandbox.outputs.odr_iam_role_arn }}`
   - ARN for the AWS IAM Role used by the On-Demand Runner for deployments
 
-
-### Component Secrets
-
-Secrets set directly on the current component instance will be available as name/values based on the names of each secret.
-
-- Template Syntax: `{{ .nuon.secrets.<name> }}`
-- Example: `{{ .nuon.secrets.api_key }}`
 
 ### Output from Other Components in an Application
 
