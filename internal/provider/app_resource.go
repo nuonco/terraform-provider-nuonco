@@ -237,7 +237,35 @@ func (r *AppResource) Delete(ctx context.Context, req resource.DeleteRequest, re
 		return
 	}
 
-	tflog.Trace(ctx, "successfully deleted app")
+	data.Id = types.StringValue(data.Id.ValueString())
+	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
+
+	stateConf := &retry.StateChangeConf{
+		Pending: []string{statusDeleteQueued, statusDeprovisioning},
+		Target:  []string{""},
+		Refresh: func() (interface{}, string, error) {
+			tflog.Trace(ctx, "refreshing app status")
+			app, err := r.restClient.GetApp(ctx, data.Id.ValueString())
+			if err != nil {
+				return "", "", nil
+			} else {
+				return app.Status, app.Status, nil
+			}
+		},
+		Timeout:    time.Minute * 20,
+		Delay:      time.Second * 10,
+		MinTimeout: 3 * time.Second,
+	}
+	statusRaw, err := stateConf.WaitForState()
+	if err != nil {
+		writeDiagnosticsErr(ctx, &resp.Diagnostics, err, "get app")
+		return
+	}
+
+	status, ok := statusRaw.(string)
+	if !ok {
+		writeDiagnosticsErr(ctx, &resp.Diagnostics, fmt.Errorf("invalid app %s", status), "delete app")
+	}
 }
 
 func (r *AppResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
