@@ -128,7 +128,7 @@ func (r *InstallResource) Create(ctx context.Context, req resource.CreateRequest
 			}
 			return install.Status, string(install.Status), nil
 		},
-		Timeout:    time.Minute * 20,
+		Timeout:    time.Minute * 45,
 		Delay:      time.Second * 10,
 		MinTimeout: 3 * time.Second,
 	}
@@ -234,7 +234,7 @@ func (r *InstallResource) Delete(ctx context.Context, req resource.DeleteRequest
 				return install.Status, install.Status, nil
 			}
 		},
-		Timeout:    time.Minute * 20,
+		Timeout:    time.Minute * 45,
 		Delay:      time.Second * 10,
 		MinTimeout: 3 * time.Second,
 	}
