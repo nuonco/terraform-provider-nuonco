@@ -3,6 +3,7 @@ package provider
 import (
 	"context"
 	"errors"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -11,6 +12,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
+	"github.com/nuonco/nuon-go"
 	"github.com/nuonco/nuon-go/models"
 )
 
@@ -190,6 +193,10 @@ func (r *ContainerImageComponentResource) Read(ctx context.Context, req resource
 	}
 
 	compResp, err := r.restClient.GetComponent(ctx, data.ID.ValueString())
+	if nuon.IsNotFound(err) {
+		resp.State.RemoveResource(ctx)
+		return
+	}
 	if err != nil {
 		writeDiagnosticsErr(ctx, &resp.Diagnostics, err, "get component")
 		return
@@ -228,9 +235,9 @@ func (r *ContainerImageComponentResource) Read(ctx context.Context, req resource
 		// but I can't figure out why it's doing this, so I'm just commenting this out for now.
 		// This will need to be resolved before production use.
 		// data.BasicDeploy = &BasicDeploy{
-		// 	Port:            types.Int64Value(externalImage.BasicDeployConfig.ListenPort),
-		// 	InstanceCount:   types.Int64Value(externalImage.BasicDeployConfig.InstanceCount),
-		// 	HealthCheckPath: types.StringValue(externalImage.BasicDeployConfig.HealthCheckPath),
+		//	Port:		 types.Int64Value(externalImage.BasicDeployConfig.ListenPort),
+		//	InstanceCount:	 types.Int64Value(externalImage.BasicDeployConfig.InstanceCount),
+		//	HealthCheckPath: types.StringValue(externalImage.BasicDeployConfig.HealthCheckPath),
 		// }
 	}
 
@@ -253,6 +260,28 @@ func (r *ContainerImageComponentResource) Delete(ctx context.Context, req resour
 	}
 	if !deleted {
 		writeDiagnosticsErr(ctx, &resp.Diagnostics, err, "delete component")
+		return
+	}
+
+	stateConf := &retry.StateChangeConf{
+		Pending: []string{statusDeleteQueued, statusDeprovisioning},
+		Target:  []string{""},
+		Refresh: func() (interface{}, string, error) {
+			tflog.Trace(ctx, "refreshing component status")
+			cmp, err := r.restClient.GetComponent(ctx, data.ID.ValueString())
+			if err != nil {
+				return "", "", nil
+			}
+
+			return cmp.Status, cmp.Status, nil
+		},
+		Timeout:    time.Minute * 20,
+		Delay:      time.Second * 10,
+		MinTimeout: 3 * time.Second,
+	}
+	_, err = stateConf.WaitForState()
+	if err != nil {
+		writeDiagnosticsErr(ctx, &resp.Diagnostics, err, "unable to delete component")
 		return
 	}
 

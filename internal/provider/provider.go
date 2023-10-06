@@ -67,24 +67,20 @@ func (p *Provider) Configure(ctx context.Context, req provider.ConfigureRequest,
 	}
 
 	// read sdk config from config file, env vars, then terraform
-	cfg, err := config.NewConfig()
+	cfg, err := config.NewConfig("")
 	if err != nil {
 		writeDiagnosticsErr(ctx, &resp.Diagnostics, err, "initialize nuon")
 		return
 	}
-	apiToken := cfg.GetString("api-token")
+
+	apiToken := cfg.APIToken
 	if val := data.APIAuthToken.ValueString(); val != "" {
 		apiToken = val
 	}
-	orgID := cfg.GetString("org-id")
+
+	orgID := cfg.OrgID
 	if val := data.OrgID.ValueString(); val != "" {
 		orgID = val
-	}
-
-	// enable overriding the API URL for testing
-	apiURL := cfg.GetString("api-url")
-	if apiURL == "" {
-		apiURL = "https://ctl.prod.nuon.co"
 	}
 
 	// initialize sdk
@@ -92,7 +88,7 @@ func (p *Provider) Configure(ctx context.Context, req provider.ConfigureRequest,
 		validator.New(),
 		nuon.WithAuthToken(apiToken),
 		nuon.WithOrgID(orgID),
-		nuon.WithURL(apiURL),
+		nuon.WithURL(cfg.APIURL),
 	)
 	if err != nil {
 		writeDiagnosticsErr(ctx, &resp.Diagnostics, err, "initialize nuon")

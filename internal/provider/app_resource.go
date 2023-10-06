@@ -15,6 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
+	"github.com/nuonco/nuon-go"
 	"github.com/nuonco/nuon-go/models"
 )
 
@@ -164,6 +165,10 @@ func (r *AppResource) Read(ctx context.Context, req resource.ReadRequest, resp *
 
 	// get app from api
 	appResp, err := r.restClient.GetApp(ctx, data.Id.ValueString())
+	if nuon.IsNotFound(err) {
+		resp.State.RemoveResource(ctx)
+		return
+	}
 	if err != nil {
 		writeDiagnosticsErr(ctx, &resp.Diagnostics, err, "read app")
 		return
