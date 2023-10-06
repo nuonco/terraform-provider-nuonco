@@ -67,7 +67,7 @@ func (p *Provider) Configure(ctx context.Context, req provider.ConfigureRequest,
 	}
 
 	// read sdk config from config file, env vars, then terraform
-	cfg, err := config.NewConfig()
+	cfg, err := config.NewConfig("")
 	if err != nil {
 		writeDiagnosticsErr(ctx, &resp.Diagnostics, err, "initialize nuon")
 		return
