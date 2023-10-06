@@ -405,6 +405,8 @@ github.com/montanaflynn/stats v0.0.0-20171201202039-1bf9dbcd8cbe/go.mod h1:wL8QJ
 github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e/go.mod h1:zD1mROLANZcx1PVRCS0qkT7pwLkGfwJo4zjcN/Tysno=
 github.com/nuonco/nuon-go v0.0.5 h1:t6HH7oGe3EJqrDnQFUXfQmq6rMAi9YTPUrg7nA0jHSU=
 github.com/nuonco/nuon-go v0.0.5/go.mod h1:JUQtBQdvRLhVkPOKcKaH7hhaqXszQqiqokD3isDgdDA=
+github.com/nuonco/nuon-go v0.3.1 h1:YO1ScoeNyPFj1WJuTpDT+pKbBY8olPqbVN4nvvRcnt8=
+github.com/nuonco/nuon-go v0.3.1/go.mod h1:JUQtBQdvRLhVkPOKcKaH7hhaqXszQqiqokD3isDgdDA=
 github.com/oklog/run v1.0.0 h1:Ru7dDtJNOyC66gQ5dQmaCa0qIsAUFY3sFpK1Xk8igrw=
 github.com/oklog/run v1.0.0/go.mod h1:dlhp/R75TPv97u0XWUtDeV/lRKWPKSdTuV0TZvrmrQA=
 github.com/oklog/ulid v1.3.1 h1:EGfNDEx6MqHz8B3uNV6QAib1UR2Lm97sHi3ocA6ESJ4=
