@@ -3,6 +3,7 @@ package provider
 import (
 	"context"
 	"errors"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -11,6 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/nuonco/nuon-go"
 	"github.com/nuonco/nuon-go/models"
 )
@@ -238,6 +240,28 @@ func (r *HelmChartComponentResource) Delete(ctx context.Context, req resource.De
 	}
 
 	tflog.Trace(ctx, "successfully deleted component")
+
+	stateConf := &retry.StateChangeConf{
+		Pending: []string{statusDeleteQueued, statusDeprovisioning},
+		Target:  []string{""},
+		Refresh: func() (interface{}, string, error) {
+			tflog.Trace(ctx, "refreshing component status")
+			cmp, err := r.restClient.GetComponent(ctx, data.ID.ValueString())
+			if err != nil {
+				return "", "", nil
+			}
+
+			return cmp.Status, cmp.Status, nil
+		},
+		Timeout:    time.Minute * 20,
+		Delay:      time.Second * 10,
+		MinTimeout: 3 * time.Second,
+	}
+	_, err = stateConf.WaitForState()
+	if err != nil {
+		writeDiagnosticsErr(ctx, &resp.Diagnostics, err, "unable to delete component")
+		return
+	}
 }
 
 func (r *HelmChartComponentResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
