@@ -81,3 +81,5 @@ The provider will also read credentials from the same config file used by the Nu
 org_id: "my-org-id"
 api_token: "my-api-token"
 ```
+
+If you would like to use a custom config file, you can set the environment variable `$NUON_CONFIG_FILE=<path>` and the provider will automatically use it.
