@@ -23,8 +23,8 @@ type AppDataSource struct {
 
 // AppDataSourceModel describes the data source data model.
 type AppDataSourceModel struct {
-	Name	       types.String	     `tfsdk:"name"`
-	Id	       types.String	     `tfsdk:"id"`
+	Name           types.String          `tfsdk:"name"`
+	Id             types.String          `tfsdk:"id"`
 	SandboxRelease basetypes.ObjectValue `tfsdk:"sandbox_release"`
 }
 

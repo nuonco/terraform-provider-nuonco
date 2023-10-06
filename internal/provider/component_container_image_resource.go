@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
+	"github.com/nuonco/nuon-go"
 	"github.com/nuonco/nuon-go/models"
 )
 
@@ -190,6 +191,10 @@ func (r *ContainerImageComponentResource) Read(ctx context.Context, req resource
 	}
 
 	compResp, err := r.restClient.GetComponent(ctx, data.ID.ValueString())
+	if nuon.IsNotFound(err) {
+		resp.State.RemoveResource(ctx)
+		return
+	}
 	if err != nil {
 		writeDiagnosticsErr(ctx, &resp.Diagnostics, err, "get component")
 		return
@@ -228,9 +233,9 @@ func (r *ContainerImageComponentResource) Read(ctx context.Context, req resource
 		// but I can't figure out why it's doing this, so I'm just commenting this out for now.
 		// This will need to be resolved before production use.
 		// data.BasicDeploy = &BasicDeploy{
-		// 	Port:            types.Int64Value(externalImage.BasicDeployConfig.ListenPort),
-		// 	InstanceCount:   types.Int64Value(externalImage.BasicDeployConfig.InstanceCount),
-		// 	HealthCheckPath: types.StringValue(externalImage.BasicDeployConfig.HealthCheckPath),
+		//	Port:		 types.Int64Value(externalImage.BasicDeployConfig.ListenPort),
+		//	InstanceCount:	 types.Int64Value(externalImage.BasicDeployConfig.InstanceCount),
+		//	HealthCheckPath: types.StringValue(externalImage.BasicDeployConfig.HealthCheckPath),
 		// }
 	}
 

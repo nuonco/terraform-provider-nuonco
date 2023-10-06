@@ -13,6 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
+	"github.com/nuonco/nuon-go"
 	"github.com/nuonco/nuon-go/models"
 )
 
@@ -157,6 +158,10 @@ func (r *InstallResource) Read(ctx context.Context, req resource.ReadRequest, re
 	}
 
 	installResp, err := r.restClient.GetInstall(ctx, data.ID.ValueString())
+	if nuon.IsNotFound(err) {
+		resp.State.RemoveResource(ctx)
+		return
+	}
 	if err != nil {
 		writeDiagnosticsErr(ctx, &resp.Diagnostics, err, "get install")
 		return
