@@ -250,16 +250,20 @@ func (r *DockerBuildComponentResource) Delete(ctx context.Context, req resource.
 	}
 
 	stateConf := &retry.StateChangeConf{
-		Pending: []string{statusDeleteQueued, statusDeprovisioning},
-		Target:  []string{""},
+		Pending: []string{statusDeleteQueued, statusDeprovisioning, statusTemporarilyUnavailable},
+		Target:  []string{statusNotFound},
 		Refresh: func() (interface{}, string, error) {
 			tflog.Trace(ctx, "refreshing component status")
 			cmp, err := r.restClient.GetComponent(ctx, data.ID.ValueString())
-			if err != nil {
-				return "", "", nil
+			if err == nil {
+				return cmp.Status, cmp.Status, nil
+			}
+			if nuon.IsNotFound(err) {
+				return nil, statusNotFound, nil
 			}
 
-			return cmp.Status, cmp.Status, nil
+			logErr(ctx, err, "delete component")
+			return statusTemporarilyUnavailable, statusTemporarilyUnavailable, nil
 		},
 		Timeout:    time.Minute * 20,
 		Delay:      time.Second * 10,
