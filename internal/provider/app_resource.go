@@ -256,7 +256,7 @@ func (r *AppResource) Delete(ctx context.Context, req resource.DeleteRequest, re
 				return app.Status, app.Status, nil
 			}
 			if nuon.IsNotFound(err) {
-				return nil, statusNotFound, nil
+				return "", statusNotFound, nil
 			}
 
 			logErr(ctx, err, "delete app")

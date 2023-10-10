@@ -259,7 +259,7 @@ func (r *DockerBuildComponentResource) Delete(ctx context.Context, req resource.
 				return cmp.Status, cmp.Status, nil
 			}
 			if nuon.IsNotFound(err) {
-				return nil, statusNotFound, nil
+				return "", statusNotFound, nil
 			}
 
 			logErr(ctx, err, "delete component")

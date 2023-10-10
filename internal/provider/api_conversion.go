@@ -2,25 +2,25 @@ package provider
 
 const (
 	// orgs, apps & installs:
-	statusQueued         = "queued"
-	statusProvisioning   = "provisioning"
-	statusActive         = "active"
-	statusDeleteQueued   = "delete_queued"
-	statusDeprovisioning = "deprovisioning"
+	statusQueued         string = "queued"
+	statusProvisioning   string = "provisioning"
+	statusActive         string = "active"
+	statusDeleteQueued   string = "delete_queued"
+	statusDeprovisioning string = "deprovisioning"
 
 	// local statuses, based on api responses
-	statusNotFound               = "not-found"
-	statusTemporarilyUnavailable = "temporarily-unavailable"
+	statusNotFound               string = "not-found"
+	statusTemporarilyUnavailable string = "temporarily-unavailable"
 
 	// builds:
 	// queued
-	statusPlanning = "planning"
-	statusBuilding = "building"
+	statusPlanning string = "planning"
+	statusBuilding string = "building"
 	// active
 
 	// deploys:
 	// queued
 	// planning
-	statusDeploying = "deploying"
+	statusDeploying string = "deploying"
 	// active
 )

@@ -234,8 +234,7 @@ func (r *InstallResource) Delete(ctx context.Context, req resource.DeleteRequest
 			}
 			logErr(ctx, err, "delete install")
 			if nuon.IsNotFound(err) {
-				logErr(ctx, err, "is not found")
-				return nil, statusNotFound, nil
+				return "", statusNotFound, nil
 			}
 
 			logErr(ctx, err, "delete install")

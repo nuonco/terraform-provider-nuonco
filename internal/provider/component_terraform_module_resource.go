@@ -250,7 +250,7 @@ func (r *TerraformModuleComponentResource) Delete(ctx context.Context, req resou
 				return cmp.Status, cmp.Status, nil
 			}
 			if nuon.IsNotFound(err) {
-				return nil, statusNotFound, nil
+				return "", statusNotFound, nil
 			}
 
 			logErr(ctx, err, "delete component")
