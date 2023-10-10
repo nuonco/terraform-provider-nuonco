@@ -117,16 +117,17 @@ func (r *InstallResource) Create(ctx context.Context, req resource.CreateRequest
 	tflog.Trace(ctx, "successfully created install")
 
 	stateConf := &retry.StateChangeConf{
-		Pending: []string{statusQueued, statusProvisioning},
+		Pending: []string{statusQueued, statusProvisioning, statusTemporarilyUnavailable},
 		Target:  []string{statusActive},
 		Refresh: func() (interface{}, string, error) {
 			tflog.Trace(ctx, "refreshing install status")
 			install, err := r.restClient.GetInstall(ctx, installResp.ID)
-			if err != nil {
-				writeDiagnosticsErr(ctx, &resp.Diagnostics, err, "poll status")
-				return nil, "unknown", err
+			if err == nil {
+				return install.Status, install.Status, nil
 			}
-			return install.Status, string(install.Status), nil
+
+			logErr(ctx, err, "create install")
+			return statusTemporarilyUnavailable, statusTemporarilyUnavailable, nil
 		},
 		Timeout:    time.Minute * 45,
 		Delay:      time.Second * 10,
@@ -223,30 +224,30 @@ func (r *InstallResource) Delete(ctx context.Context, req resource.DeleteRequest
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 
 	stateConf := &retry.StateChangeConf{
-		Pending: []string{statusDeleteQueued, statusDeprovisioning},
-		Target:  []string{""},
+		Pending: []string{statusDeleteQueued, statusDeprovisioning, statusTemporarilyUnavailable},
+		Target:  []string{statusNotFound},
 		Refresh: func() (interface{}, string, error) {
 			tflog.Trace(ctx, "refreshing install status")
 			install, err := r.restClient.GetInstall(ctx, data.ID.ValueString())
-			if err != nil {
-				return "", "", nil
-			} else {
+			if err == nil {
 				return install.Status, install.Status, nil
 			}
+			logErr(ctx, err, "delete install")
+			if nuon.IsNotFound(err) {
+				return "", statusNotFound, nil
+			}
+
+			logErr(ctx, err, "delete install")
+			return statusTemporarilyUnavailable, statusTemporarilyUnavailable, nil
 		},
 		Timeout:    time.Minute * 45,
 		Delay:      time.Second * 10,
 		MinTimeout: 3 * time.Second,
 	}
-	statusRaw, err := stateConf.WaitForState()
+	_, err = stateConf.WaitForState()
 	if err != nil {
 		writeDiagnosticsErr(ctx, &resp.Diagnostics, err, "get install")
 		return
-	}
-
-	status, ok := statusRaw.(string)
-	if !ok {
-		writeDiagnosticsErr(ctx, &resp.Diagnostics, fmt.Errorf("invalid install %s", status), "create install")
 	}
 }
 

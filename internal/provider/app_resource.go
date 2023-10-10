@@ -122,16 +122,17 @@ func (r *AppResource) Create(ctx context.Context, req resource.CreateRequest, re
 
 	// poll app to completion status
 	stateConf := &retry.StateChangeConf{
-		Pending: []string{statusQueued, statusProvisioning},
+		Pending: []string{statusQueued, statusProvisioning, statusTemporarilyUnavailable},
 		Target:  []string{statusActive},
 		Refresh: func() (interface{}, string, error) {
 			tflog.Trace(ctx, "refreshing app status")
 			app, err := r.restClient.GetApp(ctx, appResp.ID)
-			if err != nil {
-				writeDiagnosticsErr(ctx, &resp.Diagnostics, err, "poll status")
-				return nil, "unknown", err
+			if err == nil {
+				return app.Status, app.Status, nil
 			}
-			return app.Status, string(app.Status), nil
+
+			logErr(ctx, err, "create app")
+			return statusTemporarilyUnavailable, statusTemporarilyUnavailable, nil
 		},
 		Timeout:    time.Minute * 20,
 		Delay:      time.Second * 10,
@@ -246,30 +247,29 @@ func (r *AppResource) Delete(ctx context.Context, req resource.DeleteRequest, re
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 
 	stateConf := &retry.StateChangeConf{
-		Pending: []string{statusDeleteQueued, statusDeprovisioning},
-		Target:  []string{""},
+		Pending: []string{statusDeleteQueued, statusDeprovisioning, statusTemporarilyUnavailable},
+		Target:  []string{statusNotFound},
 		Refresh: func() (interface{}, string, error) {
 			tflog.Trace(ctx, "refreshing app status")
 			app, err := r.restClient.GetApp(ctx, data.Id.ValueString())
-			if err != nil {
-				return "", "", nil
-			} else {
+			if err == nil {
 				return app.Status, app.Status, nil
 			}
+			if nuon.IsNotFound(err) {
+				return "", statusNotFound, nil
+			}
+
+			logErr(ctx, err, "delete app")
+			return statusTemporarilyUnavailable, statusTemporarilyUnavailable, nil
 		},
 		Timeout:    time.Minute * 20,
 		Delay:      time.Second * 10,
 		MinTimeout: 3 * time.Second,
 	}
-	statusRaw, err := stateConf.WaitForState()
+	_, err = stateConf.WaitForState()
 	if err != nil {
 		writeDiagnosticsErr(ctx, &resp.Diagnostics, err, "get app")
 		return
-	}
-
-	status, ok := statusRaw.(string)
-	if !ok {
-		writeDiagnosticsErr(ctx, &resp.Diagnostics, fmt.Errorf("invalid app %s", status), "delete app")
 	}
 }
 

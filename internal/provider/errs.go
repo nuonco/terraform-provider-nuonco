@@ -15,3 +15,7 @@ func writeDiagnosticsErr(ctx context.Context, diagnostics *diag.Diagnostics, err
 		fmt.Sprintf("Error: %s\nPlease make sure your configuration is correct, and that the auth token has permissions for this org.", err),
 	)
 }
+
+func logErr(ctx context.Context, err error, op string) {
+	tflog.Trace(ctx, fmt.Sprintf("unable to %s: %s", op, err))
+}
