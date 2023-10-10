@@ -90,6 +90,11 @@ func (r *AppInstallerResource) Schema(ctx context.Context, req resource.SchemaRe
 				Optional:            true,
 				Required:            false,
 			},
+			"logo_url": schema.StringAttribute{
+				MarkdownDescription: "Logo image to display on page.",
+				Optional:            true,
+				Required:            false,
+			},
 			"app_id": schema.StringAttribute{
 				Description: "The application ID.",
 				Optional:    false,
@@ -121,7 +126,7 @@ func (r *AppInstallerResource) Create(ctx context.Context, req resource.CreateRe
 	tflog.Trace(ctx, "creating app installer")
 	appResp, err := r.restClient.CreateAppInstaller(ctx, data.AppID.ValueString(), &models.ServiceCreateAppInstallerRequest{
 		Name:        data.Name.ValueStringPointer(),
-		Description: data.Name.ValueStringPointer(),
+		Description: data.Description.ValueStringPointer(),
 		Slug:        data.Slug.ValueStringPointer(),
 		Links: &models.ServiceCreateAppInstallerRequestLinks{
 			Community:     data.CommunityURL.ValueStringPointer(),
@@ -146,6 +151,8 @@ func (r *AppInstallerResource) Create(ctx context.Context, req resource.CreateRe
 	data.DocumentationURL = types.StringValue(appResp.AppInstallerMetadata.DocumentationURL)
 	data.HomepageURL = types.StringValue(appResp.AppInstallerMetadata.HomepageURL)
 	data.LogoURL = types.StringValue(appResp.AppInstallerMetadata.LogoURL)
+
+	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
 func (r *AppInstallerResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {

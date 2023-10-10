@@ -106,6 +106,7 @@ func (p *Provider) Configure(ctx context.Context, req provider.ConfigureRequest,
 func (p *Provider) Resources(ctx context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
 		NewAppResource,
+		NewAppInstallerResource,
 		NewInstallResource,
 		NewContainerImageComponentResource,
 		NewDockerBuildComponentResource,
