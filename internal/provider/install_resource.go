@@ -232,7 +232,9 @@ func (r *InstallResource) Delete(ctx context.Context, req resource.DeleteRequest
 			if err == nil {
 				return install.Status, install.Status, nil
 			}
+			logErr(ctx, err, "delete install")
 			if nuon.IsNotFound(err) {
+				logErr(ctx, err, "is not found")
 				return nil, statusNotFound, nil
 			}
 
@@ -243,15 +245,10 @@ func (r *InstallResource) Delete(ctx context.Context, req resource.DeleteRequest
 		Delay:      time.Second * 10,
 		MinTimeout: 3 * time.Second,
 	}
-	statusRaw, err := stateConf.WaitForState()
+	_, err = stateConf.WaitForState()
 	if err != nil {
 		writeDiagnosticsErr(ctx, &resp.Diagnostics, err, "get install")
 		return
-	}
-
-	status, ok := statusRaw.(string)
-	if !ok {
-		writeDiagnosticsErr(ctx, &resp.Diagnostics, fmt.Errorf("invalid install %s", status), "create install")
 	}
 }
 
