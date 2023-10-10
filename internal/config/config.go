@@ -47,6 +47,9 @@ func NewConfig(customFilepath string) (*Config, error) {
 	// Set global config values
 	cfg.APIToken = cfg.GetString("api_token")
 	cfg.APIURL = cfg.GetString("api_url")
+	if cfg.APIURL == "" {
+		cfg.APIURL = defaultAPIURL
+	}
 	cfg.OrgID = cfg.GetString("org_id")
 
 	return cfg, nil
