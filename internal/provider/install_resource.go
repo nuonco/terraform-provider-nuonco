@@ -55,7 +55,7 @@ func (r *InstallResource) Schema(ctx context.Context, req resource.SchemaRequest
 				Required:    true,
 			},
 			"app_id": schema.StringAttribute{
-				Description: "The human-readable name of the install.",
+				Description: "The application ID.",
 				Optional:    false,
 				Required:    true,
 				PlanModifiers: []planmodifier.String{
