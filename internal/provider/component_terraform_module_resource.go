@@ -3,6 +3,7 @@ package provider
 import (
 	"context"
 	"errors"
+	"sort"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -34,6 +35,13 @@ type TerraformModuleComponentResource struct {
 type TerraformVariable struct {
 	Name  types.String `tfsdk:"name"`
 	Value types.String `tfsdk:"value"`
+}
+
+func sortTerraformVariables(vars []TerraformVariable) []TerraformVariable {
+	sort.Slice(vars, func(i, j int) bool {
+		return vars[i].Name.ValueString() < vars[j].Name.ValueString()
+	})
+	return vars
 }
 
 // TerraformModuleComponentResourceModel describes the resource data model.
@@ -107,6 +115,8 @@ func (r *TerraformModuleComponentResource) Schema(ctx context.Context, req resou
 
 func (r *TerraformModuleComponentResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var data *TerraformModuleComponentResourceModel
+	data.Var = sortTerraformVariables(data.Var)
+
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -214,7 +224,7 @@ func (r *TerraformModuleComponentResource) Read(ctx context.Context, req resourc
 			Value: types.StringValue(val),
 		})
 	}
-	data.Var = apiVars
+	data.Var = sortTerraformVariables(apiVars)
 
 	// return populated terraform model
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
@@ -314,6 +324,7 @@ func (r *TerraformModuleComponentResource) Update(ctx context.Context, req resou
 		return
 	}
 
+	data.Var = sortTerraformVariables(data.Var)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
