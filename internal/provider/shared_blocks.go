@@ -4,8 +4,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 )
 
-func envVarSharedBlock() schema.ListNestedBlock {
-	return schema.ListNestedBlock{
+func envVarSharedBlock() schema.SetNestedBlock {
+	return schema.SetNestedBlock{
 		Description: "Environment variables to export into the env when running the image.",
 		NestedObject: schema.NestedBlockObject{
 			Attributes: map[string]schema.Attribute{

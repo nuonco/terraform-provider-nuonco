@@ -86,7 +86,7 @@ func (r *HelmChartComponentResource) Schema(ctx context.Context, req resource.Sc
 			"connected_repo": connectedRepoAttribute(),
 		},
 		Blocks: map[string]schema.Block{
-			"value": schema.ListNestedBlock{
+			"value": schema.SetNestedBlock{
 				Description: "Environment variables to export into the env when running the image.",
 				NestedObject: schema.NestedBlockObject{
 					Attributes: map[string]schema.Attribute{
