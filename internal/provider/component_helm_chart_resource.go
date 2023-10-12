@@ -86,7 +86,7 @@ func (r *HelmChartComponentResource) Schema(ctx context.Context, req resource.Sc
 			"connected_repo": connectedRepoAttribute(),
 		},
 		Blocks: map[string]schema.Block{
-			"value": schema.ListNestedBlock{
+			"value": schema.SetNestedBlock{
 				Description: "Environment variables to export into the env when running the image.",
 				NestedObject: schema.NestedBlockObject{
 					Attributes: map[string]schema.Attribute{
@@ -242,7 +242,7 @@ func (r *HelmChartComponentResource) Delete(ctx context.Context, req resource.De
 	tflog.Trace(ctx, "successfully deleted component")
 
 	stateConf := &retry.StateChangeConf{
-		Pending: []string{statusDeleteQueued, statusDeprovisioning, statusTemporarilyUnavailable},
+		Pending: []string{statusActive, statusDeleteQueued, statusDeprovisioning, statusTemporarilyUnavailable},
 		Target:  []string{statusNotFound},
 		Refresh: func() (interface{}, string, error) {
 			tflog.Trace(ctx, "refreshing component status")

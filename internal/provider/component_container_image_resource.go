@@ -264,7 +264,7 @@ func (r *ContainerImageComponentResource) Delete(ctx context.Context, req resour
 	}
 
 	stateConf := &retry.StateChangeConf{
-		Pending: []string{statusDeleteQueued, statusDeprovisioning, statusTemporarilyUnavailable},
+		Pending: []string{statusActive, statusDeleteQueued, statusDeprovisioning, statusTemporarilyUnavailable},
 		Target:  []string{statusNotFound},
 		Refresh: func() (interface{}, string, error) {
 			tflog.Trace(ctx, "refreshing component status")

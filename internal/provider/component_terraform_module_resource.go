@@ -86,7 +86,7 @@ func (r *TerraformModuleComponentResource) Schema(ctx context.Context, req resou
 			"connected_repo": connectedRepoAttribute(),
 		},
 		Blocks: map[string]schema.Block{
-			"var": schema.ListNestedBlock{
+			"var": schema.SetNestedBlock{
 				Description: "Terraform variables to set when applying the Terraform configuration.",
 				NestedObject: schema.NestedBlockObject{
 					Attributes: map[string]schema.Attribute{
@@ -107,6 +107,7 @@ func (r *TerraformModuleComponentResource) Schema(ctx context.Context, req resou
 
 func (r *TerraformModuleComponentResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var data *TerraformModuleComponentResourceModel
+
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -214,7 +215,6 @@ func (r *TerraformModuleComponentResource) Read(ctx context.Context, req resourc
 			Value: types.StringValue(val),
 		})
 	}
-	data.Var = apiVars
 
 	// return populated terraform model
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
@@ -241,7 +241,7 @@ func (r *TerraformModuleComponentResource) Delete(ctx context.Context, req resou
 	}
 
 	stateConf := &retry.StateChangeConf{
-		Pending: []string{statusDeleteQueued, statusDeprovisioning, statusTemporarilyUnavailable},
+		Pending: []string{statusActive, statusDeleteQueued, statusDeprovisioning, statusTemporarilyUnavailable},
 		Target:  []string{statusNotFound},
 		Refresh: func() (interface{}, string, error) {
 			tflog.Trace(ctx, "refreshing component status")
