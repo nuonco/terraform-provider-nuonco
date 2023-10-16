@@ -45,6 +45,7 @@ type AppInstallerResourceModel struct {
 	CommunityURL     types.String `tfsdk:"community_url"`
 	GithubURL        types.String `tfsdk:"github_url"`
 	LogoURL          types.String `tfsdk:"logo_url"`
+	DemoURL          types.String `tfsdk:"demo_url"`
 }
 
 func (r *AppInstallerResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -87,11 +88,16 @@ func (r *AppInstallerResource) Schema(ctx context.Context, req resource.SchemaRe
 			},
 			"github_url": schema.StringAttribute{
 				MarkdownDescription: "GitHub url, link to application.",
-				Optional:            true,
-				Required:            false,
+				Optional:            false,
+				Required:            true,
 			},
 			"logo_url": schema.StringAttribute{
 				MarkdownDescription: "Logo image to display on page.",
+				Optional:            false,
+				Required:            true,
+			},
+			"demo_url": schema.StringAttribute{
+				MarkdownDescription: "Demo url to show",
 				Optional:            true,
 				Required:            false,
 			},
@@ -134,6 +140,7 @@ func (r *AppInstallerResource) Create(ctx context.Context, req resource.CreateRe
 			Homepage:      data.HomepageURL.ValueStringPointer(),
 			Github:        data.GithubURL.ValueStringPointer(),
 			Logo:          data.LogoURL.ValueStringPointer(),
+			Demo:          data.DemoURL.ValueStringPointer(),
 		},
 	})
 	if err != nil {
@@ -151,6 +158,7 @@ func (r *AppInstallerResource) Create(ctx context.Context, req resource.CreateRe
 	data.DocumentationURL = types.StringValue(appResp.AppInstallerMetadata.DocumentationURL)
 	data.HomepageURL = types.StringValue(appResp.AppInstallerMetadata.HomepageURL)
 	data.LogoURL = types.StringValue(appResp.AppInstallerMetadata.LogoURL)
+	data.DemoURL = types.StringValue(appResp.AppInstallerMetadata.DemoURL)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
@@ -184,6 +192,7 @@ func (r *AppInstallerResource) Read(ctx context.Context, req resource.ReadReques
 	data.DocumentationURL = types.StringValue(appResp.AppInstallerMetadata.DocumentationURL)
 	data.HomepageURL = types.StringValue(appResp.AppInstallerMetadata.HomepageURL)
 	data.LogoURL = types.StringValue(appResp.AppInstallerMetadata.LogoURL)
+	data.DemoURL = types.StringValue(appResp.AppInstallerMetadata.DemoURL)
 
 	// return populated terraform model
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
@@ -210,6 +219,7 @@ func (r *AppInstallerResource) Update(ctx context.Context, req resource.UpdateRe
 			Homepage:      data.HomepageURL.ValueStringPointer(),
 			Github:        data.GithubURL.ValueStringPointer(),
 			Logo:          data.LogoURL.ValueStringPointer(),
+			DemoURL:       data.DemoURL.ValueStringPointer(),
 		},
 	})
 	if err != nil {
@@ -237,6 +247,7 @@ func (r *AppInstallerResource) Update(ctx context.Context, req resource.UpdateRe
 	data.DocumentationURL = types.StringValue(appResp.AppInstallerMetadata.DocumentationURL)
 	data.HomepageURL = types.StringValue(appResp.AppInstallerMetadata.HomepageURL)
 	data.LogoURL = types.StringValue(appResp.AppInstallerMetadata.LogoURL)
+	data.DemoURL = types.StringValue(appResp.AppInstallerMetadata.DemoURL)
 
 	// return populated terraform model
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
