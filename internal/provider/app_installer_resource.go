@@ -158,7 +158,10 @@ func (r *AppInstallerResource) Create(ctx context.Context, req resource.CreateRe
 	data.DocumentationURL = types.StringValue(appResp.AppInstallerMetadata.DocumentationURL)
 	data.HomepageURL = types.StringValue(appResp.AppInstallerMetadata.HomepageURL)
 	data.LogoURL = types.StringValue(appResp.AppInstallerMetadata.LogoURL)
-	data.DemoURL = types.StringValue(appResp.AppInstallerMetadata.DemoURL)
+
+	if appResp.AppInstallerMetadata.DemoURL != "" {
+		data.DemoURL = types.StringValue(appResp.AppInstallerMetadata.DemoURL)
+	}
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
@@ -192,7 +195,9 @@ func (r *AppInstallerResource) Read(ctx context.Context, req resource.ReadReques
 	data.DocumentationURL = types.StringValue(appResp.AppInstallerMetadata.DocumentationURL)
 	data.HomepageURL = types.StringValue(appResp.AppInstallerMetadata.HomepageURL)
 	data.LogoURL = types.StringValue(appResp.AppInstallerMetadata.LogoURL)
-	data.DemoURL = types.StringValue(appResp.AppInstallerMetadata.DemoURL)
+	if appResp.AppInstallerMetadata.DemoURL != "" {
+		data.DemoURL = types.StringValue(appResp.AppInstallerMetadata.DemoURL)
+	}
 
 	// return populated terraform model
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
@@ -247,7 +252,9 @@ func (r *AppInstallerResource) Update(ctx context.Context, req resource.UpdateRe
 	data.DocumentationURL = types.StringValue(appResp.AppInstallerMetadata.DocumentationURL)
 	data.HomepageURL = types.StringValue(appResp.AppInstallerMetadata.HomepageURL)
 	data.LogoURL = types.StringValue(appResp.AppInstallerMetadata.LogoURL)
-	data.DemoURL = types.StringValue(appResp.AppInstallerMetadata.DemoURL)
+	if appResp.AppInstallerMetadata.DemoURL != "" {
+		data.DemoURL = types.StringValue(appResp.AppInstallerMetadata.DemoURL)
+	}
 
 	// return populated terraform model
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
