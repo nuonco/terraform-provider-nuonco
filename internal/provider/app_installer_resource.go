@@ -219,7 +219,7 @@ func (r *AppInstallerResource) Update(ctx context.Context, req resource.UpdateRe
 			Homepage:      data.HomepageURL.ValueStringPointer(),
 			Github:        data.GithubURL.ValueStringPointer(),
 			Logo:          data.LogoURL.ValueStringPointer(),
-			DemoURL:       data.DemoURL.ValueStringPointer(),
+			Demo:          data.DemoURL.ValueStringPointer(),
 		},
 	})
 	if err != nil {
