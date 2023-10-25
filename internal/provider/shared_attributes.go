@@ -1,6 +1,8 @@
 package provider
 
 import (
+	"context"
+
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
@@ -95,11 +97,6 @@ func basicDeployAttribute() schema.SingleNestedAttribute {
 	}
 }
 
-type EnvVar struct {
-	Name  types.String `tfsdk:"name"`
-	Value types.String `tfsdk:"value"`
-}
-
 func convertSandboxRelease(sandboxRelease models.AppSandboxRelease) basetypes.ObjectValue {
 	obj, _ := basetypes.NewObjectValue(
 		map[string]attr.Type{
@@ -122,4 +119,22 @@ func convertSandboxRelease(sandboxRelease models.AppSandboxRelease) basetypes.Ob
 		},
 	)
 	return obj
+}
+
+// convert from a []string{} to a Terraform List
+func stringSliceToList(ctx context.Context, stringSlice []string) types.List {
+	list, _ := types.ListValueFrom(ctx, types.StringType, stringSlice)
+	return list
+}
+
+// convert a Terraform List to a []string{}
+func listToStringSlice(list types.List) []string {
+	stringSlice := []string{}
+	elements := list.Elements()
+	for _, el := range elements {
+		str := el.String()
+		str = str[1 : len(str)-1]
+		stringSlice = append(stringSlice, str)
+	}
+	return stringSlice
 }

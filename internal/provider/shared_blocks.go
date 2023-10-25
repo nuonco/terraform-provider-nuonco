@@ -1,8 +1,41 @@
 package provider
 
 import (
+	"fmt"
+
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 )
+
+type EnvVar struct {
+	Name  types.String `tfsdk:"name"`
+	Value types.String `tfsdk:"value"`
+}
+
+type EnvVarSlice []EnvVar
+
+func NewEnvVarSliceFromMap(stringMap map[string]string) EnvVarSlice {
+	blocks := []EnvVar{}
+	for key, val := range stringMap {
+		blocks = append(blocks, EnvVar{
+			Name:  types.StringValue(key),
+			Value: types.StringValue(val),
+		})
+	}
+	return blocks
+}
+
+func (ev *EnvVarSlice) ToMap() map[string]string {
+	stringMap := map[string]string{}
+	for _, val := range *ev {
+		stringMap[val.Name.ValueString()] = val.Value.ValueString()
+	}
+	return stringMap
+}
+
+func (ev *EnvVarSlice) String() string {
+	return fmt.Sprintf("%#v", ev)
+}
 
 func envVarSharedBlock() schema.SetNestedBlock {
 	return schema.SetNestedBlock{
