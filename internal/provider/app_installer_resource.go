@@ -140,7 +140,7 @@ func (r *AppInstallerResource) Create(ctx context.Context, req resource.CreateRe
 			Homepage:      data.HomepageURL.ValueStringPointer(),
 			Github:        data.GithubURL.ValueStringPointer(),
 			Logo:          data.LogoURL.ValueStringPointer(),
-			Demo:          data.DemoURL.ValueStringPointer(),
+			Demo:          data.DemoURL.ValueString(),
 		},
 	})
 	if err != nil {
