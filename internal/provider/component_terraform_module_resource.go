@@ -46,6 +46,7 @@ type TerraformModuleComponentResourceModel struct {
 	PublicRepo       *PublicRepo         `tfsdk:"public_repo"`
 	ConnectedRepo    *ConnectedRepo      `tfsdk:"connected_repo"`
 	Var              []TerraformVariable `tfsdk:"var"`
+	EnvVar           []EnvVar            `tfsdk:"env_var"`
 }
 
 func (r *TerraformModuleComponentResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -101,6 +102,7 @@ func (r *TerraformModuleComponentResource) Schema(ctx context.Context, req resou
 					},
 				},
 			},
+			"env_var": envVarSharedBlock(),
 		},
 	}
 }
@@ -129,11 +131,16 @@ func (r *TerraformModuleComponentResource) Create(ctx context.Context, req resou
 		ConnectedGithubVcsConfig: nil,
 		PublicGitVcsConfig:       nil,
 		Variables:                map[string]string{},
+		EnvVars:                  map[string]string{},
 		Version:                  data.TerraformVersion.ValueString(),
 	}
 	for _, val := range data.Var {
 		configRequest.Variables[val.Name.ValueString()] = val.Value.ValueString()
 	}
+	for _, val := range data.EnvVar {
+		configRequest.EnvVars[val.Name.ValueString()] = val.Value.ValueString()
+	}
+
 	if data.PublicRepo != nil {
 		configRequest.PublicGitVcsConfig = &models.ServicePublicGitVCSConfigRequest{
 			Branch:    data.PublicRepo.Branch.ValueStringPointer(),
@@ -215,6 +222,16 @@ func (r *TerraformModuleComponentResource) Read(ctx context.Context, req resourc
 			Value: types.StringValue(val),
 		})
 	}
+	data.Var = apiVars
+
+	envVars := []EnvVar{}
+	for key, val := range terraformConfig.EnvVars {
+		envVars = append(envVars, EnvVar{
+			Name:  types.StringValue(key),
+			Value: types.StringValue(val),
+		})
+	}
+	data.EnvVar = envVars
 
 	// return populated terraform model
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
@@ -290,10 +307,14 @@ func (r *TerraformModuleComponentResource) Update(ctx context.Context, req resou
 		ConnectedGithubVcsConfig: nil,
 		PublicGitVcsConfig:       nil,
 		Variables:                map[string]string{},
+		EnvVars:                  map[string]string{},
 		Version:                  data.TerraformVersion.ValueString(),
 	}
 	for _, value := range data.Var {
 		configRequest.Variables[value.Name.ValueString()] = value.Value.ValueString()
+	}
+	for _, value := range data.EnvVar {
+		configRequest.EnvVars[value.Name.ValueString()] = value.Value.ValueString()
 	}
 	if data.PublicRepo != nil {
 		configRequest.PublicGitVcsConfig = &models.ServicePublicGitVCSConfigRequest{
