@@ -47,7 +47,7 @@ resource "nuon_install" "customer_three" {
 
 ### Required
 
-- `app_id` (String) The human-readable name of the install.
+- `app_id` (String) The application ID.
 - `iam_role_arn` (String) The ARN of the AWS IAM role to provision the install with.
 - `name` (String) The unique ID of the install.
 - `region` (String) The AWS region to create in the install in.
