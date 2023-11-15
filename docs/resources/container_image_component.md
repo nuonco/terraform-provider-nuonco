@@ -58,7 +58,7 @@ resource "nuon_container_image_component" "my_component" {
 
 - `aws_ecr` (Attributes) Use an image stored in AWS ECR. (see [below for nested schema](#nestedatt--aws_ecr))
 - `basic_deploy` (Attributes) Create a basic deployment of this image with a listener. (see [below for nested schema](#nestedatt--basic_deploy))
-- `env_var` (Block List) Environment variables to export into the env when running the image. (see [below for nested schema](#nestedblock--env_var))
+- `env_var` (Block Set) Environment variables to export into the env when running the image. (see [below for nested schema](#nestedblock--env_var))
 - `public` (Attributes) Use a publically-accessible image. (see [below for nested schema](#nestedatt--public))
 - `sync_only` (Boolean) If true, this component will be synced to install registries, but not released.
 

@@ -62,9 +62,10 @@ resource "nuon_terraform_module_component" "my_component" {
 ### Optional
 
 - `connected_repo` (Attributes) A repo accessible via your Nuon connected github account (see [below for nested schema](#nestedatt--connected_repo))
+- `env_var` (Block Set) Environment variables to export into the env when running the image. (see [below for nested schema](#nestedblock--env_var))
 - `public_repo` (Attributes) A publically-accessible git repo. (see [below for nested schema](#nestedatt--public_repo))
 - `terraform_version` (String) The version of Terraform to use.
-- `var` (Block List) Terraform variables to set when applying the Terraform configuration. (see [below for nested schema](#nestedblock--var))
+- `var` (Block Set) Terraform variables to set when applying the Terraform configuration. (see [below for nested schema](#nestedblock--var))
 
 ### Read-Only
 
@@ -81,6 +82,15 @@ Required:
 Optional:
 
 - `directory` (String) The directory the component code is in.
+
+
+<a id="nestedblock--env_var"></a>
+### Nested Schema for `env_var`
+
+Required:
+
+- `name` (String) The variable name to export to the env (e.g. API_TOKEN or PORT.)
+- `value` (String) The variable value to export to the env. Can be any valid env var value, or interpolated from Nuon.
 
 
 <a id="nestedatt--public_repo"></a>

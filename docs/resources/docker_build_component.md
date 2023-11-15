@@ -64,7 +64,7 @@ resource "nuon_docker_build_component" "my_component" {
 - `basic_deploy` (Attributes) Create a basic deployment of this image with a listener. (see [below for nested schema](#nestedatt--basic_deploy))
 - `connected_repo` (Attributes) A repo accessible via your Nuon connected github account (see [below for nested schema](#nestedatt--connected_repo))
 - `dockerfile` (String) The Dockerfile to build from.
-- `env_var` (Block List) Environment variables to export into the env when running the image. (see [below for nested schema](#nestedblock--env_var))
+- `env_var` (Block Set) Environment variables to export into the env when running the image. (see [below for nested schema](#nestedblock--env_var))
 - `public_repo` (Attributes) A publically-accessible git repo. (see [below for nested schema](#nestedatt--public_repo))
 - `sync_only` (Boolean) If true, this component will be synced to install registries, but not released.
 

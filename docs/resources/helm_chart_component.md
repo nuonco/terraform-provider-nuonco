@@ -66,7 +66,7 @@ resource "nuon_helm_chart_component" "my_component" {
 
 - `connected_repo` (Attributes) A repo accessible via your Nuon connected github account (see [below for nested schema](#nestedatt--connected_repo))
 - `public_repo` (Attributes) A publically-accessible git repo. (see [below for nested schema](#nestedatt--public_repo))
-- `value` (Block List) Environment variables to export into the env when running the image. (see [below for nested schema](#nestedblock--value))
+- `value` (Block Set) Environment variables to export into the env when running the image. (see [below for nested schema](#nestedblock--value))
 
 ### Read-Only
 
