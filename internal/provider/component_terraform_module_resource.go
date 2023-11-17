@@ -207,7 +207,8 @@ func (r *TerraformModuleComponentResource) Read(ctx context.Context, req resourc
 			Directory: types.StringValue(connected.Directory),
 			Repo:      types.StringValue(connected.Repo),
 		}
-	} else {
+	}
+	if terraformConfig.PublicGitVcsConfig != nil {
 		public := terraformConfig.PublicGitVcsConfig
 		data.PublicRepo = &PublicRepo{
 			Branch:    types.StringValue(public.Branch),
