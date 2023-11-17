@@ -211,7 +211,8 @@ func (r *DockerBuildComponentResource) Read(ctx context.Context, req resource.Re
 			Directory: types.StringValue(connected.Directory),
 			Repo:      types.StringValue(connected.Repo),
 		}
-	} else {
+	}
+	if dockerBuild.PublicGitVcsConfig != nil {
 		public := dockerBuild.PublicGitVcsConfig
 		data.PublicRepo = &PublicRepo{
 			Branch:    types.StringValue(public.Branch),

@@ -196,7 +196,8 @@ func (r *HelmChartComponentResource) Read(ctx context.Context, req resource.Read
 			Directory: types.StringValue(public.Directory),
 			Repo:      types.StringValue(public.Repo),
 		}
-	} else {
+	}
+	if helmConfig.ConnectedGithubVcsConfig != nil {
 		connected := helmConfig.ConnectedGithubVcsConfig
 		data.ConnectedRepo = &ConnectedRepo{
 			Branch:    types.StringValue(connected.Branch),
