@@ -2,12 +2,12 @@ package provider
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/nuonco/nuon-go"
@@ -29,11 +29,11 @@ type AppSandboxResource struct {
 
 // AppSandboxResourceModel describes the resource data model.
 type AppSandboxResourceModel struct {
-	Id    types.String `tfsdk:"id"`
+	ID    types.String `tfsdk:"id"`
 	AppID types.String `tfsdk:"app_id"`
 
 	// one of the following sources must be set for the app sandbox
-	BuiltinSandboxReleaseID types.String   `tfsdk:"app_id"`
+	BuiltinSandboxReleaseID types.String   `tfsdk:"builtin_sandbox_release_id"`
 	PublicRepo              *PublicRepo    `tfsdk:"public_repo"`
 	ConnectedRepo           *ConnectedRepo `tfsdk:"connected_repo"`
 
@@ -54,29 +54,22 @@ func (r *AppSandboxResource) Schema(ctx context.Context, req resource.SchemaRequ
 		Description: "Sandbox configuration for an app.",
 		Attributes: map[string]schema.Attribute{
 			"app_id": schema.StringAttribute{
-				Description: "The application ID.",
-				Optional:    false,
-				Required:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
+				Description:   "The application ID.",
+				Optional:      false,
+				Required:      true,
+				PlanModifiers: []planmodifier.String{},
 			},
 			"id": schema.StringAttribute{
-				Description: "The unique ID of the component.",
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
+				Description:   "The sandbox config id",
+				Computed:      true,
+				PlanModifiers: []planmodifier.String{},
 			},
 			"builtin_sandbox_release_id": schema.StringAttribute{
-				Description: "release ID for a built in sandbox to use",
-				Optional:    false,
-				Required:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
+				Description:   "release ID for a built in sandbox to use",
+				Optional:      true,
+				Required:      false,
+				PlanModifiers: []planmodifier.String{},
 			},
-
 			"public_repo":    publicRepoAttribute(),
 			"connected_repo": connectedRepoAttribute(),
 		},
@@ -100,7 +93,11 @@ func (r *AppSandboxResource) Schema(ctx context.Context, req resource.SchemaRequ
 	}
 }
 
-func (r *AppSandboxResource) getConfigRequest(data *AppSandboxResourceModel) *models.ServiceCreateAppSandboxConfigRequest {
+func (r *AppSandboxResource) getConfigRequest(data *AppSandboxResourceModel) (*models.ServiceCreateAppSandboxConfigRequest, error) {
+	if data.ConnectedRepo == nil && data.PublicRepo == nil && data.BuiltinSandboxReleaseID.ValueString() == "" {
+		return nil, fmt.Errorf("must set one of connected_repo, public_repo or builtin_sandbox_release_id")
+	}
+
 	cfgReq := &models.ServiceCreateAppSandboxConfigRequest{
 		SandboxInputs: make(map[string]string),
 	}
@@ -129,10 +126,11 @@ func (r *AppSandboxResource) getConfigRequest(data *AppSandboxResourceModel) *mo
 		cfgReq.SandboxInputs[input.Name.ValueString()] = input.Value.ValueString()
 	}
 
-	return cfgReq
+	return cfgReq, nil
 }
 
 func (r *AppSandboxResource) writeStateData(data *AppSandboxResourceModel, resp *models.AppAppSandboxConfig) {
+	data.ID = types.StringValue(resp.ID)
 	if resp.ConnectedGithubVcsConfig != nil {
 		connected := resp.ConnectedGithubVcsConfig
 		data.ConnectedRepo = &ConnectedRepo{
@@ -174,7 +172,12 @@ func (r *AppSandboxResource) Create(ctx context.Context, req resource.CreateRequ
 
 	// create app
 	tflog.Trace(ctx, "creating app sandbox")
-	cfgReq := r.getConfigRequest(data)
+	cfgReq, err := r.getConfigRequest(data)
+	if err != nil {
+		writeDiagnosticsErr(ctx, &resp.Diagnostics, err, "create app sandbox")
+		return
+	}
+
 	appResp, err := r.restClient.CreateAppSandboxConfig(ctx, data.AppID.ValueString(), cfgReq)
 	if err != nil {
 		writeDiagnosticsErr(ctx, &resp.Diagnostics, err, "create app sandbox")
@@ -193,7 +196,7 @@ func (r *AppSandboxResource) Read(ctx context.Context, req resource.ReadRequest,
 	}
 
 	tflog.Trace(ctx, "reading app sandbox")
-	appResp, err := r.restClient.GetAppSandboxLatestConfig(ctx, data.Id.ValueString())
+	appResp, err := r.restClient.GetAppSandboxLatestConfig(ctx, data.AppID.ValueString())
 	if nuon.IsNotFound(err) {
 		resp.State.RemoveResource(ctx)
 		return
@@ -220,8 +223,13 @@ func (r *AppSandboxResource) Update(ctx context.Context, req resource.UpdateRequ
 	tflog.Trace(ctx, "updating app installer")
 
 	// update app
-	cfgReq := r.getConfigRequest(data)
-	cfgResp, err := r.restClient.CreateAppSandboxConfig(ctx, data.Id.ValueString(), cfgReq)
+	cfgReq, err := r.getConfigRequest(data)
+	if err != nil {
+		writeDiagnosticsErr(ctx, &resp.Diagnostics, err, "create app sandbox")
+		return
+	}
+
+	cfgResp, err := r.restClient.CreateAppSandboxConfig(ctx, data.AppID.ValueString(), cfgReq)
 	if err != nil {
 		writeDiagnosticsErr(ctx, &resp.Diagnostics, err, "update app sandbox")
 		return
@@ -245,5 +253,5 @@ func (r *AppSandboxResource) Delete(ctx context.Context, req resource.DeleteRequ
 }
 
 func (r *AppSandboxResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	resource.ImportStatePassthroughID(ctx, path.Root("app_id"), req, resp)
 }

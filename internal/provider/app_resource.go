@@ -8,11 +8,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/objectplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/nuonco/nuon-go"
@@ -34,9 +32,8 @@ type AppResource struct {
 
 // AppResourceModel describes the resource data model.
 type AppResourceModel struct {
-	Name           types.String          `tfsdk:"name"`
-	Id             types.String          `tfsdk:"id"`
-	SandboxRelease basetypes.ObjectValue `tfsdk:"sandbox_release"`
+	Name types.String `tfsdk:"name"`
+	Id   types.String `tfsdk:"id"`
 }
 
 func (r *AppResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -57,36 +54,6 @@ func (r *AppResource) Schema(ctx context.Context, req resource.SchemaRequest, re
 				Description: "The unique ID of the app.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"sandbox_release": schema.SingleNestedAttribute{
-				Computed:    true,
-				Description: "The sandbox being used for this app's installs.",
-				PlanModifiers: []planmodifier.Object{
-					objectplanmodifier.UseStateForUnknown(),
-				},
-				Attributes: map[string]schema.Attribute{
-					"id": schema.StringAttribute{
-						Computed: true,
-					},
-					"version": schema.StringAttribute{
-						Computed: true,
-					},
-					"terraform_version": schema.StringAttribute{
-						Computed: true,
-					},
-					"provision_policy_url": schema.StringAttribute{
-						Computed: true,
-					},
-					"deprovision_policy_url": schema.StringAttribute{
-						Computed: true,
-					},
-					"trust_policy_url": schema.StringAttribute{
-						Computed: true,
-					},
-					"one_click_role_template_url": schema.StringAttribute{
-						Computed: true,
-					},
 				},
 			},
 		},
