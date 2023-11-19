@@ -114,7 +114,6 @@ func (r *AppResource) Create(ctx context.Context, req resource.CreateRequest, re
 	// populate terraform model with data from api
 	data.Name = types.StringValue(appResp.Name)
 	data.Id = types.StringValue(appResp.ID)
-	data.SandboxRelease = convertSandboxRelease(*appResp.SandboxRelease)
 
 	// return populated terraform model
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
@@ -178,7 +177,6 @@ func (r *AppResource) Read(ctx context.Context, req resource.ReadRequest, resp *
 	// populate terraform model with data from api
 	data.Name = types.StringValue(appResp.Name)
 	data.Id = types.StringValue(appResp.ID)
-	data.SandboxRelease = convertSandboxRelease(*appResp.SandboxRelease)
 
 	// return populated terraform model
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
@@ -214,7 +212,6 @@ func (r *AppResource) Update(ctx context.Context, req resource.UpdateRequest, re
 	// populate terraform model with data from api
 	data.Name = types.StringValue(appResp.Name)
 	data.Id = types.StringValue(appResp.ID)
-	data.SandboxRelease = convertSandboxRelease(*appResp.SandboxRelease)
 
 	// return populated terraform model
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)

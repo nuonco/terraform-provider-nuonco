@@ -2,6 +2,7 @@ package provider
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
@@ -10,43 +11,43 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
-var _ datasource.DataSource = &AppDataSource{}
+var _ datasource.DataSource = &BuiltinSandboxDataSource{}
 
-func NewAppDataSource() datasource.DataSource {
-	return &AppDataSource{}
+func NewBuiltinSandboxDataSource() datasource.DataSource {
+	return &BuiltinSandboxDataSource{}
 }
 
-// AppDataSource defines the data source implementation.
-type AppDataSource struct {
+// BuiltinSandboxDataSource defines the data source implementation.
+type BuiltinSandboxDataSource struct {
 	baseDataSource
 }
 
-// AppDataSourceModel describes the data source data model.
-type AppDataSourceModel struct {
+// BuiltinSandboxDataSourceModel describes the data source data model.
+type BuiltinSandboxDataSourceModel struct {
 	Name           types.String          `tfsdk:"name"`
 	Id             types.String          `tfsdk:"id"`
 	SandboxRelease basetypes.ObjectValue `tfsdk:"sandbox_release"`
 }
 
-func (d *AppDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_app"
+func (d *BuiltinSandboxDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_builtin_sandbox"
 }
 
-func (d *AppDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+func (d *BuiltinSandboxDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		Description: "Provides information about a Nuon app.",
+		Description: "Provides information about a built in sandbox",
 		Attributes: map[string]schema.Attribute{
 			"name": schema.StringAttribute{
-				Description: "The human readable name of the app.",
-				Computed:    true,
+				Description: "The sandbox name",
+				Required:    true,
 			},
 			"id": schema.StringAttribute{
 				Description: "The unique ID of the app.",
-				Required:    true,
+				Computed:    true,
 			},
 			"sandbox_release": schema.SingleNestedAttribute{
 				Computed:    true,
-				Description: "The sandbox being used for this app's installs.",
+				Description: "The latest sandbox release for the built in sandbox",
 				Attributes: map[string]schema.Attribute{
 					"id": schema.StringAttribute{
 						Computed: true,
@@ -75,22 +76,27 @@ func (d *AppDataSource) Schema(ctx context.Context, req datasource.SchemaRequest
 	}
 }
 
-func (d *AppDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	var data AppDataSourceModel
+func (d *BuiltinSandboxDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+	var data BuiltinSandboxDataSourceModel
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	tflog.Trace(ctx, "fetching app by id")
-	appResp, err := d.restClient.GetApp(ctx, data.Id.ValueString())
+	tflog.Trace(ctx, "fetching built in sandbox by name")
+	sandboxResp, err := d.restClient.GetSandbox(ctx, data.Name.ValueString())
 	if err != nil {
-		writeDiagnosticsErr(ctx, &resp.Diagnostics, err, "get app")
+		writeDiagnosticsErr(ctx, &resp.Diagnostics, err, "get sandbox")
 		return
 	}
 
-	data.Name = types.StringValue(appResp.Name)
-	data.Id = types.StringValue(appResp.ID)
+	data.Name = types.StringValue(sandboxResp.Name)
+	data.Id = types.StringValue(sandboxResp.ID)
+	if len(sandboxResp.Releases) < 1 {
+		writeDiagnosticsErr(ctx, &resp.Diagnostics, fmt.Errorf("sandbox did not return any releases."), "invalid sandbox")
+		return
+	}
+	data.SandboxRelease = convertSandboxRelease(*sandboxResp.Releases[0])
 
 	// Save data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
