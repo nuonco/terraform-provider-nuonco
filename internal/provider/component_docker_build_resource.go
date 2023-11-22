@@ -3,6 +3,7 @@ package provider
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -156,6 +157,11 @@ func (r *DockerBuildComponentResource) Create(ctx context.Context, req resource.
 	}
 	_, err = r.restClient.CreateDockerBuildComponentConfig(ctx, data.ID.ValueString(), configRequest)
 	if err != nil {
+		// attempt to cleanup component, that is in broken state and has no config
+		_, cleanupErr := r.restClient.DeleteComponent(ctx, compResp.ID)
+		if cleanupErr != nil {
+			tflog.Trace(ctx, fmt.Sprintf("unable to cleanup component: %s", cleanupErr))
+		}
 		writeDiagnosticsErr(ctx, &resp.Diagnostics, err, "create component config")
 		return
 	}

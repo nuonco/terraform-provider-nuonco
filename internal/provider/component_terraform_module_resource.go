@@ -3,6 +3,7 @@ package provider
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -157,6 +158,12 @@ func (r *TerraformModuleComponentResource) Create(ctx context.Context, req resou
 
 	_, err = r.restClient.CreateTerraformModuleComponentConfig(ctx, compResp.ID, configRequest)
 	if err != nil {
+		// attempt to cleanup component, that is in broken state and has no config
+		_, cleanupErr := r.restClient.DeleteComponent(ctx, compResp.ID)
+		if cleanupErr != nil {
+			tflog.Trace(ctx, fmt.Sprintf("unable to cleanup component: %s", cleanupErr))
+		}
+
 		writeDiagnosticsErr(ctx, &resp.Diagnostics, err, "create component config")
 		return
 	}
