@@ -6,13 +6,19 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
+	"github.com/nuonco/nuon-go"
 )
 
-func writeDiagnosticsErr(ctx context.Context, diagnostics *diag.Diagnostics, err error, op string) {
-	tflog.Trace(ctx, fmt.Sprintf("unable to %s: %s", op, err))
+func writeDiagnosticsErr(_ context.Context, diagnostics *diag.Diagnostics, err error, op string) {
+	var msg = "Please contact us"
+	userErr, ok := nuon.ToUserError(err)
+	if ok {
+		msg = fmt.Sprintf("Error: %s\n\nError Details: %s", userErr.Error, userErr.Description)
+	}
+
 	diagnostics.AddError(
 		fmt.Sprintf("Unable to %s", op),
-		fmt.Sprintf("Error: %s\nPlease make sure your configuration is correct, and that the auth token has permissions for this org.", err),
+		msg,
 	)
 }
 
