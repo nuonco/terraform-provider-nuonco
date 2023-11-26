@@ -14,7 +14,6 @@ func convertSandboxRelease(sandboxRelease models.AppSandboxRelease) basetypes.Ob
 		map[string]attr.Type{
 			"id":                          types.StringType,
 			"version":                     types.StringType,
-			"terraform_version":           types.StringType,
 			"provision_policy_url":        types.StringType,
 			"deprovision_policy_url":      types.StringType,
 			"trust_policy_url":            types.StringType,

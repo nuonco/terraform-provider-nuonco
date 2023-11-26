@@ -55,9 +55,6 @@ func (d *BuiltinSandboxDataSource) Schema(ctx context.Context, req datasource.Sc
 					"version": schema.StringAttribute{
 						Computed: true,
 					},
-					"terraform_version": schema.StringAttribute{
-						Computed: true,
-					},
 					"provision_policy_url": schema.StringAttribute{
 						Computed: true,
 					},
