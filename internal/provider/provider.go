@@ -107,6 +107,7 @@ func (p *Provider) Resources(ctx context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
 		NewAppResource,
 		NewAppInstallerResource,
+		NewAppSandboxResource,
 		NewInstallResource,
 		NewContainerImageComponentResource,
 		NewDockerBuildComponentResource,
@@ -121,6 +122,7 @@ func (p *Provider) DataSources(ctx context.Context) []func() datasource.DataSour
 		NewAppDataSource,
 		NewConnectedRepoDataSource,
 		NewInstallDataSource,
+		NewBuiltinSandboxDataSource,
 	}
 }
 

@@ -6,7 +6,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
@@ -23,9 +22,8 @@ type AppDataSource struct {
 
 // AppDataSourceModel describes the data source data model.
 type AppDataSourceModel struct {
-	Name           types.String          `tfsdk:"name"`
-	Id             types.String          `tfsdk:"id"`
-	SandboxRelease basetypes.ObjectValue `tfsdk:"sandbox_release"`
+	Name types.String `tfsdk:"name"`
+	Id   types.String `tfsdk:"id"`
 }
 
 func (d *AppDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
@@ -43,33 +41,6 @@ func (d *AppDataSource) Schema(ctx context.Context, req datasource.SchemaRequest
 			"id": schema.StringAttribute{
 				Description: "The unique ID of the app.",
 				Required:    true,
-			},
-			"sandbox_release": schema.SingleNestedAttribute{
-				Computed:    true,
-				Description: "The sandbox being used for this app's installs.",
-				Attributes: map[string]schema.Attribute{
-					"id": schema.StringAttribute{
-						Computed: true,
-					},
-					"version": schema.StringAttribute{
-						Computed: true,
-					},
-					"terraform_version": schema.StringAttribute{
-						Computed: true,
-					},
-					"provision_policy_url": schema.StringAttribute{
-						Computed: true,
-					},
-					"deprovision_policy_url": schema.StringAttribute{
-						Computed: true,
-					},
-					"trust_policy_url": schema.StringAttribute{
-						Computed: true,
-					},
-					"one_click_role_template_url": schema.StringAttribute{
-						Computed: true,
-					},
-				},
 			},
 		},
 	}
@@ -91,7 +62,6 @@ func (d *AppDataSource) Read(ctx context.Context, req datasource.ReadRequest, re
 
 	data.Name = types.StringValue(appResp.Name)
 	data.Id = types.StringValue(appResp.ID)
-	data.SandboxRelease = convertSandboxRelease(*appResp.SandboxRelease)
 
 	// Save data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
