@@ -37,7 +37,8 @@ type AppSandboxResourceModel struct {
 	PublicRepo              *PublicRepo    `tfsdk:"public_repo"`
 	ConnectedRepo           *ConnectedRepo `tfsdk:"connected_repo"`
 
-	Inputs []SandboxInput `tfsdk:"input"`
+	Inputs           []SandboxInput `tfsdk:"input"`
+	TerraformVersion types.String   `tfsdk:"terraform_version"`
 }
 
 type SandboxInput struct {
@@ -68,6 +69,12 @@ func (r *AppSandboxResource) Schema(ctx context.Context, req resource.SchemaRequ
 				Description:   "release ID for a built in sandbox to use",
 				Optional:      true,
 				Required:      false,
+				PlanModifiers: []planmodifier.String{},
+			},
+			"terraform_version": schema.StringAttribute{
+				Description:   "terraform version to use with sandbox",
+				Optional:      false,
+				Required:      true,
 				PlanModifiers: []planmodifier.String{},
 			},
 			"public_repo":    publicRepoAttribute(),
