@@ -10,7 +10,7 @@ import (
 )
 
 func writeDiagnosticsErr(_ context.Context, diagnostics *diag.Diagnostics, err error, op string) {
-	var msg = "Please contact us"
+	var msg = "Please try this operation again, and if it persists, please contact us."
 	userErr, ok := nuon.ToUserError(err)
 	if ok {
 		msg = fmt.Sprintf("Error: %s\n\nError Details: %s", userErr.Error, userErr.Description)
