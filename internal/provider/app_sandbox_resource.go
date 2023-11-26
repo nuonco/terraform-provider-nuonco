@@ -12,7 +12,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/nuonco/nuon-go"
 	"github.com/nuonco/nuon-go/models"
-	"github.com/powertoolsdev/mono/pkg/generics"
 )
 
 // Ensure provider defined types fully satisfy framework interfaces.
@@ -133,7 +132,7 @@ func (r *AppSandboxResource) getConfigRequest(data *AppSandboxResourceModel) (*m
 	for _, input := range data.Inputs {
 		cfgReq.SandboxInputs[input.Name.ValueString()] = input.Value.ValueString()
 	}
-	cfgReq.TerraformVersion = generics.ToPtr(data.TerraformVersion.ValueString())
+	cfgReq.TerraformVersion = toPtr(data.TerraformVersion.ValueString())
 
 	return cfgReq, nil
 }
