@@ -70,7 +70,7 @@ func (r *AppInputResource) Schema(ctx context.Context, req resource.SchemaReques
 				NestedObject: schema.NestedBlockObject{
 					Attributes: map[string]schema.Attribute{
 						"name": schema.StringAttribute{
-							Description: "The input name to be used, which will be used to expose this in the interpolation language, using {{.nuon.install.inputs.<name>}}",
+							Description: "The input name to be used, which will be used to expose this in the interpolation language, using `.nuon.install.inputs.input_name`",
 							Required:    true,
 						},
 						"default": schema.StringAttribute{
