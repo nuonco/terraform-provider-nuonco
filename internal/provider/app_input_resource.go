@@ -36,8 +36,10 @@ type AppInputResourceModel struct {
 }
 
 type AppInput struct {
-	Name  types.String `tfsdk:"name"`
-	Value types.String `tfsdk:"value"`
+	Name        types.String `tfsdk:"name"`
+	Description types.String `tfsdk:"description"`
+	Required    types.Bool   `tfsdk:"required"`
+	Default     types.String `tfsdk:"default"`
 }
 
 func (r *AppInputResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -71,8 +73,16 @@ func (r *AppInputResource) Schema(ctx context.Context, req resource.SchemaReques
 							Description: "The input name to be used, which will be used to expose this in the interpolation language, using {{.nuon.install.inputs.<name>}}",
 							Required:    true,
 						},
-						"value": schema.StringAttribute{
-							Description: "The value to set.",
+						"default": schema.StringAttribute{
+							Description: "Default value for input",
+							Required:    true,
+						},
+						"description": schema.StringAttribute{
+							Description: "Description of input.",
+							Required:    true,
+						},
+						"required": schema.BoolAttribute{
+							Description: "Mark whether this field is required or not.",
 							Required:    true,
 						},
 					},
@@ -84,12 +94,16 @@ func (r *AppInputResource) Schema(ctx context.Context, req resource.SchemaReques
 
 func (r *AppInputResource) getConfigRequest(data *AppInputResourceModel) (*models.ServiceCreateAppInputConfigRequest, error) {
 	cfgReq := &models.ServiceCreateAppInputConfigRequest{
-		Inputs: make(map[string]string),
+		Inputs: make(map[string]models.ServiceAppInputRequest),
 	}
 
 	// configure inputs
 	for _, input := range data.Inputs {
-		cfgReq.Inputs[input.Name.ValueString()] = input.Value.ValueString()
+		cfgReq.Inputs[input.Name.ValueString()] = models.ServiceAppInputRequest{
+			Default:     input.Default.ValueString(),
+			Description: toPtr(input.Description.ValueString()),
+			Required:    input.Required.ValueBool(),
+		}
 	}
 
 	return cfgReq, nil
@@ -98,10 +112,12 @@ func (r *AppInputResource) getConfigRequest(data *AppInputResourceModel) (*model
 func (r *AppInputResource) writeStateData(data *AppInputResourceModel, resp *models.AppAppInputConfig) {
 	data.ID = types.StringValue(resp.ID)
 	inputs := []AppInput{}
-	for key, val := range resp.Inputs {
+	for _, inp := range resp.AppInputs {
 		inputs = append(inputs, AppInput{
-			Name:  types.StringValue(key),
-			Value: types.StringValue(val),
+			Name:        types.StringValue(inp.Name),
+			Description: types.StringValue(inp.Description),
+			Default:     types.StringValue(inp.Default),
+			Required:    types.BoolValue(inp.Required),
 		})
 	}
 	data.Inputs = inputs
