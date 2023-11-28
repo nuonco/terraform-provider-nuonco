@@ -84,11 +84,6 @@ func (r *ContainerImageComponentResource) Schema(ctx context.Context, req resour
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
-			"sync_only": schema.BoolAttribute{
-				Description: "If true, this component will be synced to install registries, but not released.",
-				Optional:    true,
-				Required:    false,
-			},
 			"public": schema.SingleNestedAttribute{
 				Description: "Use a publically-accessible image.",
 				Optional:    true,
@@ -149,9 +144,7 @@ func (r *ContainerImageComponentResource) Create(ctx context.Context, req resour
 	tflog.Trace(ctx, "got ID -- "+compResp.ID)
 	data.ID = types.StringValue(compResp.ID)
 
-	configRequest := &models.ServiceCreateExternalImageComponentConfigRequest{
-		SyncOnly: true,
-	}
+	configRequest := &models.ServiceCreateExternalImageComponentConfigRequest{}
 	if data.AwsEcr != nil {
 		configRequest.ImageURL = data.AwsEcr.ImageURL.ValueStringPointer()
 		configRequest.Tag = data.AwsEcr.Tag.ValueStringPointer()
@@ -292,9 +285,7 @@ func (r *ContainerImageComponentResource) Update(ctx context.Context, req resour
 		return
 	}
 
-	configRequest := &models.ServiceCreateExternalImageComponentConfigRequest{
-		SyncOnly: true,
-	}
+	configRequest := &models.ServiceCreateExternalImageComponentConfigRequest{}
 	if data.AwsEcr != nil {
 		configRequest.ImageURL = data.AwsEcr.ImageURL.ValueStringPointer()
 		configRequest.Tag = data.AwsEcr.Tag.ValueStringPointer()

@@ -38,8 +38,7 @@ type DockerBuildComponentResourceModel struct {
 	Name  types.String `tfsdk:"name"`
 	AppID types.String `tfsdk:"app_id"`
 
-	SyncOnly types.Bool `tfsdk:"sync_only"`
-	EnvVar   []EnvVar   `tfsdk:"env_var"`
+	EnvVar []EnvVar `tfsdk:"env_var"`
 
 	Dockerfile    types.String   `tfsdk:"dockerfile"`
 	ConnectedRepo *ConnectedRepo `tfsdk:"connected_repo"`
@@ -74,11 +73,6 @@ func (r *DockerBuildComponentResource) Schema(ctx context.Context, req resource.
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
-			},
-			"sync_only": schema.BoolAttribute{
-				Description: "If true, this component will be synced to install registries, but not released.",
-				Optional:    true,
-				Required:    false,
 			},
 			"dockerfile": schema.StringAttribute{
 				Description: "The Dockerfile to build from.",
@@ -115,7 +109,6 @@ func (r *DockerBuildComponentResource) Create(ctx context.Context, req resource.
 	configRequest := &models.ServiceCreateDockerBuildComponentConfigRequest{
 		BuildArgs:  []string{},
 		Dockerfile: data.Dockerfile.ValueString(),
-		SyncOnly:   data.SyncOnly.ValueBool(),
 		Target:     "",
 		EnvVars:    map[string]string{},
 	}
@@ -279,7 +272,6 @@ func (r *DockerBuildComponentResource) Update(ctx context.Context, req resource.
 	configRequest := &models.ServiceCreateDockerBuildComponentConfigRequest{
 		BuildArgs:  []string{},
 		Dockerfile: data.Dockerfile.ValueString(),
-		SyncOnly:   data.SyncOnly.ValueBool(),
 		Target:     "",
 		EnvVars:    map[string]string{},
 	}
