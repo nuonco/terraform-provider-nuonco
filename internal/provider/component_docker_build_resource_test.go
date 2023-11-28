@@ -18,19 +18,17 @@ resource "nuon_app" "my_app" {
 resource "nuon_docker_build_component" "my_component" {
     app_id = nuon_app.my_app.id
     name = %s
-    sync_only = %v
     dockerfile = %s
 
     public_repo = {
-        repo = %s
-        directory = %s
-        branch = %s
+	repo = %s
+	directory = %s
+	branch = %s
     }
 }
 `,
 		app.Name,
 		component.Name,
-		component.SyncOnly,
 		component.Dockerfile,
 		component.PublicRepo.Repo,
 		component.PublicRepo.Directory,
@@ -44,7 +42,6 @@ func TestComponentDockerBuildResource(t *testing.T) {
 	}
 	component := DockerBuildComponentResourceModel{
 		Name:       types.StringValue(acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)),
-		SyncOnly:   types.BoolValue(true),
 		Dockerfile: types.StringValue("Dockerfile"),
 		PublicRepo: &PublicRepo{
 			Repo:      types.StringValue("https://github.com/postmanlabs/httpbin.git"),
@@ -52,13 +49,11 @@ func TestComponentDockerBuildResource(t *testing.T) {
 			Branch:    types.StringValue("master"),
 		},
 		ConnectedRepo: nil,
-		BasicDeploy:   nil,
 		EnvVar:        []EnvVar{},
 	}
 
 	updatedComponent := DockerBuildComponentResourceModel{
 		Name:       types.StringValue(acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)),
-		SyncOnly:   types.BoolValue(true),
 		Dockerfile: types.StringValue("Dockerfile"),
 		PublicRepo: &PublicRepo{
 			Repo:      types.StringValue("https://github.com/postmanlabs/httpbin.git"),
@@ -66,7 +61,6 @@ func TestComponentDockerBuildResource(t *testing.T) {
 			Branch:    types.StringValue("master"),
 		},
 		ConnectedRepo: nil,
-		BasicDeploy:   nil,
 		EnvVar:        []EnvVar{},
 	}
 
@@ -78,7 +72,6 @@ func TestComponentDockerBuildResource(t *testing.T) {
 				Config: testAccComponentDockerBuildResource(app, component),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("nuon_docker_build_component.my_component", "name", component.Name.ValueString()),
-					resource.TestCheckResourceAttr("nuon_docker_build_component.my_component", "sync_only", component.SyncOnly.String()),
 					resource.TestCheckResourceAttr("nuon_docker_build_component.my_component", "public_repo.repo", component.PublicRepo.Repo.ValueString()),
 					resource.TestCheckResourceAttr("nuon_docker_build_component.my_component", "public_repo.directory", component.PublicRepo.Directory.ValueString()),
 					resource.TestCheckResourceAttr("nuon_docker_build_component.my_component", "public_repo.branch", component.PublicRepo.Branch.ValueString()),
@@ -95,7 +88,6 @@ func TestComponentDockerBuildResource(t *testing.T) {
 				Config: testAccComponentDockerBuildResource(app, updatedComponent),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("nuon_docker_build_component.my_component", "name", updatedComponent.Name.ValueString()),
-					resource.TestCheckResourceAttr("nuon_docker_build_component.my_component", "sync_only", updatedComponent.SyncOnly.String()),
 					resource.TestCheckResourceAttr("nuon_docker_build_component.my_component", "public_repo.repo", updatedComponent.PublicRepo.Repo.ValueString()),
 					resource.TestCheckResourceAttr("nuon_docker_build_component.my_component", "public_repo.directory", updatedComponent.PublicRepo.Directory.ValueString()),
 					resource.TestCheckResourceAttr("nuon_docker_build_component.my_component", "public_repo.branch", updatedComponent.PublicRepo.Branch.ValueString()),

@@ -38,9 +38,7 @@ type DockerBuildComponentResourceModel struct {
 	Name  types.String `tfsdk:"name"`
 	AppID types.String `tfsdk:"app_id"`
 
-	SyncOnly    types.Bool   `tfsdk:"sync_only"`
-	BasicDeploy *BasicDeploy `tfsdk:"basic_deploy"`
-	EnvVar      []EnvVar     `tfsdk:"env_var"`
+	EnvVar []EnvVar `tfsdk:"env_var"`
 
 	Dockerfile    types.String   `tfsdk:"dockerfile"`
 	ConnectedRepo *ConnectedRepo `tfsdk:"connected_repo"`
@@ -76,11 +74,6 @@ func (r *DockerBuildComponentResource) Schema(ctx context.Context, req resource.
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
-			"sync_only": schema.BoolAttribute{
-				Description: "If true, this component will be synced to install registries, but not released.",
-				Optional:    true,
-				Required:    false,
-			},
 			"dockerfile": schema.StringAttribute{
 				Description: "The Dockerfile to build from.",
 				Optional:    true,
@@ -89,7 +82,6 @@ func (r *DockerBuildComponentResource) Schema(ctx context.Context, req resource.
 			},
 			"public_repo":    publicRepoAttribute(),
 			"connected_repo": connectedRepoAttribute(),
-			"basic_deploy":   basicDeployAttribute(),
 		},
 		Blocks: map[string]schema.Block{
 			"env_var": envVarSharedBlock(),
@@ -117,22 +109,8 @@ func (r *DockerBuildComponentResource) Create(ctx context.Context, req resource.
 	configRequest := &models.ServiceCreateDockerBuildComponentConfigRequest{
 		BuildArgs:  []string{},
 		Dockerfile: data.Dockerfile.ValueString(),
-		SyncOnly:   data.SyncOnly.ValueBool(),
 		Target:     "",
 		EnvVars:    map[string]string{},
-	}
-	if data.BasicDeploy != nil {
-		configRequest.BasicDeployConfig = &models.ServiceBasicDeployConfigRequest{
-			Args:            []string{},
-			CPULimit:        "",
-			CPURequest:      "",
-			EnvVars:         map[string]string{},
-			HealthCheckPath: data.BasicDeploy.HealthCheckPath.String(),
-			InstanceCount:   data.BasicDeploy.InstanceCount.ValueInt64(),
-			ListenPort:      data.BasicDeploy.Port.ValueInt64(),
-			MemLimit:        "",
-			MemRequest:      "",
-		}
 	}
 	if data.PublicRepo != nil {
 		public := data.PublicRepo
@@ -151,9 +129,6 @@ func (r *DockerBuildComponentResource) Create(ctx context.Context, req resource.
 	}
 	for _, envVar := range data.EnvVar {
 		configRequest.EnvVars[envVar.Name.String()] = envVar.Value.String()
-		if configRequest.BasicDeployConfig != nil {
-			configRequest.BasicDeployConfig.EnvVars[envVar.Name.String()] = envVar.Value.String()
-		}
 	}
 	_, err = r.restClient.CreateDockerBuildComponentConfig(ctx, data.ID.ValueString(), configRequest)
 	if err != nil {
@@ -201,15 +176,6 @@ func (r *DockerBuildComponentResource) Read(ctx context.Context, req resource.Re
 	}
 	dockerBuild := configResp.DockerBuild
 	data.Dockerfile = types.StringValue(dockerBuild.Dockerfile)
-	data.SyncOnly = types.BoolValue(dockerBuild.SyncOnly)
-	if dockerBuild.BasicDeployConfig != nil {
-		basicDeployConfig := dockerBuild.BasicDeployConfig
-		data.BasicDeploy = &BasicDeploy{
-			HealthCheckPath: types.StringValue(basicDeployConfig.HealthCheckPath),
-			InstanceCount:   types.Int64Value(basicDeployConfig.InstanceCount),
-			Port:            types.Int64Value(basicDeployConfig.ListenPort),
-		}
-	}
 	if dockerBuild.ConnectedGithubVcsConfig != nil {
 		connected := dockerBuild.ConnectedGithubVcsConfig
 		data.ConnectedRepo = &ConnectedRepo{
@@ -306,22 +272,8 @@ func (r *DockerBuildComponentResource) Update(ctx context.Context, req resource.
 	configRequest := &models.ServiceCreateDockerBuildComponentConfigRequest{
 		BuildArgs:  []string{},
 		Dockerfile: data.Dockerfile.ValueString(),
-		SyncOnly:   data.SyncOnly.ValueBool(),
 		Target:     "",
 		EnvVars:    map[string]string{},
-	}
-	if data.BasicDeploy != nil {
-		configRequest.BasicDeployConfig = &models.ServiceBasicDeployConfigRequest{
-			Args:            []string{},
-			CPULimit:        "",
-			CPURequest:      "",
-			EnvVars:         map[string]string{},
-			HealthCheckPath: data.BasicDeploy.HealthCheckPath.String(),
-			InstanceCount:   data.BasicDeploy.InstanceCount.ValueInt64(),
-			ListenPort:      data.BasicDeploy.Port.ValueInt64(),
-			MemLimit:        "",
-			MemRequest:      "",
-		}
 	}
 	if data.PublicRepo != nil {
 		public := data.PublicRepo
@@ -340,9 +292,6 @@ func (r *DockerBuildComponentResource) Update(ctx context.Context, req resource.
 	}
 	for _, envVar := range data.EnvVar {
 		configRequest.EnvVars[envVar.Name.String()] = envVar.Value.String()
-		if configRequest.BasicDeployConfig != nil {
-			configRequest.BasicDeployConfig.EnvVars[envVar.Name.String()] = envVar.Value.String()
-		}
 	}
 	_, err = r.restClient.CreateDockerBuildComponentConfig(ctx, data.ID.ValueString(), configRequest)
 	if err != nil {

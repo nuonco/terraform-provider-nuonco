@@ -18,18 +18,16 @@ resource "nuon_app" "my_app" {
 resource "nuon_container_image_component" "my_component" {
     app_id = nuon_app.my_app.id
     name = %s
-    sync_only = %v
 
     public = {
-        image_url = %s
-        tag = %s
+	image_url = %s
+	tag = %s
     }
 
 }
 `,
 		app.Name,
 		component.Name,
-		component.SyncOnly,
 		component.Public.ImageURL,
 		component.Public.Tag,
 	)
@@ -40,10 +38,8 @@ func TestComponentContainerImageResource(t *testing.T) {
 		Name: types.StringValue(acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)),
 	}
 	component := ContainerImageComponentResourceModel{
-		Name:        types.StringValue(acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)),
-		SyncOnly:    types.BoolValue(true),
-		BasicDeploy: nil,
-		AwsEcr:      nil,
+		Name:   types.StringValue(acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)),
+		AwsEcr: nil,
 		Public: &Public{
 			ImageURL: types.StringValue("kennethreitz/httpbin"),
 			Tag:      types.StringValue("latest"),
@@ -52,12 +48,10 @@ func TestComponentContainerImageResource(t *testing.T) {
 	}
 
 	updatedComponent := ContainerImageComponentResourceModel{
-		Name:        types.StringValue(acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)),
-		SyncOnly:    component.SyncOnly,
-		BasicDeploy: component.BasicDeploy,
-		AwsEcr:      component.AwsEcr,
-		Public:      component.Public,
-		EnvVar:      component.EnvVar,
+		Name:   types.StringValue(acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)),
+		AwsEcr: component.AwsEcr,
+		Public: component.Public,
+		EnvVar: component.EnvVar,
 	}
 
 	resource.Test(t, resource.TestCase{
@@ -68,7 +62,6 @@ func TestComponentContainerImageResource(t *testing.T) {
 				Config: testAccComponentContainerImageResource(app, component),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("nuon_container_image_component.my_component", "name", component.Name.ValueString()),
-					resource.TestCheckResourceAttr("nuon_container_image_component.my_component", "sync_only", component.SyncOnly.String()),
 					resource.TestCheckResourceAttr("nuon_container_image_component.my_component", "public.image_url", component.Public.ImageURL.ValueString()),
 					resource.TestCheckResourceAttr("nuon_container_image_component.my_component", "public.tag", component.Public.Tag.ValueString()),
 				),
@@ -84,7 +77,6 @@ func TestComponentContainerImageResource(t *testing.T) {
 				Config: testAccComponentContainerImageResource(app, updatedComponent),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("nuon_container_image_component.my_component", "name", updatedComponent.Name.ValueString()),
-					resource.TestCheckResourceAttr("nuon_container_image_component.my_component", "sync_only", updatedComponent.SyncOnly.String()),
 					resource.TestCheckResourceAttr("nuon_container_image_component.my_component", "public.image_url", updatedComponent.Public.ImageURL.ValueString()),
 					resource.TestCheckResourceAttr("nuon_container_image_component.my_component", "public.tag", updatedComponent.Public.Tag.ValueString()),
 				),

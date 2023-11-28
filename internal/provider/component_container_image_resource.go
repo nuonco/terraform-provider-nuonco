@@ -47,11 +47,8 @@ type Public struct {
 type ContainerImageComponentResourceModel struct {
 	ID types.String `tfsdk:"id"`
 
-	Name     types.String `tfsdk:"name"`
-	AppID    types.String `tfsdk:"app_id"`
-	SyncOnly types.Bool   `tfsdk:"sync_only"`
-
-	BasicDeploy *BasicDeploy `tfsdk:"basic_deploy"`
+	Name  types.String `tfsdk:"name"`
+	AppID types.String `tfsdk:"app_id"`
 
 	AwsEcr *AwsEcr `tfsdk:"aws_ecr"`
 	Public *Public `tfsdk:"public"`
@@ -86,11 +83,6 @@ func (r *ContainerImageComponentResource) Schema(ctx context.Context, req resour
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
-			},
-			"sync_only": schema.BoolAttribute{
-				Description: "If true, this component will be synced to install registries, but not released.",
-				Optional:    true,
-				Required:    false,
 			},
 			"public": schema.SingleNestedAttribute{
 				Description: "Use a publically-accessible image.",
@@ -128,7 +120,6 @@ func (r *ContainerImageComponentResource) Schema(ctx context.Context, req resour
 					},
 				},
 			},
-			"basic_deploy": basicDeployAttribute(),
 		},
 		Blocks: map[string]schema.Block{
 			"env_var": envVarSharedBlock(),
@@ -153,10 +144,7 @@ func (r *ContainerImageComponentResource) Create(ctx context.Context, req resour
 	tflog.Trace(ctx, "got ID -- "+compResp.ID)
 	data.ID = types.StringValue(compResp.ID)
 
-	configRequest := &models.ServiceCreateExternalImageComponentConfigRequest{
-		BasicDeployConfig: &models.ServiceBasicDeployConfigRequest{},
-	}
-	configRequest.SyncOnly = data.SyncOnly.ValueBool()
+	configRequest := &models.ServiceCreateExternalImageComponentConfigRequest{}
 	if data.AwsEcr != nil {
 		configRequest.ImageURL = data.AwsEcr.ImageURL.ValueStringPointer()
 		configRequest.Tag = data.AwsEcr.Tag.ValueStringPointer()
@@ -168,13 +156,7 @@ func (r *ContainerImageComponentResource) Create(ctx context.Context, req resour
 		configRequest.ImageURL = data.Public.ImageURL.ValueStringPointer()
 		configRequest.Tag = data.Public.Tag.ValueStringPointer()
 	}
-	if data.BasicDeploy != nil {
-		configRequest.BasicDeployConfig = &models.ServiceBasicDeployConfigRequest{
-			ListenPort:      data.BasicDeploy.Port.ValueInt64(),
-			InstanceCount:   data.BasicDeploy.InstanceCount.ValueInt64(),
-			HealthCheckPath: data.BasicDeploy.HealthCheckPath.String(),
-		}
-	}
+
 	_, err = r.restClient.CreateExternalImageComponentConfig(ctx, compResp.ID, configRequest)
 	if err != nil {
 		// attempt to cleanup component, that is in broken state and has no config
@@ -221,8 +203,6 @@ func (r *ContainerImageComponentResource) Read(ctx context.Context, req resource
 		return
 	}
 	externalImage := configResp.ExternalImage
-	// TODO: it wants us to set the data.AppID, but we don't get that from the API
-	data.SyncOnly = types.BoolValue(externalImage.SyncOnly)
 	if externalImage.AwsEcrImageConfig != nil {
 		data.AwsEcr = &AwsEcr{
 			ImageURL:   types.StringValue(externalImage.ImageURL),
@@ -235,17 +215,6 @@ func (r *ContainerImageComponentResource) Read(ctx context.Context, req resource
 			ImageURL: types.StringValue(externalImage.ImageURL),
 			Tag:      types.StringValue(externalImage.Tag),
 		}
-	}
-	if externalImage.BasicDeployConfig != nil {
-		// TODO: setting data.BasicDeploy to any value will set it to null,
-		// causing Terraform to see it changed. Obviously this makes no sense,
-		// but I can't figure out why it's doing this, so I'm just commenting this out for now.
-		// This will need to be resolved before production use.
-		// data.BasicDeploy = &BasicDeploy{
-		//	Port:		 types.Int64Value(externalImage.BasicDeployConfig.ListenPort),
-		//	InstanceCount:	 types.Int64Value(externalImage.BasicDeployConfig.InstanceCount),
-		//	HealthCheckPath: types.StringValue(externalImage.BasicDeployConfig.HealthCheckPath),
-		// }
 	}
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
@@ -316,10 +285,7 @@ func (r *ContainerImageComponentResource) Update(ctx context.Context, req resour
 		return
 	}
 
-	configRequest := &models.ServiceCreateExternalImageComponentConfigRequest{
-		BasicDeployConfig: &models.ServiceBasicDeployConfigRequest{},
-	}
-	configRequest.SyncOnly = data.SyncOnly.ValueBool()
+	configRequest := &models.ServiceCreateExternalImageComponentConfigRequest{}
 	if data.AwsEcr != nil {
 		configRequest.ImageURL = data.AwsEcr.ImageURL.ValueStringPointer()
 		configRequest.Tag = data.AwsEcr.Tag.ValueStringPointer()
@@ -330,13 +296,6 @@ func (r *ContainerImageComponentResource) Update(ctx context.Context, req resour
 	} else {
 		configRequest.ImageURL = data.Public.ImageURL.ValueStringPointer()
 		configRequest.Tag = data.Public.Tag.ValueStringPointer()
-	}
-	if data.BasicDeploy != nil {
-		configRequest.BasicDeployConfig = &models.ServiceBasicDeployConfigRequest{
-			ListenPort:      data.BasicDeploy.Port.ValueInt64(),
-			InstanceCount:   data.BasicDeploy.InstanceCount.ValueInt64(),
-			HealthCheckPath: data.BasicDeploy.HealthCheckPath.String(),
-		}
 	}
 	_, err = r.restClient.CreateExternalImageComponentConfig(ctx, compResp.ID, configRequest)
 	if err != nil {
