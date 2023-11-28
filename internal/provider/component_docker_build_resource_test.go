@@ -18,19 +18,17 @@ resource "nuon_app" "my_app" {
 resource "nuon_docker_build_component" "my_component" {
     app_id = nuon_app.my_app.id
     name = %s
-    sync_only = %v
     dockerfile = %s
 
     public_repo = {
-        repo = %s
-        directory = %s
-        branch = %s
+	repo = %s
+	directory = %s
+	branch = %s
     }
 }
 `,
 		app.Name,
 		component.Name,
-		component.SyncOnly,
 		component.Dockerfile,
 		component.PublicRepo.Repo,
 		component.PublicRepo.Directory,
@@ -52,7 +50,6 @@ func TestComponentDockerBuildResource(t *testing.T) {
 			Branch:    types.StringValue("master"),
 		},
 		ConnectedRepo: nil,
-		BasicDeploy:   nil,
 		EnvVar:        []EnvVar{},
 	}
 
@@ -66,7 +63,6 @@ func TestComponentDockerBuildResource(t *testing.T) {
 			Branch:    types.StringValue("master"),
 		},
 		ConnectedRepo: nil,
-		BasicDeploy:   nil,
 		EnvVar:        []EnvVar{},
 	}
 

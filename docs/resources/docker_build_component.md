@@ -61,7 +61,6 @@ resource "nuon_docker_build_component" "my_component" {
 
 ### Optional
 
-- `basic_deploy` (Attributes) Create a basic deployment of this image with a listener. (see [below for nested schema](#nestedatt--basic_deploy))
 - `connected_repo` (Attributes) A repo accessible via your Nuon connected github account (see [below for nested schema](#nestedatt--connected_repo))
 - `dockerfile` (String) The Dockerfile to build from.
 - `env_var` (Block Set) Environment variables to export into the env when running the image. (see [below for nested schema](#nestedblock--env_var))
@@ -71,19 +70,6 @@ resource "nuon_docker_build_component" "my_component" {
 ### Read-Only
 
 - `id` (String) The unique ID of the component.
-
-<a id="nestedatt--basic_deploy"></a>
-### Nested Schema for `basic_deploy`
-
-Required:
-
-- `port` (Number) The port to listen on.
-
-Optional:
-
-- `health_check_path` (String) The path to use for health checks.
-- `instance_count` (Number) The number of instances to run.
-
 
 <a id="nestedatt--connected_repo"></a>
 ### Nested Schema for `connected_repo`
