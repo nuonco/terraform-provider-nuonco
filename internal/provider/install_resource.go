@@ -30,12 +30,19 @@ type InstallResource struct {
 	baseResource
 }
 
+type InstallInput struct {
+	Name  types.String `tfsdk:"name"`
+	Value types.String `tfsdk:"value"`
+}
+
 // InstallResourceModel describes the resource data model.
 type InstallResourceModel struct {
 	Name       types.String `tfsdk:"name"`
 	AppID      types.String `tfsdk:"app_id"`
 	Region     types.String `tfsdk:"region"`
 	IAMRoleARN types.String `tfsdk:"iam_role_arn"`
+
+	Inputs []InstallInput `tfsdk:"input"`
 
 	// computed
 	ID types.String `tfsdk:"id"`
@@ -86,6 +93,23 @@ func (r *InstallResource) Schema(ctx context.Context, req resource.SchemaRequest
 				},
 			},
 		},
+		Blocks: map[string]schema.Block{
+			"input": schema.SetNestedBlock{
+				Description: "An input on the install, for configuration",
+				NestedObject: schema.NestedBlockObject{
+					Attributes: map[string]schema.Attribute{
+						"name": schema.StringAttribute{
+							Description: "The input name, which must map to a defined app input",
+							Required:    true,
+						},
+						"value": schema.StringAttribute{
+							Description: "The static value. Interpolation is not supported here.",
+							Required:    true,
+						},
+					},
+				},
+			},
+		},
 	}
 }
 
@@ -99,14 +123,19 @@ func (r *InstallResource) Create(ctx context.Context, req resource.CreateRequest
 	}
 
 	tflog.Trace(ctx, "creating install")
-
-	installResp, err := r.restClient.CreateInstall(ctx, data.AppID.ValueString(), &models.ServiceCreateInstallRequest{
+	createReq := &models.ServiceCreateInstallRequest{
 		Name: data.Name.ValueStringPointer(),
 		AwsAccount: &models.ServiceCreateInstallRequestAwsAccount{
 			Region:     data.Region.ValueString(),
 			IamRoleArn: data.IAMRoleARN.ValueStringPointer(),
 		},
-	})
+		Inputs: make(map[string]string, 0),
+	}
+	for _, input := range data.Inputs {
+		createReq.Inputs[input.Name.ValueString()] = input.Value.ValueString()
+	}
+
+	installResp, err := r.restClient.CreateInstall(ctx, data.AppID.ValueString(), createReq)
 	if err != nil {
 		writeDiagnosticsErr(ctx, &resp.Diagnostics, err, "create install")
 		return
@@ -172,6 +201,25 @@ func (r *InstallResource) Read(ctx context.Context, req resource.ReadRequest, re
 	data.IAMRoleARN = types.StringValue(installResp.AwsAccount.IamRoleArn)
 	data.Region = types.StringValue(installResp.AwsAccount.Region)
 
+	inputs, err := r.restClient.GetInstallCurrentInputs(ctx, data.ID.ValueString())
+	if err != nil && !nuon.IsNotFound(err) {
+		writeDiagnosticsErr(ctx, &resp.Diagnostics, err, "get install inputs")
+		return
+	}
+
+	// if no inputs are found, it means that no inputs were defined, and this is not an actual error, just empty
+	// state.
+	data.Inputs = []InstallInput{}
+	if nuon.IsNotFound(err) {
+		resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
+		return
+	}
+	for name, value := range inputs.Values {
+		data.Inputs = append(data.Inputs, InstallInput{
+			Name:  types.StringValue(name),
+			Value: types.StringValue(value),
+		})
+	}
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
@@ -199,6 +247,19 @@ func (r *InstallResource) Update(ctx context.Context, req resource.UpdateRequest
 	// data.AppID = types.StringValue(installResp.AppID)
 	// data.IAMRoleARN = types.StringValue(installResp.AwsAccount.IamRoleArn)
 	// data.Region = types.StringValue(installResp.AwsAccount.Region)
+
+	updateReq := &models.ServiceCreateInstallInputsRequest{
+		Inputs: make(map[string]string, 0),
+	}
+	for _, input := range data.Inputs {
+		updateReq.Inputs[input.Name.ValueString()] = input.Value.ValueString()
+	}
+
+	_, err = r.restClient.CreateInstallInputs(ctx, data.ID.ValueString(), updateReq)
+	if err != nil {
+		writeDiagnosticsErr(ctx, &resp.Diagnostics, err, "update install")
+		return
+	}
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }

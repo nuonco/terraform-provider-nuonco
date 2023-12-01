@@ -38,11 +38,11 @@ type AppSandboxResourceModel struct {
 	PublicRepo              *PublicRepo    `tfsdk:"public_repo"`
 	ConnectedRepo           *ConnectedRepo `tfsdk:"connected_repo"`
 
-	Inputs           []SandboxInput `tfsdk:"input"`
-	TerraformVersion types.String   `tfsdk:"terraform_version"`
+	Variables        []SandboxVar `tfsdk:"var"`
+	TerraformVersion types.String `tfsdk:"terraform_version"`
 }
 
-type SandboxInput struct {
+type SandboxVar struct {
 	Name  types.String `tfsdk:"name"`
 	Value types.String `tfsdk:"value"`
 }
@@ -84,16 +84,16 @@ func (r *AppSandboxResource) Schema(ctx context.Context, req resource.SchemaRequ
 			"connected_repo": connectedRepoAttribute(),
 		},
 		Blocks: map[string]schema.Block{
-			"input": schema.SetNestedBlock{
-				Description: "default sandbox inputs that will be used on each install. Can use Nuon interpolation language.",
+			"var": schema.SetNestedBlock{
+				Description: "default sandbox vars that will be used on each install. Can use Nuon interpolation language.",
 				NestedObject: schema.NestedBlockObject{
 					Attributes: map[string]schema.Attribute{
 						"name": schema.StringAttribute{
-							Description: "The input name to be used, which will be used as a terraform variable input to the sandbox.",
+							Description: "The var name to be used, which will be used as a terraform variable input to the sandbox.",
 							Required:    true,
 						},
 						"value": schema.StringAttribute{
-							Description: "The static value, or interpolate value to set.",
+							Description: "The static value, or interpolated value to set.",
 							Required:    true,
 						},
 					},
@@ -132,7 +132,7 @@ func (r *AppSandboxResource) getConfigRequest(data *AppSandboxResourceModel) (*m
 	}
 
 	// configure inputs
-	for _, input := range data.Inputs {
+	for _, input := range data.Variables {
 		cfgReq.SandboxInputs[input.Name.ValueString()] = input.Value.ValueString()
 	}
 	cfgReq.TerraformVersion = toPtr(data.TerraformVersion.ValueString())
@@ -163,14 +163,14 @@ func (r *AppSandboxResource) writeStateData(data *AppSandboxResourceModel, resp 
 		data.BuiltinSandboxReleaseID = types.StringValue(resp.SandboxReleaseID)
 	}
 
-	inputs := []SandboxInput{}
-	for key, val := range resp.SandboxInputs {
-		inputs = append(inputs, SandboxInput{
+	inputs := []SandboxVar{}
+	for key, val := range resp.Variables {
+		inputs = append(inputs, SandboxVar{
 			Name:  types.StringValue(key),
 			Value: types.StringValue(val),
 		})
 	}
-	data.Inputs = inputs
+	data.Variables = inputs
 	data.TerraformVersion = types.StringValue(resp.TerraformVersion)
 }
 

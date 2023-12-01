@@ -24,8 +24,8 @@ Sandbox configuration for an app.
 
 - `builtin_sandbox_release_id` (String) release ID for a built in sandbox to use
 - `connected_repo` (Attributes) A repo accessible via your Nuon connected github account (see [below for nested schema](#nestedatt--connected_repo))
-- `input` (Block Set) default sandbox inputs that will be used on each install. Can use Nuon interpolation language. (see [below for nested schema](#nestedblock--input))
 - `public_repo` (Attributes) A publically-accessible git repo. (see [below for nested schema](#nestedatt--public_repo))
+- `var` (Block Set) default sandbox vars that will be used on each install. Can use Nuon interpolation language. (see [below for nested schema](#nestedblock--var))
 
 ### Read-Only
 
@@ -44,15 +44,6 @@ Optional:
 - `directory` (String) The directory the component code is in.
 
 
-<a id="nestedblock--input"></a>
-### Nested Schema for `input`
-
-Required:
-
-- `name` (String) The input name to be used, which will be used as a terraform variable input to the sandbox.
-- `value` (String) The static value, or interpolate value to set.
-
-
 <a id="nestedatt--public_repo"></a>
 ### Nested Schema for `public_repo`
 
@@ -64,3 +55,12 @@ Required:
 Optional:
 
 - `directory` (String) The directory the component code is in.
+
+
+<a id="nestedblock--var"></a>
+### Nested Schema for `var`
+
+Required:
+
+- `name` (String) The var name to be used, which will be used as a terraform variable input to the sandbox.
+- `value` (String) The static value, or interpolated value to set.
