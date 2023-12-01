@@ -108,7 +108,7 @@ func (r *DockerBuildComponentResource) Create(ctx context.Context, req resource.
 
 	configRequest := &models.ServiceCreateDockerBuildComponentConfigRequest{
 		BuildArgs:  []string{},
-		Dockerfile: data.Dockerfile.ValueString(),
+		Dockerfile: toPtr(data.Dockerfile.ValueString()),
 		Target:     "",
 		EnvVars:    map[string]string{},
 	}
@@ -271,7 +271,7 @@ func (r *DockerBuildComponentResource) Update(ctx context.Context, req resource.
 
 	configRequest := &models.ServiceCreateDockerBuildComponentConfigRequest{
 		BuildArgs:  []string{},
-		Dockerfile: data.Dockerfile.ValueString(),
+		Dockerfile: toPtr(data.Dockerfile.ValueString()),
 		Target:     "",
 		EnvVars:    map[string]string{},
 	}
