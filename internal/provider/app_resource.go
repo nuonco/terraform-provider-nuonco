@@ -211,7 +211,7 @@ func (r *AppResource) Delete(ctx context.Context, req resource.DeleteRequest, re
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 
 	stateConf := &retry.StateChangeConf{
-		Pending: []string{statusDeleteQueued, statusDeprovisioning, statusTemporarilyUnavailable},
+		Pending: []string{statusDeleteQueued, statusDeprovisioning, statusTemporarilyUnavailable, statusActive},
 		Target:  []string{statusNotFound},
 		Refresh: func() (interface{}, string, error) {
 			tflog.Trace(ctx, "refreshing app status")
