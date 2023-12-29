@@ -35,13 +35,14 @@ type JobComponentResource struct {
 type JobComponentResourceModel struct {
 	ID types.String `tfsdk:"id"`
 
-	Name     types.String `tfsdk:"name"`
-	AppID    types.String `tfsdk:"app_id"`
-	ImageURL types.String `tfsdk:"image_url"`
-	Tag      types.String `tfsdk:"tag"`
-	Cmd      types.List   `tfsdk:"cmd"`
-	Args     types.List   `tfsdk:"args"`
-	EnvVar   EnvVarSlice  `tfsdk:"env_var"`
+	Name         types.String `tfsdk:"name"`
+	Dependencies types.List   `tfsdk:"dependencies"`
+	AppID        types.String `tfsdk:"app_id"`
+	ImageURL     types.String `tfsdk:"image_url"`
+	Tag          types.String `tfsdk:"tag"`
+	Cmd          types.List   `tfsdk:"cmd"`
+	Args         types.List   `tfsdk:"args"`
+	EnvVar       EnvVarSlice  `tfsdk:"env_var"`
 }
 
 func (r *JobComponentResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -71,6 +72,12 @@ func (r *JobComponentResource) Schema(ctx context.Context, req resource.SchemaRe
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
+			},
+			"dependencies": schema.ListAttribute{
+				ElementType: types.StringType,
+				Description: "Component dependencies",
+				Optional:    true,
+				Required:    false,
 			},
 			"image_url": schema.StringAttribute{
 				Description: "The full image URL or docker hub alias (e.g. kennethreitz/httpbin).",
@@ -104,8 +111,16 @@ func (r *JobComponentResource) Create(ctx context.Context, req resource.CreateRe
 		return
 	}
 
+	tflog.Trace(ctx, "creating component")
+
+	dependencies := make([]string, 0)
+	resp.Diagnostics.Append(data.Dependencies.ElementsAs(ctx, &dependencies, false)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 	compResp, err := r.restClient.CreateComponent(ctx, data.AppID.ValueString(), &models.ServiceCreateComponentRequest{
-		Name: data.Name.ValueStringPointer(),
+		Name:         data.Name.ValueStringPointer(),
+		Dependencies: dependencies,
 	})
 	if err != nil {
 		writeDiagnosticsErr(ctx, &resp.Diagnostics, err, "create component")
@@ -232,8 +247,15 @@ func (r *JobComponentResource) Update(ctx context.Context, req resource.UpdateRe
 	}
 
 	tflog.Trace(ctx, "updating component "+data.ID.ValueString())
+
+	dependencies := make([]string, 0)
+	resp.Diagnostics.Append(data.Dependencies.ElementsAs(ctx, &dependencies, false)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 	compResp, err := r.restClient.UpdateComponent(ctx, data.ID.ValueString(), &models.ServiceUpdateComponentRequest{
-		Name: data.Name.ValueStringPointer(),
+		Name:         data.Name.ValueStringPointer(),
+		Dependencies: dependencies,
 	})
 	if err != nil {
 		writeDiagnosticsErr(ctx, &resp.Diagnostics, err, "update component")
