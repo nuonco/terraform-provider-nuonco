@@ -42,6 +42,7 @@ type TerraformModuleComponentResourceModel struct {
 	ID types.String `tfsdk:"id"`
 
 	Name             types.String        `tfsdk:"name"`
+	Dependencies     types.List          `tfsdk:"dependencies"`
 	AppID            types.String        `tfsdk:"app_id"`
 	TerraformVersion types.String        `tfsdk:"terraform_version"`
 	PublicRepo       *PublicRepo         `tfsdk:"public_repo"`
@@ -77,6 +78,12 @@ func (r *TerraformModuleComponentResource) Schema(ctx context.Context, req resou
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
+			},
+			"dependencies": schema.ListAttribute{
+				ElementType: types.StringType,
+				Description: "Component dependencies",
+				Optional:    true,
+				Required:    false,
 			},
 			"terraform_version": schema.StringAttribute{
 				Description: "The version of Terraform to use.",
@@ -118,8 +125,14 @@ func (r *TerraformModuleComponentResource) Create(ctx context.Context, req resou
 
 	tflog.Trace(ctx, "creating component")
 
+	dependencies := make([]string, 0)
+	resp.Diagnostics.Append(data.Dependencies.ElementsAs(ctx, &dependencies, false)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 	compResp, err := r.restClient.CreateComponent(ctx, data.AppID.ValueString(), &models.ServiceCreateComponentRequest{
-		Name: data.Name.ValueStringPointer(),
+		Name:         data.Name.ValueStringPointer(),
+		Dependencies: dependencies,
 	})
 	if err != nil {
 		writeDiagnosticsErr(ctx, &resp.Diagnostics, err, "create component")
@@ -302,8 +315,14 @@ func (r *TerraformModuleComponentResource) Update(ctx context.Context, req resou
 
 	tflog.Trace(ctx, "updating component "+data.ID.ValueString())
 
+	dependencies := make([]string, 0)
+	resp.Diagnostics.Append(data.Dependencies.ElementsAs(ctx, &dependencies, false)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 	compResp, err := r.restClient.UpdateComponent(ctx, data.ID.ValueString(), &models.ServiceUpdateComponentRequest{
-		Name: data.Name.ValueStringPointer(),
+		Name:         data.Name.ValueStringPointer(),
+		Dependencies: dependencies,
 	})
 	if err != nil {
 		writeDiagnosticsErr(ctx, &resp.Diagnostics, err, "update component")
