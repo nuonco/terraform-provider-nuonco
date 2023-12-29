@@ -34,9 +34,10 @@ type DockerBuildComponentResource struct {
 
 // DockerBuildComponentResourceModel describes the resource data model.
 type DockerBuildComponentResourceModel struct {
-	ID    types.String `tfsdk:"id"`
-	Name  types.String `tfsdk:"name"`
-	AppID types.String `tfsdk:"app_id"`
+	ID           types.String `tfsdk:"id"`
+	Name         types.String `tfsdk:"name"`
+	Dependencies types.List   `tfsdk:"dependencies"`
+	AppID        types.String `tfsdk:"app_id"`
 
 	EnvVar []EnvVar `tfsdk:"env_var"`
 
@@ -65,6 +66,12 @@ func (r *DockerBuildComponentResource) Schema(ctx context.Context, req resource.
 				Description: "The human-readable name of the component.",
 				Optional:    false,
 				Required:    true,
+			},
+			"dependencies": schema.ListAttribute{
+				ElementType: types.StringType,
+				Description: "Component dependencies",
+				Optional:    true,
+				Required:    false,
 			},
 			"app_id": schema.StringAttribute{
 				Description: "The unique ID of the app this component belongs too.",
@@ -96,8 +103,16 @@ func (r *DockerBuildComponentResource) Create(ctx context.Context, req resource.
 		return
 	}
 
+	tflog.Trace(ctx, "creating component")
+
+	dependencies := make([]string, 0)
+	resp.Diagnostics.Append(data.Dependencies.ElementsAs(ctx, &dependencies, false)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 	compResp, err := r.restClient.CreateComponent(ctx, data.AppID.ValueString(), &models.ServiceCreateComponentRequest{
-		Name: data.Name.ValueStringPointer(),
+		Name:         data.Name.ValueStringPointer(),
+		Dependencies: dependencies,
 	})
 	if err != nil {
 		writeDiagnosticsErr(ctx, &resp.Diagnostics, err, "create component")
@@ -260,8 +275,14 @@ func (r *DockerBuildComponentResource) Update(ctx context.Context, req resource.
 
 	tflog.Trace(ctx, "updating component "+data.ID.ValueString())
 
+	dependencies := make([]string, 0)
+	resp.Diagnostics.Append(data.Dependencies.ElementsAs(ctx, &dependencies, false)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 	compResp, err := r.restClient.UpdateComponent(ctx, data.ID.ValueString(), &models.ServiceUpdateComponentRequest{
-		Name: data.Name.ValueStringPointer(),
+		Name:         data.Name.ValueStringPointer(),
+		Dependencies: dependencies,
 	})
 	if err != nil {
 		writeDiagnosticsErr(ctx, &resp.Diagnostics, err, "update component")

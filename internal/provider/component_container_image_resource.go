@@ -47,8 +47,9 @@ type Public struct {
 type ContainerImageComponentResourceModel struct {
 	ID types.String `tfsdk:"id"`
 
-	Name  types.String `tfsdk:"name"`
-	AppID types.String `tfsdk:"app_id"`
+	Name         types.String `tfsdk:"name"`
+	Dependencies types.List   `tfsdk:"dependencies"`
+	AppID        types.String `tfsdk:"app_id"`
 
 	AwsEcr *AwsEcr `tfsdk:"aws_ecr"`
 	Public *Public `tfsdk:"public"`
@@ -83,6 +84,12 @@ func (r *ContainerImageComponentResource) Schema(ctx context.Context, req resour
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
+			},
+			"dependencies": schema.ListAttribute{
+				ElementType: types.StringType,
+				Description: "Component dependencies",
+				Optional:    true,
+				Required:    false,
 			},
 			"public": schema.SingleNestedAttribute{
 				Description: "Use a publically-accessible image.",
@@ -134,8 +141,17 @@ func (r *ContainerImageComponentResource) Create(ctx context.Context, req resour
 		return
 	}
 
+	tflog.Trace(ctx, "creating component")
+
+	dependencies := make([]string, 0)
+	resp.Diagnostics.Append(data.Dependencies.ElementsAs(ctx, &dependencies, false)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
 	compResp, err := r.restClient.CreateComponent(ctx, data.AppID.ValueString(), &models.ServiceCreateComponentRequest{
-		Name: data.Name.ValueStringPointer(),
+		Name:         data.Name.ValueStringPointer(),
+		Dependencies: dependencies,
 	})
 	if err != nil {
 		writeDiagnosticsErr(ctx, &resp.Diagnostics, err, "create component")
@@ -277,8 +293,15 @@ func (r *ContainerImageComponentResource) Update(ctx context.Context, req resour
 	}
 
 	tflog.Trace(ctx, "updating component "+data.ID.ValueString())
+
+	dependencies := make([]string, 0)
+	resp.Diagnostics.Append(data.Dependencies.ElementsAs(ctx, &dependencies, false)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 	compResp, err := r.restClient.UpdateComponent(ctx, data.ID.ValueString(), &models.ServiceUpdateComponentRequest{
-		Name: data.Name.ValueStringPointer(),
+		Name:         data.Name.ValueStringPointer(),
+		Dependencies: dependencies,
 	})
 	if err != nil {
 		writeDiagnosticsErr(ctx, &resp.Diagnostics, err, "update component")
