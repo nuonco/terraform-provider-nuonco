@@ -109,6 +109,7 @@ func (p *Provider) Resources(ctx context.Context) []func() resource.Resource {
 		NewAppInputResource,
 		NewAppInstallerResource,
 		NewAppSandboxResource,
+		NewAppRunnerResource,
 		NewInstallResource,
 		NewContainerImageComponentResource,
 		NewDockerBuildComponentResource,
