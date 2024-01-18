@@ -62,6 +62,7 @@ resource "nuon_docker_build_component" "my_component" {
 ### Optional
 
 - `connected_repo` (Attributes) A repo accessible via your Nuon connected github account (see [below for nested schema](#nestedatt--connected_repo))
+- `dependencies` (List of String) Component dependencies
 - `dockerfile` (String) The Dockerfile to build from.
 - `env_var` (Block Set) Environment variables to export into the env when running the image. (see [below for nested schema](#nestedblock--env_var))
 - `public_repo` (Attributes) A publically-accessible git repo. (see [below for nested schema](#nestedatt--public_repo))

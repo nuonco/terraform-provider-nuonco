@@ -26,6 +26,7 @@ Release a container as a k8s job.
 
 - `args` (List of String) Arguments to pass to the command.
 - `cmd` (List of String) The command to execute.
+- `dependencies` (List of String) Component dependencies
 - `env_var` (Block Set) Environment variables to export into the env when running the image. (see [below for nested schema](#nestedblock--env_var))
 
 ### Read-Only

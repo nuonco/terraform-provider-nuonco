@@ -52,6 +52,18 @@ resource "nuon_install" "customer_three" {
 - `name` (String) The unique ID of the install.
 - `region` (String) The AWS region to create in the install in.
 
+### Optional
+
+- `input` (Block Set) An input on the install, for configuration (see [below for nested schema](#nestedblock--input))
+
 ### Read-Only
 
 - `id` (String) The unique ID of the install
+
+<a id="nestedblock--input"></a>
+### Nested Schema for `input`
+
+Required:
+
+- `name` (String) The input name, which must map to a defined app input
+- `value` (String) The static value. Interpolation is not supported here.
