@@ -14,7 +14,7 @@ Build and release any image in a connected or public github repo.
 
 ```terraform
 resource "nuon_app" "my_app" {
-  name = "My App"
+  name = "my_app"
 }
 
 data "nuon_connected_repo" "my_repo" {
@@ -22,7 +22,7 @@ data "nuon_connected_repo" "my_repo" {
 }
 
 resource "nuon_docker_build_component" "my_component" {
-  name   = "My Component"
+  name   = "my_component"
   app_id = nuon_app.my_app.id
 
   connected_repo = {
