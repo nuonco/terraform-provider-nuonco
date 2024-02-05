@@ -14,11 +14,11 @@ Use a Docker, ECR or OCI compatible image as a component.
 
 ```terraform
 resource "nuon_app" "my_app" {
-  name = "My App"
+  name = "my_app"
 }
 
 resource "nuon_container_image_component" "my_component" {
-  name   = "My Component"
+  name   = "my_component"
   app_id = nuon_app.my_app.id
 
   public = {

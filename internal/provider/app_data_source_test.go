@@ -16,7 +16,7 @@ func TestAppDataSource(t *testing.T) {
                     id = "app123"
                 }`,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.nuon_app.my_app", "name", "My App"),
+					resource.TestCheckResourceAttr("data.nuon_app.my_app", "name", "my_app"),
 					resource.TestCheckResourceAttr("data.nuon_app.my_app", "id", "app123"),
 				),
 			},

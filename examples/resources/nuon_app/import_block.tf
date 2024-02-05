@@ -6,5 +6,5 @@ import {
 }
 
 resource "nuon_app" "my_app" {
-  name = "My App"
+  name = "my_app"
 }
