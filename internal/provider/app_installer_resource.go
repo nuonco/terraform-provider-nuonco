@@ -70,6 +70,9 @@ func (r *AppInstallerResource) Schema(ctx context.Context, req resource.SchemaRe
 				MarkdownDescription: "URL slug to access app from.",
 				Optional:            false,
 				Required:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 			"documentation_url": schema.StringAttribute{
 				MarkdownDescription: "Documentation url",
