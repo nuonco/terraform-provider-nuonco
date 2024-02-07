@@ -4,11 +4,16 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"os"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/nuonco/nuon-go"
+)
+
+const (
+	nuonDebugEnvVarName string = "NUON_DEBUG"
 )
 
 func writeDiagnosticsErr(_ context.Context, diagnostics *diag.Diagnostics, err error, op string) {
@@ -21,6 +26,10 @@ func writeDiagnosticsErr(_ context.Context, diagnostics *diag.Diagnostics, err e
 	stateErr := &retry.UnexpectedStateError{}
 	if errors.As(err, &stateErr) {
 		msg = fmt.Sprintf("Error polling state change for resource. This may require manual intervention. %s\nError: %s", msg, err)
+	}
+
+	if os.Getenv(nuonDebugEnvVarName) != "" {
+		msg += "\n" + err.Error()
 	}
 
 	diagnostics.AddError(
