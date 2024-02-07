@@ -133,7 +133,8 @@ func (r *AppInstallerResource) Create(ctx context.Context, req resource.CreateRe
 
 	// create app
 	tflog.Trace(ctx, "creating app installer")
-	appResp, err := r.restClient.CreateAppInstaller(ctx, data.AppID.ValueString(), &models.ServiceCreateAppInstallerRequest{
+	appResp, err := r.restClient.CreateAppInstaller(ctx, &models.ServiceCreateAppInstallerRequest{
+		AppID:       data.AppID.ValueStringPointer(),
 		Name:        data.Name.ValueStringPointer(),
 		Description: data.Description.ValueStringPointer(),
 		Slug:        data.Slug.ValueStringPointer(),
