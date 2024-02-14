@@ -40,6 +40,8 @@ type AppInstallerResourceModel struct {
 	Name        types.String `tfsdk:"name"`
 	Description types.String `tfsdk:"description"`
 
+	PostInstallMarkdown types.String `tfsdk:"post_install_markdown"`
+
 	DocumentationURL types.String `tfsdk:"documentation_url"`
 	HomepageURL      types.String `tfsdk:"homepage_url"`
 	CommunityURL     types.String `tfsdk:"community_url"`
@@ -63,6 +65,11 @@ func (r *AppInstallerResource) Schema(ctx context.Context, req resource.SchemaRe
 			},
 			"description": schema.StringAttribute{
 				MarkdownDescription: "Short description of app.",
+				Optional:            false,
+				Required:            true,
+			},
+			"post_install_markdown": schema.StringAttribute{
+				MarkdownDescription: "Markdown that will be shown to users after a successful install. Supports interpolation.",
 				Optional:            false,
 				Required:            true,
 			},
@@ -133,11 +140,12 @@ func (r *AppInstallerResource) Create(ctx context.Context, req resource.CreateRe
 
 	// create app
 	tflog.Trace(ctx, "creating app installer")
-	appResp, err := r.restClient.CreateAppInstaller(ctx, &models.ServiceCreateAppInstallerRequest{
-		AppID:       data.AppID.ValueStringPointer(),
-		Name:        data.Name.ValueStringPointer(),
-		Description: data.Description.ValueStringPointer(),
-		Slug:        data.Slug.ValueStringPointer(),
+	appResp, err := r.restClient.CreateInstaller(ctx, &models.ServiceCreateAppInstallerRequest{
+		AppID:               data.AppID.ValueStringPointer(),
+		Name:                data.Name.ValueStringPointer(),
+		Description:         data.Description.ValueStringPointer(),
+		Slug:                data.Slug.ValueStringPointer(),
+		PostInstallMarkdown: data.PostInstallMarkdown.ValueString(),
 		Links: &models.ServiceCreateAppInstallerRequestLinks{
 			Community:     data.CommunityURL.ValueStringPointer(),
 			Documentation: data.DocumentationURL.ValueStringPointer(),
@@ -162,6 +170,7 @@ func (r *AppInstallerResource) Create(ctx context.Context, req resource.CreateRe
 	data.DocumentationURL = types.StringValue(appResp.AppInstallerMetadata.DocumentationURL)
 	data.HomepageURL = types.StringValue(appResp.AppInstallerMetadata.HomepageURL)
 	data.LogoURL = types.StringValue(appResp.AppInstallerMetadata.LogoURL)
+	data.PostInstallMarkdown = types.StringValue(appResp.AppInstallerMetadata.PostInstallMarkdown)
 
 	if appResp.AppInstallerMetadata.DemoURL != "" {
 		data.DemoURL = types.StringValue(appResp.AppInstallerMetadata.DemoURL)
@@ -179,7 +188,7 @@ func (r *AppInstallerResource) Read(ctx context.Context, req resource.ReadReques
 
 	tflog.Trace(ctx, "reading app installer")
 
-	appResp, err := r.restClient.GetAppInstaller(ctx, data.Id.ValueString())
+	appResp, err := r.restClient.GetInstaller(ctx, data.Id.ValueString())
 	if nuon.IsNotFound(err) {
 		resp.State.RemoveResource(ctx)
 		return
@@ -199,6 +208,7 @@ func (r *AppInstallerResource) Read(ctx context.Context, req resource.ReadReques
 	data.DocumentationURL = types.StringValue(appResp.AppInstallerMetadata.DocumentationURL)
 	data.HomepageURL = types.StringValue(appResp.AppInstallerMetadata.HomepageURL)
 	data.LogoURL = types.StringValue(appResp.AppInstallerMetadata.LogoURL)
+	data.PostInstallMarkdown = types.StringValue(appResp.AppInstallerMetadata.PostInstallMarkdown)
 	if appResp.AppInstallerMetadata.DemoURL != "" {
 		data.DemoURL = types.StringValue(appResp.AppInstallerMetadata.DemoURL)
 	}
@@ -219,10 +229,11 @@ func (r *AppInstallerResource) Update(ctx context.Context, req resource.UpdateRe
 	tflog.Trace(ctx, "updating app installer")
 
 	// update app
-	_, err := r.restClient.UpdateAppInstaller(ctx, data.Id.ValueString(), &models.ServiceUpdateAppInstallerRequest{
-		Name:        data.Name.ValueStringPointer(),
-		Description: data.Description.ValueStringPointer(),
-		Links: &models.ServiceUpdateAppInstallerRequestLinks{
+	_, err := r.restClient.UpdateInstaller(ctx, data.Id.ValueString(), &models.ServiceUpdateInstallerRequest{
+		Name:                data.Name.ValueStringPointer(),
+		Description:         data.Description.ValueStringPointer(),
+		PostInstallMarkdown: data.PostInstallMarkdown.ValueString(),
+		Links: &models.ServiceUpdateInstallerRequestLinks{
 			Community:     data.CommunityURL.ValueStringPointer(),
 			Documentation: data.DocumentationURL.ValueStringPointer(),
 			Homepage:      data.HomepageURL.ValueStringPointer(),
@@ -236,7 +247,7 @@ func (r *AppInstallerResource) Update(ctx context.Context, req resource.UpdateRe
 		return
 	}
 
-	appResp, err := r.restClient.GetAppInstaller(ctx, data.Id.ValueString())
+	appResp, err := r.restClient.GetInstaller(ctx, data.Id.ValueString())
 	if nuon.IsNotFound(err) {
 		resp.State.RemoveResource(ctx)
 		return
@@ -256,6 +267,7 @@ func (r *AppInstallerResource) Update(ctx context.Context, req resource.UpdateRe
 	data.DocumentationURL = types.StringValue(appResp.AppInstallerMetadata.DocumentationURL)
 	data.HomepageURL = types.StringValue(appResp.AppInstallerMetadata.HomepageURL)
 	data.LogoURL = types.StringValue(appResp.AppInstallerMetadata.LogoURL)
+	data.PostInstallMarkdown = types.StringValue(appResp.AppInstallerMetadata.PostInstallMarkdown)
 	if appResp.AppInstallerMetadata.DemoURL != "" {
 		data.DemoURL = types.StringValue(appResp.AppInstallerMetadata.DemoURL)
 	}
@@ -274,7 +286,7 @@ func (r *AppInstallerResource) Delete(ctx context.Context, req resource.DeleteRe
 
 	tflog.Trace(ctx, "deleting app installer")
 
-	deleted, err := r.restClient.DeleteAppInstaller(ctx, data.Id.ValueString())
+	deleted, err := r.restClient.DeleteInstaller(ctx, data.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Unable to delete app installer",
