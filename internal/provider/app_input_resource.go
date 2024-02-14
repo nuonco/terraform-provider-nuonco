@@ -38,6 +38,7 @@ type AppInputResourceModel struct {
 type AppInput struct {
 	Name        types.String `tfsdk:"name"`
 	Description types.String `tfsdk:"description"`
+	DisplayName types.String `tfsdk:"display_name"`
 	Required    types.Bool   `tfsdk:"required"`
 	Default     types.String `tfsdk:"default"`
 }
@@ -73,6 +74,10 @@ func (r *AppInputResource) Schema(ctx context.Context, req resource.SchemaReques
 							Description: "The input name to be used, which will be used to expose this in the interpolation language, using `.nuon.install.inputs.input_name`",
 							Required:    true,
 						},
+						"display_name": schema.StringAttribute{
+							Description: "Human readable display name.",
+							Required:    true,
+						},
 						"default": schema.StringAttribute{
 							Description: "Default value for input",
 							Required:    true,
@@ -101,6 +106,7 @@ func (r *AppInputResource) getConfigRequest(data *AppInputResourceModel) (*model
 	for _, input := range data.Inputs {
 		cfgReq.Inputs[input.Name.ValueString()] = models.ServiceAppInputRequest{
 			Default:     input.Default.ValueString(),
+			DisplayName: toPtr(input.DisplayName.ValueString()),
 			Description: toPtr(input.Description.ValueString()),
 			Required:    input.Required.ValueBool(),
 		}
@@ -116,6 +122,7 @@ func (r *AppInputResource) writeStateData(data *AppInputResourceModel, resp *mod
 		inputs = append(inputs, AppInput{
 			Name:        types.StringValue(inp.Name),
 			Description: types.StringValue(inp.Description),
+			DisplayName: types.StringValue(inp.DisplayName),
 			Default:     types.StringValue(inp.Default),
 			Required:    types.BoolValue(inp.Required),
 		})
