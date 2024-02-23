@@ -25,6 +25,7 @@ A public installer page for a nuon app.
 - `homepage_url` (String) Homepage url
 - `logo_url` (String) Logo image to display on page.
 - `name` (String) App name to render on install page.
+- `post_install_markdown` (String) Markdown that will be shown to users after a successful install. Supports interpolation.
 - `slug` (String) URL slug to access app from.
 
 ### Optional
