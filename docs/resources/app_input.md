@@ -34,5 +34,10 @@ Required:
 
 - `default` (String) Default value for input
 - `description` (String) Description of input.
+- `display_name` (String) Human readable display name.
 - `name` (String) The input name to be used, which will be used to expose this in the interpolation language, using `.nuon.install.inputs.input_name`
-- `required` (Boolean) Mark whether this field is required or not.
+
+Optional:
+
+- `required` (Boolean) Mark whether this input is required or not.
+- `sensitive` (Boolean) Mark whether the input is required or not

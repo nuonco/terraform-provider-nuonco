@@ -41,6 +41,7 @@ type AppInput struct {
 	DisplayName types.String `tfsdk:"display_name"`
 	Required    types.Bool   `tfsdk:"required"`
 	Default     types.String `tfsdk:"default"`
+	Sensitive   types.Bool   `tfsdk:"sensitive"`
 }
 
 func (r *AppInputResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -87,8 +88,12 @@ func (r *AppInputResource) Schema(ctx context.Context, req resource.SchemaReques
 							Required:    true,
 						},
 						"required": schema.BoolAttribute{
-							Description: "Mark whether this field is required or not.",
-							Required:    true,
+							Description: "Mark whether this input is required or not.",
+							Optional:    true,
+						},
+						"sensitive": schema.BoolAttribute{
+							Description: "Mark whether the input is required or not",
+							Optional:    true,
 						},
 					},
 				},
@@ -109,6 +114,7 @@ func (r *AppInputResource) getConfigRequest(data *AppInputResourceModel) (*model
 			DisplayName: toPtr(input.DisplayName.ValueString()),
 			Description: toPtr(input.Description.ValueString()),
 			Required:    input.Required.ValueBool(),
+			Sensitive:   input.Sensitive.ValueBool(),
 		}
 	}
 
@@ -125,6 +131,7 @@ func (r *AppInputResource) writeStateData(data *AppInputResourceModel, resp *mod
 			DisplayName: types.StringValue(inp.DisplayName),
 			Default:     types.StringValue(inp.Default),
 			Required:    types.BoolValue(inp.Required),
+			Sensitive:   types.BoolValue(inp.Sensitive),
 		})
 	}
 	data.Inputs = inputs

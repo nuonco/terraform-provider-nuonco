@@ -11,7 +11,7 @@ require (
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.29.0
 	github.com/hashicorp/terraform-plugin-testing v1.5.1
 	github.com/mitchellh/go-homedir v1.1.0
-	github.com/nuonco/nuon-go v0.19.1
+	github.com/nuonco/nuon-go v0.19.2
 	github.com/spf13/cobra v1.7.1-0.20230908172906-0c72800b8dba
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.17.0
