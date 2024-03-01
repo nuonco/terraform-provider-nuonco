@@ -166,9 +166,9 @@ func (r *ContainerImageComponentResource) Create(ctx context.Context, req resour
 		configRequest.Tag = data.AwsEcr.Tag.ValueStringPointer()
 		configRequest.AwsEcrImageConfig = &models.ServiceAwsECRImageConfigRequest{
 			AwsRegion:  data.AwsEcr.Region.ValueString(),
-			IamRoleArn: data.AwsEcr.Region.ValueString(),
+			IamRoleArn: data.AwsEcr.IAMRoleARN.ValueString(),
 		}
-	} else {
+	} else if data.Public != nil {
 		configRequest.ImageURL = data.Public.ImageURL.ValueStringPointer()
 		configRequest.Tag = data.Public.Tag.ValueStringPointer()
 	}
@@ -314,7 +314,7 @@ func (r *ContainerImageComponentResource) Update(ctx context.Context, req resour
 		configRequest.Tag = data.AwsEcr.Tag.ValueStringPointer()
 		configRequest.AwsEcrImageConfig = &models.ServiceAwsECRImageConfigRequest{
 			AwsRegion:  data.AwsEcr.Region.ValueString(),
-			IamRoleArn: data.AwsEcr.Region.ValueString(),
+			IamRoleArn: data.AwsEcr.IAMRoleARN.ValueString(),
 		}
 	} else {
 		configRequest.ImageURL = data.Public.ImageURL.ValueStringPointer()
