@@ -166,7 +166,7 @@ func (r *ContainerImageComponentResource) Create(ctx context.Context, req resour
 		configRequest.Tag = data.AwsEcr.Tag.ValueStringPointer()
 		configRequest.AwsEcrImageConfig = &models.ServiceAwsECRImageConfigRequest{
 			AwsRegion:  data.AwsEcr.Region.ValueString(),
-			IamRoleArn: data.AwsEcr.Region.ValueString(),
+			IamRoleArn: data.AwsEcr.IAMRoleARN.ValueString(),
 		}
 	} else {
 		configRequest.ImageURL = data.Public.ImageURL.ValueStringPointer()

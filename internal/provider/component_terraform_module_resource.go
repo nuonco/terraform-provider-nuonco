@@ -161,7 +161,7 @@ func (r *TerraformModuleComponentResource) Create(ctx context.Context, req resou
 			Directory: data.PublicRepo.Directory.ValueStringPointer(),
 			Repo:      data.PublicRepo.Repo.ValueStringPointer(),
 		}
-	} else {
+	} else if data.ConnectedRepo != nil {
 		configRequest.ConnectedGithubVcsConfig = &models.ServiceConnectedGithubVCSConfigRequest{
 			Branch:    data.ConnectedRepo.Branch.ValueString(),
 			Directory: data.ConnectedRepo.Directory.ValueStringPointer(),
