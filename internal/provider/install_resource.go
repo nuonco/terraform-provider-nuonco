@@ -35,14 +35,27 @@ type InstallInput struct {
 	Value types.String `tfsdk:"value"`
 }
 
-// InstallResourceModel describes the resource data model.
-type InstallResourceModel struct {
-	Name       types.String `tfsdk:"name"`
-	AppID      types.String `tfsdk:"app_id"`
+type AWSAccount struct {
 	Region     types.String `tfsdk:"region"`
 	IAMRoleARN types.String `tfsdk:"iam_role_arn"`
+}
 
-	Inputs []InstallInput `tfsdk:"input"`
+type AzureAccount struct {
+	Location                 types.String `tfsdk:"location"`
+	SubscriptionID           types.String `tfsdk:"subscription_id"`
+	SubscriptionTenantID     types.String `tfsdk:"subscription_tenant_id"`
+	ServicePrincipalAppID    types.String `tfsdk:"service_principal_app_id"`
+	ServicePrincipalPassword types.String `tfsdk:"service_principal_password"`
+}
+
+// InstallResourceModel describes the resource data model.
+type InstallResourceModel struct {
+	Name  types.String `tfsdk:"name"`
+	AppID types.String `tfsdk:"app_id"`
+
+	AWSAccount   []AWSAccount   `tfsdk:"aws"`
+	AzureAccount []AzureAccount `tfsdk:"azure"`
+	Inputs       []InstallInput `tfsdk:"input"`
 
 	// computed
 	ID types.String `tfsdk:"id"`
@@ -69,22 +82,6 @@ func (r *InstallResource) Schema(ctx context.Context, req resource.SchemaRequest
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
-			"region": schema.StringAttribute{
-				Description: "The AWS region to create in the install in.",
-				Optional:    false,
-				Required:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
-			},
-			"iam_role_arn": schema.StringAttribute{
-				Description: "The ARN of the AWS IAM role to provision the install with.",
-				Optional:    false,
-				Required:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
-			},
 			"id": schema.StringAttribute{
 				Computed:    true,
 				Description: "The unique ID of the install",
@@ -94,6 +91,77 @@ func (r *InstallResource) Schema(ctx context.Context, req resource.SchemaRequest
 			},
 		},
 		Blocks: map[string]schema.Block{
+			"azure": schema.SetNestedBlock{
+				Description: "Configuration for an Azure install",
+				NestedObject: schema.NestedBlockObject{
+					Attributes: map[string]schema.Attribute{
+						"location": schema.StringAttribute{
+							Description: "The Azure location to create the install in.",
+							Optional:    false,
+							Required:    true,
+							PlanModifiers: []planmodifier.String{
+								stringplanmodifier.RequiresReplace(),
+							},
+						},
+						"subscription_id": schema.StringAttribute{
+							Description: "The subscription id.",
+							Optional:    false,
+							Required:    true,
+							PlanModifiers: []planmodifier.String{
+								stringplanmodifier.RequiresReplace(),
+							},
+						},
+						"subscription_tenant_id": schema.StringAttribute{
+							Description: "The subscription tenant id.",
+							Optional:    false,
+							Required:    true,
+							PlanModifiers: []planmodifier.String{
+								stringplanmodifier.RequiresReplace(),
+							},
+						},
+						"service_principal_app_id": schema.StringAttribute{
+							Description: "The service principal app id.",
+							Optional:    false,
+							Required:    true,
+							PlanModifiers: []planmodifier.String{
+								stringplanmodifier.RequiresReplace(),
+							},
+						},
+						"service_principal_password": schema.StringAttribute{
+							Description: "The service principal password.",
+							Optional:    false,
+							Required:    true,
+							Sensitive:   true,
+							PlanModifiers: []planmodifier.String{
+								stringplanmodifier.RequiresReplace(),
+							},
+						},
+					},
+				},
+			},
+			"aws": schema.SetNestedBlock{
+				Description: "Configuration for an AWS install",
+				NestedObject: schema.NestedBlockObject{
+					Attributes: map[string]schema.Attribute{
+						"region": schema.StringAttribute{
+							Description: "The AWS region to create the install in.",
+							Optional:    false,
+							Required:    true,
+							PlanModifiers: []planmodifier.String{
+								stringplanmodifier.RequiresReplace(),
+							},
+						},
+						"iam_role_arn": schema.StringAttribute{
+							Description: "The ARN of the AWS IAM role to provision the install with.",
+							Optional:    false,
+							Required:    true,
+							PlanModifiers: []planmodifier.String{
+								stringplanmodifier.RequiresReplace(),
+							},
+						},
+					},
+				},
+			},
 			"input": schema.SetNestedBlock{
 				Description: "An input on the install, for configuration",
 				NestedObject: schema.NestedBlockObject{
@@ -124,13 +192,25 @@ func (r *InstallResource) Create(ctx context.Context, req resource.CreateRequest
 
 	tflog.Trace(ctx, "creating install")
 	createReq := &models.ServiceCreateInstallRequest{
-		Name: data.Name.ValueStringPointer(),
-		AwsAccount: &models.ServiceCreateInstallRequestAwsAccount{
-			Region:     data.Region.ValueString(),
-			IamRoleArn: data.IAMRoleARN.ValueStringPointer(),
-		},
+		Name:   data.Name.ValueStringPointer(),
 		Inputs: make(map[string]string, 0),
 	}
+	if len(data.AWSAccount) == 1 {
+		createReq.AwsAccount = &models.ServiceCreateInstallRequestAwsAccount{
+			Region:     data.AWSAccount[0].Region.ValueString(),
+			IamRoleArn: data.AWSAccount[0].IAMRoleARN.ValueStringPointer(),
+		}
+	}
+	if len(data.AzureAccount) == 1 {
+		createReq.AzureAccount = &models.ServiceCreateInstallRequestAzureAccount{
+			Location:                 data.AzureAccount[0].Location.ValueString(),
+			ServicePrincipalAppID:    data.AzureAccount[0].ServicePrincipalAppID.ValueString(),
+			ServicePrincipalPassword: data.AzureAccount[0].ServicePrincipalPassword.ValueString(),
+			SubscriptionID:           data.AzureAccount[0].SubscriptionID.ValueString(),
+			SubscriptionTenantID:     data.AzureAccount[0].SubscriptionTenantID.ValueString(),
+		}
+	}
+
 	for _, input := range data.Inputs {
 		createReq.Inputs[input.Name.ValueString()] = input.Value.ValueString()
 	}
@@ -198,8 +278,26 @@ func (r *InstallResource) Read(ctx context.Context, req resource.ReadRequest, re
 	}
 	data.Name = types.StringValue(installResp.Name)
 	data.AppID = types.StringValue(installResp.AppID)
-	data.IAMRoleARN = types.StringValue(installResp.AwsAccount.IamRoleArn)
-	data.Region = types.StringValue(installResp.AwsAccount.Region)
+
+	if installResp.AwsAccount != nil {
+		data.AWSAccount = []AWSAccount{
+			{
+				IAMRoleARN: types.StringValue(installResp.AwsAccount.IamRoleArn),
+				Region:     types.StringValue(installResp.AwsAccount.Region),
+			},
+		}
+	}
+	if installResp.AzureAccount != nil {
+		data.AzureAccount = []AzureAccount{
+			{
+				Location:                 types.StringValue(installResp.AzureAccount.Location),
+				SubscriptionID:           types.StringValue(installResp.AzureAccount.SubscriptionID),
+				SubscriptionTenantID:     types.StringValue(installResp.AzureAccount.SubscriptionTenantID),
+				ServicePrincipalAppID:    types.StringValue(installResp.AzureAccount.ServicePrincipalAppID),
+				ServicePrincipalPassword: types.StringValue(installResp.AzureAccount.ServicePrincipalPassword),
+			},
+		}
+	}
 
 	inputs, err := r.restClient.GetInstallCurrentInputs(ctx, data.ID.ValueString())
 	if err != nil && !nuon.IsNotFound(err) {
