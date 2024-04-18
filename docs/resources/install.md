@@ -48,17 +48,38 @@ resource "nuon_install" "customer_three" {
 ### Required
 
 - `app_id` (String) The application ID.
-- `iam_role_arn` (String) The ARN of the AWS IAM role to provision the install with.
 - `name` (String) The unique ID of the install.
-- `region` (String) The AWS region to create in the install in.
 
 ### Optional
 
+- `aws` (Block Set) Configuration for an AWS install (see [below for nested schema](#nestedblock--aws))
+- `azure` (Block Set) Configuration for an Azure install (see [below for nested schema](#nestedblock--azure))
 - `input` (Block Set) An input on the install, for configuration (see [below for nested schema](#nestedblock--input))
 
 ### Read-Only
 
 - `id` (String) The unique ID of the install
+
+<a id="nestedblock--aws"></a>
+### Nested Schema for `aws`
+
+Required:
+
+- `iam_role_arn` (String) The ARN of the AWS IAM role to provision the install with.
+- `region` (String) The AWS region to create the install in.
+
+
+<a id="nestedblock--azure"></a>
+### Nested Schema for `azure`
+
+Required:
+
+- `location` (String) The Azure location to create the install in.
+- `service_principal_app_id` (String) The service principal app id.
+- `service_principal_password` (String, Sensitive) The service principal password.
+- `subscription_id` (String) The subscription id.
+- `subscription_tenant_id` (String) The subscription tenant id.
+
 
 <a id="nestedblock--input"></a>
 ### Nested Schema for `input`
