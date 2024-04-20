@@ -36,6 +36,10 @@ type HelmValue struct {
 	Value types.String `tfsdk:"value"`
 }
 
+type HelmValuesFile struct {
+	Contents types.String `tfsdk:"contents"`
+}
+
 // HelmChartComponentResourceModel describes the resource data model.
 type HelmChartComponentResourceModel struct {
 	ID types.String `tfsdk:"id"`
@@ -48,7 +52,8 @@ type HelmChartComponentResourceModel struct {
 	ConnectedRepo *ConnectedRepo `tfsdk:"connected_repo"`
 	PublicRepo    *PublicRepo    `tfsdk:"public_repo"`
 
-	Value []HelmValue `tfsdk:"value"`
+	Value      []HelmValue      `tfsdk:"value"`
+	ValuesFile []HelmValuesFile `tfsdk:"values_file"`
 }
 
 func (r *HelmChartComponentResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -109,6 +114,17 @@ func (r *HelmChartComponentResource) Schema(ctx context.Context, req resource.Sc
 					},
 				},
 			},
+			"values_file": schema.SetNestedBlock{
+				Description: "Yaml values file which can be used to pass an entire values block in. Templating is supported.",
+				NestedObject: schema.NestedBlockObject{
+					Attributes: map[string]schema.Attribute{
+						"contents": schema.StringAttribute{
+							Description: "YAML contents of the values file",
+							Required:    true,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -144,6 +160,7 @@ func (r *HelmChartComponentResource) Create(ctx context.Context, req resource.Cr
 		ConnectedGithubVcsConfig: nil,
 		PublicGitVcsConfig:       nil,
 		Values:                   map[string]string{},
+		ValuesFiles:              make([]string, 0),
 	}
 	if data.PublicRepo != nil {
 		configRequest.PublicGitVcsConfig = &models.ServicePublicGitVCSConfigRequest{
@@ -161,6 +178,10 @@ func (r *HelmChartComponentResource) Create(ctx context.Context, req resource.Cr
 	for _, value := range data.Value {
 		configRequest.Values[value.Name.ValueString()] = value.Value.ValueString()
 	}
+	for _, value := range data.ValuesFile {
+		configRequest.ValuesFiles = append(configRequest.ValuesFiles, value.Contents.ValueString())
+	}
+
 	_, err = r.restClient.CreateHelmComponentConfig(ctx, compResp.ID, configRequest)
 	if err != nil {
 		// attempt to cleanup component, that is in broken state and has no config
@@ -238,6 +259,14 @@ func (r *HelmChartComponentResource) Read(ctx context.Context, req resource.Read
 		})
 	}
 	data.Value = apiValues
+
+	apiValuesFiles := make([]HelmValuesFile, 0)
+	for _, val := range helmConfig.ValuesFiles {
+		apiValuesFiles = append(apiValuesFiles, HelmValuesFile{
+			Contents: types.StringValue(val),
+		})
+	}
+	data.ValuesFile = apiValuesFiles
 
 	// return populated terraform model
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
@@ -322,6 +351,7 @@ func (r *HelmChartComponentResource) Update(ctx context.Context, req resource.Up
 		ConnectedGithubVcsConfig: nil,
 		PublicGitVcsConfig:       nil,
 		Values:                   map[string]string{},
+		ValuesFiles:              make([]string, 0),
 	}
 	if data.PublicRepo != nil {
 		configRequest.PublicGitVcsConfig = &models.ServicePublicGitVCSConfigRequest{
@@ -338,6 +368,9 @@ func (r *HelmChartComponentResource) Update(ctx context.Context, req resource.Up
 	}
 	for _, value := range data.Value {
 		configRequest.Values[value.Name.ValueString()] = value.Value.ValueString()
+	}
+	for _, value := range data.ValuesFile {
+		configRequest.ValuesFiles = append(configRequest.ValuesFiles, value.Contents.ValueString())
 	}
 	_, err = r.restClient.CreateHelmComponentConfig(ctx, compResp.ID, configRequest)
 	if err != nil {
