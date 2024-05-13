@@ -68,6 +68,7 @@ resource "nuon_helm_chart_component" "my_component" {
 - `dependencies` (List of String) Component dependencies
 - `public_repo` (Attributes) A publically-accessible git repo. (see [below for nested schema](#nestedatt--public_repo))
 - `value` (Block Set) Environment variables to export into the env when running the image. (see [below for nested schema](#nestedblock--value))
+- `values_file` (Block Set) Yaml values file which can be used to pass an entire values block in. Templating is supported. (see [below for nested schema](#nestedblock--values_file))
 
 ### Read-Only
 
@@ -106,3 +107,11 @@ Required:
 
 - `name` (String) The variable name to export to the env (e.g. API_TOKEN or PORT.)
 - `value` (String) The variable value to export to the env. Can be any valid env var value, or interpolated from Nuon.
+
+
+<a id="nestedblock--values_file"></a>
+### Nested Schema for `values_file`
+
+Required:
+
+- `contents` (String) YAML contents of the values file
