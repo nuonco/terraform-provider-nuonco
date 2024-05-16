@@ -16,7 +16,7 @@ resource "nuon_app" "my_app" {
 }
 
 resource "nuon_app_installer" "my_app_installer" {
-    app_id = nuon_app.my_app.id
+    app_ids = [nuon_app.my_app.id]
     name = %s
     community_url = %s
     description = %s
