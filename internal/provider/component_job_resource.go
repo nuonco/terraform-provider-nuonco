@@ -36,6 +36,7 @@ type JobComponentResourceModel struct {
 	ID types.String `tfsdk:"id"`
 
 	Name         types.String `tfsdk:"name"`
+	VarName      types.String `tfsdk:"var_name"`
 	Dependencies types.List   `tfsdk:"dependencies"`
 	AppID        types.String `tfsdk:"app_id"`
 	ImageURL     types.String `tfsdk:"image_url"`
@@ -64,6 +65,11 @@ func (r *JobComponentResource) Schema(ctx context.Context, req resource.SchemaRe
 				Description: "The human-readable name of the component.",
 				Optional:    false,
 				Required:    true,
+			},
+			"var_name": schema.StringAttribute{
+				Description: "The optional var name to be used when referencing this component.",
+				Optional:    true,
+				Required:    false,
 			},
 			"app_id": schema.StringAttribute{
 				Description: "The unique ID of the app this component belongs too.",
@@ -120,6 +126,7 @@ func (r *JobComponentResource) Create(ctx context.Context, req resource.CreateRe
 	}
 	compResp, err := r.restClient.CreateComponent(ctx, data.AppID.ValueString(), &models.ServiceCreateComponentRequest{
 		Name:         data.Name.ValueStringPointer(),
+		VarName:      data.VarName.ValueString(),
 		Dependencies: dependencies,
 	})
 	if err != nil {
@@ -128,6 +135,7 @@ func (r *JobComponentResource) Create(ctx context.Context, req resource.CreateRe
 	}
 	tflog.Trace(ctx, "got ID -- "+compResp.ID)
 	data.ID = types.StringValue(compResp.ID)
+	data.VarName = types.StringValue(compResp.VarName)
 
 	configRequest := &models.ServiceCreateJobComponentConfigRequest{
 		ImageURL: data.ImageURL.ValueStringPointer(),
@@ -170,6 +178,7 @@ func (r *JobComponentResource) Read(ctx context.Context, req resource.ReadReques
 		return
 	}
 	data.Name = types.StringValue(compResp.Name)
+	data.VarName = types.StringValue(compResp.VarName)
 	data.AppID = types.StringValue(compResp.AppID)
 
 	configResp, err := r.restClient.GetComponentLatestConfig(ctx, data.ID.ValueString())
@@ -255,12 +264,16 @@ func (r *JobComponentResource) Update(ctx context.Context, req resource.UpdateRe
 	}
 	compResp, err := r.restClient.UpdateComponent(ctx, data.ID.ValueString(), &models.ServiceUpdateComponentRequest{
 		Name:         data.Name.ValueStringPointer(),
+		VarName:      data.VarName.ValueString(),
 		Dependencies: dependencies,
 	})
 	if err != nil {
 		writeDiagnosticsErr(ctx, &resp.Diagnostics, err, "update component")
 		return
 	}
+
+	data.Name = types.StringValue(compResp.Name)
+	data.VarName = types.StringValue(compResp.VarName)
 
 	configRequest := &models.ServiceCreateJobComponentConfigRequest{
 		ImageURL: data.ImageURL.ValueStringPointer(),

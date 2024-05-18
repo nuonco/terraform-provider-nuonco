@@ -36,6 +36,7 @@ type DockerBuildComponentResource struct {
 type DockerBuildComponentResourceModel struct {
 	ID           types.String `tfsdk:"id"`
 	Name         types.String `tfsdk:"name"`
+	VarName      types.String `tfsdk:"var_name"`
 	Dependencies types.List   `tfsdk:"dependencies"`
 	AppID        types.String `tfsdk:"app_id"`
 
@@ -66,6 +67,11 @@ func (r *DockerBuildComponentResource) Schema(ctx context.Context, req resource.
 				Description: "The human-readable name of the component.",
 				Optional:    false,
 				Required:    true,
+			},
+			"var_name": schema.StringAttribute{
+				Description: "The optional var name to be used when referencing this component.",
+				Optional:    true,
+				Required:    false,
 			},
 			"dependencies": schema.ListAttribute{
 				ElementType: types.StringType,
@@ -112,6 +118,7 @@ func (r *DockerBuildComponentResource) Create(ctx context.Context, req resource.
 	}
 	compResp, err := r.restClient.CreateComponent(ctx, data.AppID.ValueString(), &models.ServiceCreateComponentRequest{
 		Name:         data.Name.ValueStringPointer(),
+		VarName:      data.VarName.ValueString(),
 		Dependencies: dependencies,
 	})
 	if err != nil {
@@ -120,6 +127,8 @@ func (r *DockerBuildComponentResource) Create(ctx context.Context, req resource.
 	}
 	tflog.Trace(ctx, "got ID -- "+compResp.ID)
 	data.ID = types.StringValue(compResp.ID)
+	data.Name = types.StringValue(compResp.Name)
+	data.VarName = types.StringValue(compResp.VarName)
 
 	configRequest := &models.ServiceCreateDockerBuildComponentConfigRequest{
 		BuildArgs:  []string{},
@@ -178,6 +187,7 @@ func (r *DockerBuildComponentResource) Read(ctx context.Context, req resource.Re
 		return
 	}
 	data.Name = types.StringValue(compResp.Name)
+	data.VarName = types.StringValue(compResp.VarName)
 	data.AppID = types.StringValue(compResp.AppID)
 
 	configResp, err := r.restClient.GetComponentLatestConfig(ctx, data.ID.ValueString())
@@ -282,6 +292,7 @@ func (r *DockerBuildComponentResource) Update(ctx context.Context, req resource.
 	}
 	compResp, err := r.restClient.UpdateComponent(ctx, data.ID.ValueString(), &models.ServiceUpdateComponentRequest{
 		Name:         data.Name.ValueStringPointer(),
+		VarName:      data.VarName.ValueString(),
 		Dependencies: dependencies,
 	})
 	if err != nil {
@@ -289,6 +300,7 @@ func (r *DockerBuildComponentResource) Update(ctx context.Context, req resource.
 		return
 	}
 	data.Name = types.StringValue(compResp.Name)
+	data.VarName = types.StringValue(compResp.VarName)
 
 	configRequest := &models.ServiceCreateDockerBuildComponentConfigRequest{
 		BuildArgs:  []string{},
