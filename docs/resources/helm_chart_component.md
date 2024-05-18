@@ -69,6 +69,7 @@ resource "nuon_helm_chart_component" "my_component" {
 - `public_repo` (Attributes) A publically-accessible git repo. (see [below for nested schema](#nestedatt--public_repo))
 - `value` (Block Set) Environment variables to export into the env when running the image. (see [below for nested schema](#nestedblock--value))
 - `values_file` (Block Set) Yaml values file which can be used to pass an entire values block in. Templating is supported. (see [below for nested schema](#nestedblock--values_file))
+- `var_name` (String) The optional var name to be used when referencing this component.
 
 ### Read-Only
 
