@@ -78,7 +78,7 @@ func (r *AppResource) Create(ctx context.Context, req resource.CreateRequest, re
 	tflog.Trace(ctx, "creating app")
 	appResp, err := r.restClient.CreateApp(ctx, &models.ServiceCreateAppRequest{
 		Name:        data.Name.ValueStringPointer(),
-		Description: data.Name.ValueString(),
+		Description: data.Description.ValueString(),
 	})
 	if err != nil {
 		writeDiagnosticsErr(ctx, &resp.Diagnostics, err, "create app")
