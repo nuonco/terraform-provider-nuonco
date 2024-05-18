@@ -67,6 +67,7 @@ resource "nuon_terraform_module_component" "my_component" {
 - `public_repo` (Attributes) A publically-accessible git repo. (see [below for nested schema](#nestedatt--public_repo))
 - `terraform_version` (String) The version of Terraform to use.
 - `var` (Block Set) Terraform variables to set when applying the Terraform configuration. (see [below for nested schema](#nestedblock--var))
+- `var_name` (String) The optional var name to be used when referencing this component.
 
 ### Read-Only
 

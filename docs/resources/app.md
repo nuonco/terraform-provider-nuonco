@@ -25,6 +25,10 @@ resource "nuon_app" "my_app" {
 
 - `name` (String) The human readable name of the app.
 
+### Optional
+
+- `description` (String) App description which is used on installers and different places.
+
 ### Read-Only
 
 - `id` (String) The unique ID of the app.

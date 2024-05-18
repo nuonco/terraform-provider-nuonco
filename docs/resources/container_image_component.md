@@ -60,6 +60,7 @@ resource "nuon_container_image_component" "my_component" {
 - `dependencies` (List of String) Component dependencies
 - `env_var` (Block Set) Environment variables to export into the env when running the image. (see [below for nested schema](#nestedblock--env_var))
 - `public` (Attributes) Use a publically-accessible image. (see [below for nested schema](#nestedatt--public))
+- `var_name` (String) The optional var name to be used when referencing this component.
 
 ### Read-Only
 

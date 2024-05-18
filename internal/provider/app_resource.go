@@ -32,8 +32,9 @@ type AppResource struct {
 
 // AppResourceModel describes the resource data model.
 type AppResourceModel struct {
-	Name types.String `tfsdk:"name"`
-	Id   types.String `tfsdk:"id"`
+	Name        types.String `tfsdk:"name"`
+	Description types.String `tfsdk:"description"`
+	Id          types.String `tfsdk:"id"`
 }
 
 func (r *AppResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -48,6 +49,11 @@ func (r *AppResource) Schema(ctx context.Context, req resource.SchemaRequest, re
 				MarkdownDescription: "The human readable name of the app.",
 				Optional:            false,
 				Required:            true,
+			},
+			"description": schema.StringAttribute{
+				MarkdownDescription: "App description which is used on installers and different places.",
+				Optional:            true,
+				Required:            false,
 			},
 			"id": schema.StringAttribute{
 				Computed:    true,
@@ -71,7 +77,8 @@ func (r *AppResource) Create(ctx context.Context, req resource.CreateRequest, re
 	// create app
 	tflog.Trace(ctx, "creating app")
 	appResp, err := r.restClient.CreateApp(ctx, &models.ServiceCreateAppRequest{
-		Name: data.Name.ValueStringPointer(),
+		Name:        data.Name.ValueStringPointer(),
+		Description: data.Description.ValueString(),
 	})
 	if err != nil {
 		writeDiagnosticsErr(ctx, &resp.Diagnostics, err, "create app")
@@ -81,6 +88,7 @@ func (r *AppResource) Create(ctx context.Context, req resource.CreateRequest, re
 	// populate terraform model with data from api
 	data.Name = types.StringValue(appResp.Name)
 	data.Id = types.StringValue(appResp.ID)
+	data.Description = types.StringValue(appResp.Description)
 
 	// return populated terraform model
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
@@ -144,6 +152,7 @@ func (r *AppResource) Read(ctx context.Context, req resource.ReadRequest, resp *
 	// populate terraform model with data from api
 	data.Name = types.StringValue(appResp.Name)
 	data.Id = types.StringValue(appResp.ID)
+	data.Description = types.StringValue(appResp.Description)
 
 	// return populated terraform model
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
@@ -162,7 +171,8 @@ func (r *AppResource) Update(ctx context.Context, req resource.UpdateRequest, re
 
 	// update app
 	_, err := r.restClient.UpdateApp(ctx, data.Id.ValueString(), &models.ServiceUpdateAppRequest{
-		Name: data.Name.ValueString(),
+		Name:        data.Name.ValueString(),
+		Description: data.Description.ValueString(),
 	})
 	if err != nil {
 		writeDiagnosticsErr(ctx, &resp.Diagnostics, err, "update app")
@@ -179,6 +189,7 @@ func (r *AppResource) Update(ctx context.Context, req resource.UpdateRequest, re
 	// populate terraform model with data from api
 	data.Name = types.StringValue(appResp.Name)
 	data.Id = types.StringValue(appResp.ID)
+	data.Description = types.StringValue(appResp.Description)
 
 	// return populated terraform model
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)

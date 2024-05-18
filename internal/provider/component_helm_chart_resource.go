@@ -45,6 +45,7 @@ type HelmChartComponentResourceModel struct {
 	ID types.String `tfsdk:"id"`
 
 	Name         types.String `tfsdk:"name"`
+	VarName      types.String `tfsdk:"var_name"`
 	Dependencies types.List   `tfsdk:"dependencies"`
 	AppID        types.String `tfsdk:"app_id"`
 	ChartName    types.String `tfsdk:"chart_name"`
@@ -75,6 +76,11 @@ func (r *HelmChartComponentResource) Schema(ctx context.Context, req resource.Sc
 				Description: "The human-readable name of the component.",
 				Optional:    false,
 				Required:    true,
+			},
+			"var_name": schema.StringAttribute{
+				Description: "The optional var name to be used when referencing this component.",
+				Optional:    true,
+				Required:    false,
 			},
 			"app_id": schema.StringAttribute{
 				Description: "The unique ID of the app this component belongs too.",
@@ -146,6 +152,7 @@ func (r *HelmChartComponentResource) Create(ctx context.Context, req resource.Cr
 
 	compResp, err := r.restClient.CreateComponent(ctx, data.AppID.ValueString(), &models.ServiceCreateComponentRequest{
 		Name:         data.Name.ValueStringPointer(),
+		VarName:      data.VarName.ValueString(),
 		Dependencies: dependencies,
 	})
 	if err != nil {
@@ -154,6 +161,8 @@ func (r *HelmChartComponentResource) Create(ctx context.Context, req resource.Cr
 	}
 	tflog.Trace(ctx, "got ID -- "+compResp.ID)
 	data.ID = types.StringValue(compResp.ID)
+	data.Name = types.StringValue(compResp.Name)
+	data.VarName = types.StringValue(compResp.VarName)
 
 	configRequest := &models.ServiceCreateHelmComponentConfigRequest{
 		ChartName:                data.ChartName.ValueStringPointer(),
@@ -231,8 +240,10 @@ func (r *HelmChartComponentResource) Read(ctx context.Context, req resource.Read
 
 	// populate terraform model with data from api
 	data.Name = types.StringValue(compResp.Name)
+	data.VarName = types.StringValue(compResp.VarName)
 	data.AppID = types.StringValue(compResp.AppID)
 	data.ChartName = types.StringValue(helmConfig.ChartName)
+
 	if helmConfig.PublicGitVcsConfig != nil {
 		public := helmConfig.PublicGitVcsConfig
 		data.PublicRepo = &PublicRepo{
@@ -338,6 +349,7 @@ func (r *HelmChartComponentResource) Update(ctx context.Context, req resource.Up
 	}
 	compResp, err := r.restClient.UpdateComponent(ctx, data.ID.ValueString(), &models.ServiceUpdateComponentRequest{
 		Name:         data.Name.ValueStringPointer(),
+		VarName:      data.VarName.ValueString(),
 		Dependencies: dependencies,
 	})
 	if err != nil {
@@ -345,6 +357,7 @@ func (r *HelmChartComponentResource) Update(ctx context.Context, req resource.Up
 		return
 	}
 	data.Name = types.StringValue(compResp.Name)
+	data.VarName = types.StringValue(compResp.VarName)
 
 	configRequest := &models.ServiceCreateHelmComponentConfigRequest{
 		ChartName:                data.ChartName.ValueStringPointer(),

@@ -42,6 +42,7 @@ type TerraformModuleComponentResourceModel struct {
 	ID types.String `tfsdk:"id"`
 
 	Name             types.String        `tfsdk:"name"`
+	VarName          types.String        `tfsdk:"var_name"`
 	Dependencies     types.List          `tfsdk:"dependencies"`
 	AppID            types.String        `tfsdk:"app_id"`
 	TerraformVersion types.String        `tfsdk:"terraform_version"`
@@ -70,6 +71,11 @@ func (r *TerraformModuleComponentResource) Schema(ctx context.Context, req resou
 				Description: "The human-readable name of the component.",
 				Optional:    false,
 				Required:    true,
+			},
+			"var_name": schema.StringAttribute{
+				Description: "The optional var name to be used when referencing this component.",
+				Optional:    true,
+				Required:    false,
 			},
 			"app_id": schema.StringAttribute{
 				Description: "The unique ID of the app this component belongs too.",
@@ -132,6 +138,7 @@ func (r *TerraformModuleComponentResource) Create(ctx context.Context, req resou
 	}
 	compResp, err := r.restClient.CreateComponent(ctx, data.AppID.ValueString(), &models.ServiceCreateComponentRequest{
 		Name:         data.Name.ValueStringPointer(),
+		VarName:      data.VarName.ValueString(),
 		Dependencies: dependencies,
 	})
 	if err != nil {
@@ -140,6 +147,8 @@ func (r *TerraformModuleComponentResource) Create(ctx context.Context, req resou
 	}
 	tflog.Trace(ctx, "got ID -- "+compResp.ID)
 	data.ID = types.StringValue(compResp.ID)
+	data.Name = types.StringValue(compResp.Name)
+	data.VarName = types.StringValue(compResp.VarName)
 
 	configRequest := &models.ServiceCreateTerraformModuleComponentConfigRequest{
 		ConnectedGithubVcsConfig: nil,
@@ -218,6 +227,7 @@ func (r *TerraformModuleComponentResource) Read(ctx context.Context, req resourc
 
 	// populate terraform model with data from api
 	data.Name = types.StringValue(compResp.Name)
+	data.VarName = types.StringValue(compResp.VarName)
 	data.AppID = types.StringValue(compResp.AppID)
 	data.TerraformVersion = types.StringValue(terraformConfig.Version)
 	if terraformConfig.ConnectedGithubVcsConfig != nil {
@@ -322,6 +332,7 @@ func (r *TerraformModuleComponentResource) Update(ctx context.Context, req resou
 	}
 	compResp, err := r.restClient.UpdateComponent(ctx, data.ID.ValueString(), &models.ServiceUpdateComponentRequest{
 		Name:         data.Name.ValueStringPointer(),
+		VarName:      data.VarName.ValueString(),
 		Dependencies: dependencies,
 	})
 	if err != nil {
@@ -329,6 +340,7 @@ func (r *TerraformModuleComponentResource) Update(ctx context.Context, req resou
 		return
 	}
 	data.Name = types.StringValue(compResp.Name)
+	data.VarName = types.StringValue(compResp.VarName)
 
 	configRequest := &models.ServiceCreateTerraformModuleComponentConfigRequest{
 		ConnectedGithubVcsConfig: nil,
