@@ -31,8 +31,8 @@ type InstallerResource struct {
 	baseResource
 }
 
-// AppInstallerResourceModel describes the resource data model.
-type AppInstallerResourceModel struct {
+// InstallerResourceModel describes the resource data model.
+type InstallerResourceModel struct {
 	Id types.String `tfsdk:"id"`
 
 	AppIDs types.Set `tfsdk:"app_ids"`
@@ -143,7 +143,7 @@ func (r *InstallerResource) Schema(ctx context.Context, req resource.SchemaReque
 
 func (r *InstallerResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	// get terraform model
-	var data *AppInstallerResourceModel
+	var data *InstallerResourceModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -202,7 +202,7 @@ func (r *InstallerResource) Create(ctx context.Context, req resource.CreateReque
 }
 
 func (r *InstallerResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var data *AppInstallerResourceModel
+	var data *InstallerResourceModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -255,7 +255,7 @@ func (r *InstallerResource) Read(ctx context.Context, req resource.ReadRequest, 
 
 func (r *InstallerResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	// get terraform model
-	var data *AppInstallerResourceModel
+	var data *InstallerResourceModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -325,7 +325,7 @@ func (r *InstallerResource) Update(ctx context.Context, req resource.UpdateReque
 }
 
 func (r *InstallerResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var data *AppInstallerResourceModel
+	var data *InstallerResourceModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
 		return
