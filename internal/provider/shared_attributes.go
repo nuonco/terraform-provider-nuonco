@@ -25,8 +25,8 @@ func publicRepoAttribute() schema.SingleNestedAttribute {
 				Required:    true,
 			},
 			"directory": schema.StringAttribute{
-				Description: "The directory the component code is in.",
-				Optional:    true,
+				Description: "The directory the component code is in. Use ./ for root.",
+				Required:    true,
 			},
 		},
 	}
