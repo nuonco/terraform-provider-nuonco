@@ -148,7 +148,7 @@ func (r *TerraformModuleComponentResource) Create(ctx context.Context, req resou
 	tflog.Trace(ctx, "got ID -- "+compResp.ID)
 	data.ID = types.StringValue(compResp.ID)
 	data.Name = types.StringValue(compResp.Name)
-	data.VarName = types.StringValue(compResp.VarName)
+	//data.VarName = types.StringValue(compResp.VarName)
 
 	configRequest := &models.ServiceCreateTerraformModuleComponentConfigRequest{
 		ConnectedGithubVcsConfig: nil,
@@ -340,7 +340,7 @@ func (r *TerraformModuleComponentResource) Update(ctx context.Context, req resou
 		return
 	}
 	data.Name = types.StringValue(compResp.Name)
-	data.VarName = types.StringValue(compResp.VarName)
+	//data.VarName = types.StringValue(compResp.VarName)
 
 	configRequest := &models.ServiceCreateTerraformModuleComponentConfigRequest{
 		ConnectedGithubVcsConfig: nil,

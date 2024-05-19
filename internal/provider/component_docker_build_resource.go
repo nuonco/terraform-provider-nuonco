@@ -128,7 +128,7 @@ func (r *DockerBuildComponentResource) Create(ctx context.Context, req resource.
 	tflog.Trace(ctx, "got ID -- "+compResp.ID)
 	data.ID = types.StringValue(compResp.ID)
 	data.Name = types.StringValue(compResp.Name)
-	data.VarName = types.StringValue(compResp.VarName)
+	//data.VarName = types.StringValue(compResp.VarName)
 
 	configRequest := &models.ServiceCreateDockerBuildComponentConfigRequest{
 		BuildArgs:  []string{},
@@ -300,7 +300,7 @@ func (r *DockerBuildComponentResource) Update(ctx context.Context, req resource.
 		return
 	}
 	data.Name = types.StringValue(compResp.Name)
-	data.VarName = types.StringValue(compResp.VarName)
+	//data.VarName = types.StringValue(compResp.VarName)
 
 	configRequest := &models.ServiceCreateDockerBuildComponentConfigRequest{
 		BuildArgs:  []string{},

@@ -135,7 +135,7 @@ func (r *JobComponentResource) Create(ctx context.Context, req resource.CreateRe
 	}
 	tflog.Trace(ctx, "got ID -- "+compResp.ID)
 	data.ID = types.StringValue(compResp.ID)
-	data.VarName = types.StringValue(compResp.VarName)
+	//data.VarName = types.StringValue(compResp.VarName)
 
 	configRequest := &models.ServiceCreateJobComponentConfigRequest{
 		ImageURL: data.ImageURL.ValueStringPointer(),
@@ -273,7 +273,7 @@ func (r *JobComponentResource) Update(ctx context.Context, req resource.UpdateRe
 	}
 
 	data.Name = types.StringValue(compResp.Name)
-	data.VarName = types.StringValue(compResp.VarName)
+	//data.VarName = types.StringValue(compResp.VarName)
 
 	configRequest := &models.ServiceCreateJobComponentConfigRequest{
 		ImageURL: data.ImageURL.ValueStringPointer(),
