@@ -162,7 +162,7 @@ func (r *HelmChartComponentResource) Create(ctx context.Context, req resource.Cr
 	tflog.Trace(ctx, "got ID -- "+compResp.ID)
 	data.ID = types.StringValue(compResp.ID)
 	data.Name = types.StringValue(compResp.Name)
-	data.VarName = types.StringValue(compResp.VarName)
+	//data.VarName = types.StringValue(compResp.VarName)
 
 	configRequest := &models.ServiceCreateHelmComponentConfigRequest{
 		ChartName:                data.ChartName.ValueStringPointer(),
@@ -357,7 +357,7 @@ func (r *HelmChartComponentResource) Update(ctx context.Context, req resource.Up
 		return
 	}
 	data.Name = types.StringValue(compResp.Name)
-	data.VarName = types.StringValue(compResp.VarName)
+	//data.VarName = types.StringValue(compResp.VarName)
 
 	configRequest := &models.ServiceCreateHelmComponentConfigRequest{
 		ChartName:                data.ChartName.ValueStringPointer(),

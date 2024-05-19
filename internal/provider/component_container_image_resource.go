@@ -167,7 +167,7 @@ func (r *ContainerImageComponentResource) Create(ctx context.Context, req resour
 	tflog.Trace(ctx, "got ID -- "+compResp.ID)
 	data.ID = types.StringValue(compResp.ID)
 	data.Name = types.StringValue(compResp.Name)
-	data.VarName = types.StringValue(compResp.VarName)
+	//data.VarName = types.StringValue(compResp.VarName)
 
 	configRequest := &models.ServiceCreateExternalImageComponentConfigRequest{}
 	if data.AwsEcr != nil {
@@ -319,7 +319,7 @@ func (r *ContainerImageComponentResource) Update(ctx context.Context, req resour
 		return
 	}
 	data.Name = types.StringValue(compResp.Name)
-	data.VarName = types.StringValue(compResp.VarName)
+	//data.VarName = types.StringValue(compResp.VarName)
 
 	configRequest := &models.ServiceCreateExternalImageComponentConfigRequest{}
 	if data.AwsEcr != nil {
