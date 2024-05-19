@@ -101,11 +101,8 @@ Required:
 Required:
 
 - `branch` (String) The default branch to create new builds from.
+- `directory` (String) The directory the component code is in. Use ./ for root.
 - `repo` (String) The https clone url
-
-Optional:
-
-- `directory` (String) The directory the component code is in.
 
 
 <a id="nestedblock--var"></a>
