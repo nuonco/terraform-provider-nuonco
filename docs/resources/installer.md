@@ -18,21 +18,21 @@ A Nuon installer for one or more apps.
 ### Required
 
 - `app_ids` (Set of String) App IDs to connect to this installer.
-- `community_url` (String) Community url to a slack or discord, etc.
-- `copyright_markdown` (String) Markdown that rendered in the copyright section.
 - `description` (String) Short description of app.
 - `documentation_url` (String) Documentation url
 - `favicon_url` (String) Favicon url
-- `footer_markdown` (String) Markdown that will be rendered in the footer section.
 - `github_url` (String) GitHub url, link to application.
 - `homepage_url` (String) Homepage url
 - `logo_url` (String) Logo image to display on page.
 - `name` (String) App name to render on install page.
-- `post_install_markdown` (String) Markdown that will be shown to users after a successful install. Supports interpolation.
 
 ### Optional
 
+- `community_url` (String) Community url to a slack or discord, etc.
+- `copyright_markdown` (String) Markdown that rendered in the copyright section.
 - `demo_url` (String) Demo url to show
+- `footer_markdown` (String) Markdown that will be rendered in the footer section.
+- `post_install_markdown` (String) Markdown that will be shown to users after a successful install. Supports interpolation.
 
 ### Read-Only
 

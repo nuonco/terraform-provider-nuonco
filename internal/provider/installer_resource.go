@@ -82,18 +82,18 @@ func (r *InstallerResource) Schema(ctx context.Context, req resource.SchemaReque
 			},
 			"post_install_markdown": schema.StringAttribute{
 				MarkdownDescription: "Markdown that will be shown to users after a successful install. Supports interpolation.",
-				Optional:            false,
-				Required:            true,
+				Optional:            true,
+				Required:            false,
 			},
 			"copyright_markdown": schema.StringAttribute{
 				MarkdownDescription: "Markdown that rendered in the copyright section.",
-				Optional:            false,
-				Required:            true,
+				Optional:            true,
+				Required:            false,
 			},
 			"footer_markdown": schema.StringAttribute{
 				MarkdownDescription: "Markdown that will be rendered in the footer section.",
-				Optional:            false,
-				Required:            true,
+				Optional:            true,
+				Required:            false,
 			},
 			"documentation_url": schema.StringAttribute{
 				MarkdownDescription: "Documentation url",
@@ -112,8 +112,8 @@ func (r *InstallerResource) Schema(ctx context.Context, req resource.SchemaReque
 			},
 			"community_url": schema.StringAttribute{
 				MarkdownDescription: "Community url to a slack or discord, etc.",
-				Optional:            false,
-				Required:            true,
+				Optional:            true,
+				Required:            false,
 			},
 			"github_url": schema.StringAttribute{
 				MarkdownDescription: "GitHub url, link to application.",
