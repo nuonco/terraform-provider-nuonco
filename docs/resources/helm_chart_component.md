@@ -81,11 +81,8 @@ resource "nuon_helm_chart_component" "my_component" {
 Required:
 
 - `branch` (String) The default branch to create new builds from.
-- `repo` (String) The https clone url
-
-Optional:
-
 - `directory` (String) The directory the component code is in.
+- `repo` (String) The https clone url
 
 
 <a id="nestedatt--public_repo"></a>
