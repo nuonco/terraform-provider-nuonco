@@ -53,7 +53,7 @@ func connectedRepoAttribute() schema.SingleNestedAttribute {
 			},
 			"directory": schema.StringAttribute{
 				Description: "The directory the component code is in.",
-				Optional:    true,
+				Required:    true,
 			},
 		},
 	}
