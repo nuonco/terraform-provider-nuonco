@@ -19,8 +19,10 @@ import (
 )
 
 // Ensure provider defined types fully satisfy framework interfaces.
-var _ resource.Resource = &InstallerResource{}
-var _ resource.ResourceWithImportState = &InstallerResource{}
+var (
+	_ resource.Resource                = &InstallerResource{}
+	_ resource.ResourceWithImportState = &InstallerResource{}
+)
 
 func NewInstallerResource() resource.Resource {
 	return &InstallerResource{}
@@ -190,10 +192,16 @@ func (r *InstallerResource) Create(ctx context.Context, req resource.CreateReque
 	data.HomepageURL = types.StringValue(appResp.Metadata.HomepageURL)
 	data.LogoURL = types.StringValue(appResp.Metadata.LogoURL)
 	data.FaviconURL = types.StringValue(appResp.Metadata.FaviconURL)
-	data.PostInstallMarkdown = types.StringValue(appResp.Metadata.PostInstallMarkdown)
-	data.FooterMarkdown = types.StringValue(appResp.Metadata.FooterMarkdown)
-	data.CopyrightMarkdown = types.StringValue(appResp.Metadata.CopyrightMarkdown)
 
+	if appResp.Metadata.PostInstallMarkdown != "" {
+		data.PostInstallMarkdown = types.StringValue(appResp.Metadata.PostInstallMarkdown)
+	}
+	if appResp.Metadata.FooterMarkdown != "" {
+		data.FooterMarkdown = types.StringValue(appResp.Metadata.FooterMarkdown)
+	}
+	if appResp.Metadata.CopyrightMarkdown != "" {
+		data.CopyrightMarkdown = types.StringValue(appResp.Metadata.CopyrightMarkdown)
+	}
 	if appResp.Metadata.DemoURL != "" {
 		data.DemoURL = types.StringValue(appResp.Metadata.DemoURL)
 	}
@@ -230,17 +238,24 @@ func (r *InstallerResource) Read(ctx context.Context, req resource.ReadRequest, 
 	data.HomepageURL = types.StringValue(appResp.Metadata.HomepageURL)
 	data.LogoURL = types.StringValue(appResp.Metadata.LogoURL)
 	data.FaviconURL = types.StringValue(appResp.Metadata.FaviconURL)
+
+	// set optional fields
+	if appResp.Metadata.PostInstallMarkdown != "" {
+		data.PostInstallMarkdown = types.StringValue(appResp.Metadata.PostInstallMarkdown)
+	}
+	if appResp.Metadata.FooterMarkdown != "" {
+		data.FooterMarkdown = types.StringValue(appResp.Metadata.FooterMarkdown)
+	}
+	if appResp.Metadata.CopyrightMarkdown != "" {
+		data.CopyrightMarkdown = types.StringValue(appResp.Metadata.CopyrightMarkdown)
+	}
 	if appResp.Metadata.DemoURL != "" {
 		data.DemoURL = types.StringValue(appResp.Metadata.DemoURL)
 	}
-	data.PostInstallMarkdown = types.StringValue(appResp.Metadata.PostInstallMarkdown)
-	data.CopyrightMarkdown = types.StringValue(appResp.Metadata.CopyrightMarkdown)
-	data.FooterMarkdown = types.StringValue(appResp.Metadata.FooterMarkdown)
 
 	appIDItems := []attr.Value{}
 	for _, app := range appResp.Apps {
 		appIDItems = append(appIDItems, types.StringValue(app.ID))
-
 	}
 	appIDsResp, diags := types.SetValue(types.StringType, appIDItems)
 	if diags.HasError() {
@@ -312,9 +327,16 @@ func (r *InstallerResource) Update(ctx context.Context, req resource.UpdateReque
 	data.HomepageURL = types.StringValue(appResp.Metadata.HomepageURL)
 	data.LogoURL = types.StringValue(appResp.Metadata.LogoURL)
 	data.FaviconURL = types.StringValue(appResp.Metadata.FaviconURL)
-	data.PostInstallMarkdown = types.StringValue(appResp.Metadata.PostInstallMarkdown)
-	data.FooterMarkdown = types.StringValue(appResp.Metadata.FooterMarkdown)
-	data.CopyrightMarkdown = types.StringValue(appResp.Metadata.CopyrightMarkdown)
+
+	if appResp.Metadata.PostInstallMarkdown != "" {
+		data.PostInstallMarkdown = types.StringValue(appResp.Metadata.PostInstallMarkdown)
+	}
+	if appResp.Metadata.FooterMarkdown != "" {
+		data.FooterMarkdown = types.StringValue(appResp.Metadata.FooterMarkdown)
+	}
+	if appResp.Metadata.CopyrightMarkdown != "" {
+		data.CopyrightMarkdown = types.StringValue(appResp.Metadata.CopyrightMarkdown)
+	}
 	if appResp.Metadata.DemoURL != "" {
 		data.DemoURL = types.StringValue(appResp.Metadata.DemoURL)
 	}
