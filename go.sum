@@ -239,6 +239,8 @@ github.com/nuonco/nuon-go v0.25.3 h1:u08pWvaGYrGQTxgo0v9FmDgr1GMk6dMcLp0wiHB4/OI
 github.com/nuonco/nuon-go v0.25.3/go.mod h1:9hQTXgG2MUXaAtW8SN3X6yiWPs4Z4LcIr+CqhECklGI=
 github.com/nuonco/nuon-go v0.28.0 h1:fWpwIuswCAc7eOn+CY86nIztLEBhBVZTKIVQopNJ55s=
 github.com/nuonco/nuon-go v0.28.0/go.mod h1:9hQTXgG2MUXaAtW8SN3X6yiWPs4Z4LcIr+CqhECklGI=
+github.com/nuonco/nuon-go v0.28.1 h1:mFcFDtoM5BFjRvt50aK2w9/Lgzz5i+fuVLumgMSfeHA=
+github.com/nuonco/nuon-go v0.28.1/go.mod h1:9hQTXgG2MUXaAtW8SN3X6yiWPs4Z4LcIr+CqhECklGI=
 github.com/oklog/run v1.1.0 h1:GEenZ1cK0+q0+wsJew9qUg/DyD8k3JzYsZAi5gYi2mA=
 github.com/oklog/run v1.1.0/go.mod h1:sVPdnTZT1zYwAJeCMu2Th4T21pA3FPOQRfWjQlk7DVU=
 github.com/oklog/ulid v1.3.1 h1:EGfNDEx6MqHz8B3uNV6QAib1UR2Lm97sHi3ocA6ESJ4=
