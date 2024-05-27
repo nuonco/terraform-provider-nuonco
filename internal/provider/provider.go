@@ -6,13 +6,13 @@ package provider
 import (
 	"context"
 
-	"github.com/go-playground/validator/v10"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/provider"
 	"github.com/hashicorp/terraform-plugin-framework/provider/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/nuonco/nuon-go"
+
 	"github.com/nuonco/terraform-provider-nuon/internal/config"
 )
 
@@ -85,7 +85,6 @@ func (p *Provider) Configure(ctx context.Context, req provider.ConfigureRequest,
 
 	// initialize sdk
 	restClient, err := nuon.New(
-		validator.New(),
 		nuon.WithAuthToken(apiToken),
 		nuon.WithOrgID(orgID),
 		nuon.WithURL(cfg.APIURL),
