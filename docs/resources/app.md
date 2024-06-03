@@ -28,6 +28,8 @@ resource "nuon_app" "my_app" {
 ### Optional
 
 - `description` (String) App description which is used on installers and different places.
+- `display_name` (String) The display name of the app.
+- `slack_webhook_url` (String) The slack webhook url to send notifications too
 
 ### Read-Only
 
