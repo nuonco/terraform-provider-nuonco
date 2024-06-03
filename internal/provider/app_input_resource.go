@@ -15,8 +15,10 @@ import (
 )
 
 // Ensure provider defined types fully satisfy framework interfaces.
-var _ resource.Resource = &AppInputResource{}
-var _ resource.ResourceWithImportState = &AppInputResource{}
+var (
+	_ resource.Resource                = &AppInputResource{}
+	_ resource.ResourceWithImportState = &AppInputResource{}
+)
 
 func NewAppInputResource() resource.Resource {
 	return &AppInputResource{}
@@ -32,7 +34,8 @@ type AppInputResourceModel struct {
 	ID    types.String `tfsdk:"id"`
 	AppID types.String `tfsdk:"app_id"`
 
-	Inputs []AppInput `tfsdk:"input"`
+	Inputs []AppInput      `tfsdk:"input"`
+	Groups []AppInputGroup `tfsdk:"group"`
 }
 
 type AppInput struct {
@@ -42,6 +45,12 @@ type AppInput struct {
 	Required    types.Bool   `tfsdk:"required"`
 	Default     types.String `tfsdk:"default"`
 	Sensitive   types.Bool   `tfsdk:"sensitive"`
+}
+
+type AppInputGroup struct {
+	Name        types.String `tfsdk:"name"`
+	Description types.String `tfsdk:"description"`
+	DisplayName types.String `tfsdk:"display_name"`
 }
 
 func (r *AppInputResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -67,6 +76,25 @@ func (r *AppInputResource) Schema(ctx context.Context, req resource.SchemaReques
 			},
 		},
 		Blocks: map[string]schema.Block{
+			"group": schema.SetNestedBlock{
+				Description: "Input group, which can be used to organize sets of inputs.",
+				NestedObject: schema.NestedBlockObject{
+					Attributes: map[string]schema.Attribute{
+						"name": schema.StringAttribute{
+							Description: "The group name to be used.",
+							Required:    true,
+						},
+						"display_name": schema.StringAttribute{
+							Description: "Human readable display name.",
+							Required:    true,
+						},
+						"description": schema.StringAttribute{
+							Description: "Description of input group.",
+							Required:    true,
+						},
+					},
+				},
+			},
 			"input": schema.SetNestedBlock{
 				Description: "Required inputs that each install must provide for this app.",
 				NestedObject: schema.NestedBlockObject{
@@ -105,6 +133,7 @@ func (r *AppInputResource) Schema(ctx context.Context, req resource.SchemaReques
 func (r *AppInputResource) getConfigRequest(data *AppInputResourceModel) (*models.ServiceCreateAppInputConfigRequest, error) {
 	cfgReq := &models.ServiceCreateAppInputConfigRequest{
 		Inputs: make(map[string]models.ServiceAppInputRequest),
+		Groups: make(map[string]models.ServiceAppGroupRequest),
 	}
 
 	// configure inputs
@@ -118,13 +147,20 @@ func (r *AppInputResource) getConfigRequest(data *AppInputResourceModel) (*model
 		}
 	}
 
+	for _, grp := range data.Groups {
+		cfgReq.Groups[grp.Name.ValueString()] = models.ServiceAppGroupRequest{
+			DisplayName: toPtr(grp.DisplayName.ValueString()),
+			Description: toPtr(grp.Description.ValueString()),
+		}
+	}
+
 	return cfgReq, nil
 }
 
 func (r *AppInputResource) writeStateData(data *AppInputResourceModel, resp *models.AppAppInputConfig) {
 	data.ID = types.StringValue(resp.ID)
 	inputs := []AppInput{}
-	for _, inp := range resp.AppInputs {
+	for _, inp := range resp.Inputs {
 		inputs = append(inputs, AppInput{
 			Name:        types.StringValue(inp.Name),
 			Description: types.StringValue(inp.Description),
@@ -135,6 +171,20 @@ func (r *AppInputResource) writeStateData(data *AppInputResourceModel, resp *mod
 		})
 	}
 	data.Inputs = inputs
+
+	groups := []AppInputGroup{}
+	for _, grp := range resp.InputGroups {
+		if grp.IsDefault {
+			continue
+		}
+
+		groups = append(groups, AppInputGroup{
+			Name:        types.StringValue(grp.Name),
+			Description: types.StringValue(grp.Description),
+			DisplayName: types.StringValue(grp.DisplayName),
+		})
+	}
+	data.Groups = groups
 }
 
 func (r *AppInputResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
