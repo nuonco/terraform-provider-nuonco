@@ -21,11 +21,22 @@ Input configuration for an app.
 
 ### Optional
 
+- `group` (Block Set) Input group, which can be used to organize sets of inputs. (see [below for nested schema](#nestedblock--group))
 - `input` (Block Set) Required inputs that each install must provide for this app. (see [below for nested schema](#nestedblock--input))
 
 ### Read-Only
 
 - `id` (String) The app input config id
+
+<a id="nestedblock--group"></a>
+### Nested Schema for `group`
+
+Required:
+
+- `description` (String) Description of input group.
+- `display_name` (String) Human readable display name.
+- `name` (String) The group name to be used.
+
 
 <a id="nestedblock--input"></a>
 ### Nested Schema for `input`
