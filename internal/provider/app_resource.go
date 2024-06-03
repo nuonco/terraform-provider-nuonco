@@ -18,8 +18,10 @@ import (
 )
 
 // Ensure provider defined types fully satisfy framework interfaces.
-var _ resource.Resource = &AppResource{}
-var _ resource.ResourceWithImportState = &AppResource{}
+var (
+	_ resource.Resource                = &AppResource{}
+	_ resource.ResourceWithImportState = &AppResource{}
+)
 
 func NewAppResource() resource.Resource {
 	return &AppResource{}
@@ -32,9 +34,11 @@ type AppResource struct {
 
 // AppResourceModel describes the resource data model.
 type AppResourceModel struct {
-	Name        types.String `tfsdk:"name"`
-	Description types.String `tfsdk:"description"`
-	Id          types.String `tfsdk:"id"`
+	Name            types.String `tfsdk:"name"`
+	Description     types.String `tfsdk:"description"`
+	DisplayName     types.String `tfsdk:"display_name"`
+	SlackWebhookURL types.String `tfsdk:"slack_webhook_url"`
+	Id              types.String `tfsdk:"id"`
 }
 
 func (r *AppResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -52,6 +56,16 @@ func (r *AppResource) Schema(ctx context.Context, req resource.SchemaRequest, re
 			},
 			"description": schema.StringAttribute{
 				MarkdownDescription: "App description which is used on installers and different places.",
+				Optional:            true,
+				Required:            false,
+			},
+			"display_name": schema.StringAttribute{
+				MarkdownDescription: "The display name of the app.",
+				Optional:            true,
+				Required:            false,
+			},
+			"slack_webhook_url": schema.StringAttribute{
+				MarkdownDescription: "The slack webhook url to send notifications too",
 				Optional:            true,
 				Required:            false,
 			},
@@ -77,8 +91,10 @@ func (r *AppResource) Create(ctx context.Context, req resource.CreateRequest, re
 	// create app
 	tflog.Trace(ctx, "creating app")
 	appResp, err := r.restClient.CreateApp(ctx, &models.ServiceCreateAppRequest{
-		Name:        data.Name.ValueStringPointer(),
-		Description: data.Description.ValueString(),
+		Name:            data.Name.ValueStringPointer(),
+		Description:     data.Description.ValueString(),
+		DisplayName:     data.DisplayName.ValueString(),
+		SlackWebhookURL: data.SlackWebhookURL.ValueString(),
 	})
 	if err != nil {
 		writeDiagnosticsErr(ctx, &resp.Diagnostics, err, "create app")
@@ -89,6 +105,15 @@ func (r *AppResource) Create(ctx context.Context, req resource.CreateRequest, re
 	data.Name = types.StringValue(appResp.Name)
 	data.Id = types.StringValue(appResp.ID)
 	data.Description = types.StringValue(appResp.Description)
+	if appResp.DisplayName != "" {
+		data.DisplayName = types.StringValue(appResp.DisplayName)
+	}
+	if appResp.Description != "" {
+		data.Description = types.StringValue(appResp.Description)
+	}
+	if appResp.SlackWebhookURL != "" {
+		data.SlackWebhookURL = types.StringValue(appResp.SlackWebhookURL)
+	}
 
 	// return populated terraform model
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
@@ -153,6 +178,8 @@ func (r *AppResource) Read(ctx context.Context, req resource.ReadRequest, resp *
 	data.Name = types.StringValue(appResp.Name)
 	data.Id = types.StringValue(appResp.ID)
 	data.Description = types.StringValue(appResp.Description)
+	data.DisplayName = types.StringValue(appResp.DisplayName)
+	data.SlackWebhookURL = types.StringValue(appResp.SlackWebhookURL)
 
 	// return populated terraform model
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
@@ -171,8 +198,10 @@ func (r *AppResource) Update(ctx context.Context, req resource.UpdateRequest, re
 
 	// update app
 	_, err := r.restClient.UpdateApp(ctx, data.Id.ValueString(), &models.ServiceUpdateAppRequest{
-		Name:        data.Name.ValueString(),
-		Description: data.Description.ValueString(),
+		Name:            data.Name.ValueString(),
+		Description:     data.Description.ValueString(),
+		DisplayName:     data.DisplayName.ValueString(),
+		SlackWebhookURL: data.SlackWebhookURL.ValueString(),
 	})
 	if err != nil {
 		writeDiagnosticsErr(ctx, &resp.Diagnostics, err, "update app")
@@ -190,6 +219,16 @@ func (r *AppResource) Update(ctx context.Context, req resource.UpdateRequest, re
 	data.Name = types.StringValue(appResp.Name)
 	data.Id = types.StringValue(appResp.ID)
 	data.Description = types.StringValue(appResp.Description)
+
+	if appResp.DisplayName != "" {
+		data.DisplayName = types.StringValue(appResp.DisplayName)
+	}
+	if appResp.Description != "" {
+		data.Description = types.StringValue(appResp.Description)
+	}
+	if appResp.SlackWebhookURL != "" {
+		data.SlackWebhookURL = types.StringValue(appResp.SlackWebhookURL)
+	}
 
 	// return populated terraform model
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
