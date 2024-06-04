@@ -111,9 +111,6 @@ func (r *AppResource) Create(ctx context.Context, req resource.CreateRequest, re
 	if appResp.Description != "" {
 		data.Description = types.StringValue(appResp.Description)
 	}
-	if appResp.SlackWebhookURL != "" {
-		data.SlackWebhookURL = types.StringValue(appResp.SlackWebhookURL)
-	}
 
 	// return populated terraform model
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
@@ -179,7 +176,7 @@ func (r *AppResource) Read(ctx context.Context, req resource.ReadRequest, resp *
 	data.Id = types.StringValue(appResp.ID)
 	data.Description = types.StringValue(appResp.Description)
 	data.DisplayName = types.StringValue(appResp.DisplayName)
-	data.SlackWebhookURL = types.StringValue(appResp.SlackWebhookURL)
+	data.SlackWebhookURL = types.StringValue(appResp.NotificationsConfig.SlackWebhookURL)
 
 	// return populated terraform model
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
@@ -225,9 +222,6 @@ func (r *AppResource) Update(ctx context.Context, req resource.UpdateRequest, re
 	}
 	if appResp.Description != "" {
 		data.Description = types.StringValue(appResp.Description)
-	}
-	if appResp.SlackWebhookURL != "" {
-		data.SlackWebhookURL = types.StringValue(appResp.SlackWebhookURL)
 	}
 
 	// return populated terraform model
