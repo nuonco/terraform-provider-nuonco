@@ -20,6 +20,10 @@ var (
 	_ resource.ResourceWithImportState = &AppInputResource{}
 )
 
+const (
+	defaultGroupName string = "default"
+)
+
 func NewAppInputResource() resource.Resource {
 	return &AppInputResource{}
 }
@@ -42,6 +46,7 @@ type AppInput struct {
 	Name        types.String `tfsdk:"name"`
 	Description types.String `tfsdk:"description"`
 	DisplayName types.String `tfsdk:"display_name"`
+	Group       types.String `tfsdk:"group"`
 	Required    types.Bool   `tfsdk:"required"`
 	Default     types.String `tfsdk:"default"`
 	Sensitive   types.Bool   `tfsdk:"sensitive"`
@@ -115,6 +120,10 @@ func (r *AppInputResource) Schema(ctx context.Context, req resource.SchemaReques
 							Description: "Description of input.",
 							Required:    true,
 						},
+						"group": schema.StringAttribute{
+							Description: "Add to a specific group",
+							Optional:    true,
+						},
 						"required": schema.BoolAttribute{
 							Description: "Mark whether this input is required or not.",
 							Optional:    true,
@@ -144,6 +153,7 @@ func (r *AppInputResource) getConfigRequest(data *AppInputResourceModel) (*model
 			Description: toPtr(input.Description.ValueString()),
 			Required:    input.Required.ValueBool(),
 			Sensitive:   input.Sensitive.ValueBool(),
+			Group:       toPtr(input.Group.ValueString()),
 		}
 	}
 
@@ -159,8 +169,15 @@ func (r *AppInputResource) getConfigRequest(data *AppInputResourceModel) (*model
 
 func (r *AppInputResource) writeStateData(data *AppInputResourceModel, resp *models.AppAppInputConfig) {
 	data.ID = types.StringValue(resp.ID)
+
+	return
 	inputs := []AppInput{}
 	for _, inp := range resp.Inputs {
+		grpName := inp.Group.Name
+		if grpName == defaultGroupName {
+			grpName = ""
+		}
+
 		inputs = append(inputs, AppInput{
 			Name:        types.StringValue(inp.Name),
 			Description: types.StringValue(inp.Description),
@@ -168,6 +185,7 @@ func (r *AppInputResource) writeStateData(data *AppInputResourceModel, resp *mod
 			Default:     types.StringValue(inp.Default),
 			Required:    types.BoolValue(inp.Required),
 			Sensitive:   types.BoolValue(inp.Sensitive),
+			Group:       types.StringValue(grpName),
 		})
 	}
 	data.Inputs = inputs
