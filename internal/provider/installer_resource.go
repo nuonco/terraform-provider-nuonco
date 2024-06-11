@@ -328,9 +328,7 @@ func (r *InstallerResource) Update(ctx context.Context, req resource.UpdateReque
 	data.LogoURL = types.StringValue(appResp.Metadata.LogoURL)
 	data.FaviconURL = types.StringValue(appResp.Metadata.FaviconURL)
 
-	if appResp.Metadata.PostInstallMarkdown != "" {
-		data.PostInstallMarkdown = types.StringValue(appResp.Metadata.PostInstallMarkdown)
-	}
+	data.PostInstallMarkdown = types.StringValue(appResp.Metadata.PostInstallMarkdown)
 	if appResp.Metadata.FooterMarkdown != "" {
 		data.FooterMarkdown = types.StringValue(appResp.Metadata.FooterMarkdown)
 	}
