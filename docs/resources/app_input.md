@@ -50,5 +50,6 @@ Required:
 
 Optional:
 
+- `group` (String) Add to a specific group
 - `required` (Boolean) Mark whether this input is required or not.
 - `sensitive` (Boolean) Mark whether the input is required or not
