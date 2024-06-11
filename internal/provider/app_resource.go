@@ -105,12 +105,8 @@ func (r *AppResource) Create(ctx context.Context, req resource.CreateRequest, re
 	data.Name = types.StringValue(appResp.Name)
 	data.Id = types.StringValue(appResp.ID)
 	data.Description = types.StringValue(appResp.Description)
-	if appResp.DisplayName != "" {
-		data.DisplayName = types.StringValue(appResp.DisplayName)
-	}
-	if appResp.Description != "" {
-		data.Description = types.StringValue(appResp.Description)
-	}
+	data.DisplayName = types.StringValue(appResp.DisplayName)
+	data.Description = types.StringValue(appResp.Description)
 
 	// return populated terraform model
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
@@ -217,12 +213,8 @@ func (r *AppResource) Update(ctx context.Context, req resource.UpdateRequest, re
 	data.Id = types.StringValue(appResp.ID)
 	data.Description = types.StringValue(appResp.Description)
 
-	if appResp.DisplayName != "" {
-		data.DisplayName = types.StringValue(appResp.DisplayName)
-	}
-	if appResp.Description != "" {
-		data.Description = types.StringValue(appResp.Description)
-	}
+	data.DisplayName = types.StringValue(appResp.DisplayName)
+	data.Description = types.StringValue(appResp.Description)
 
 	// return populated terraform model
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
