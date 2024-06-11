@@ -192,19 +192,10 @@ func (r *InstallerResource) Create(ctx context.Context, req resource.CreateReque
 	data.HomepageURL = types.StringValue(appResp.Metadata.HomepageURL)
 	data.LogoURL = types.StringValue(appResp.Metadata.LogoURL)
 	data.FaviconURL = types.StringValue(appResp.Metadata.FaviconURL)
-
-	if appResp.Metadata.PostInstallMarkdown != "" {
-		data.PostInstallMarkdown = types.StringValue(appResp.Metadata.PostInstallMarkdown)
-	}
-	if appResp.Metadata.FooterMarkdown != "" {
-		data.FooterMarkdown = types.StringValue(appResp.Metadata.FooterMarkdown)
-	}
-	if appResp.Metadata.CopyrightMarkdown != "" {
-		data.CopyrightMarkdown = types.StringValue(appResp.Metadata.CopyrightMarkdown)
-	}
-	if appResp.Metadata.DemoURL != "" {
-		data.DemoURL = types.StringValue(appResp.Metadata.DemoURL)
-	}
+	data.PostInstallMarkdown = types.StringValue(appResp.Metadata.PostInstallMarkdown)
+	data.FooterMarkdown = types.StringValue(appResp.Metadata.FooterMarkdown)
+	data.CopyrightMarkdown = types.StringValue(appResp.Metadata.CopyrightMarkdown)
+	data.DemoURL = types.StringValue(appResp.Metadata.DemoURL)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
@@ -238,20 +229,10 @@ func (r *InstallerResource) Read(ctx context.Context, req resource.ReadRequest, 
 	data.HomepageURL = types.StringValue(appResp.Metadata.HomepageURL)
 	data.LogoURL = types.StringValue(appResp.Metadata.LogoURL)
 	data.FaviconURL = types.StringValue(appResp.Metadata.FaviconURL)
-
-	// set optional fields
-	if appResp.Metadata.PostInstallMarkdown != "" {
-		data.PostInstallMarkdown = types.StringValue(appResp.Metadata.PostInstallMarkdown)
-	}
-	if appResp.Metadata.FooterMarkdown != "" {
-		data.FooterMarkdown = types.StringValue(appResp.Metadata.FooterMarkdown)
-	}
-	if appResp.Metadata.CopyrightMarkdown != "" {
-		data.CopyrightMarkdown = types.StringValue(appResp.Metadata.CopyrightMarkdown)
-	}
-	if appResp.Metadata.DemoURL != "" {
-		data.DemoURL = types.StringValue(appResp.Metadata.DemoURL)
-	}
+	data.PostInstallMarkdown = types.StringValue(appResp.Metadata.PostInstallMarkdown)
+	data.FooterMarkdown = types.StringValue(appResp.Metadata.FooterMarkdown)
+	data.CopyrightMarkdown = types.StringValue(appResp.Metadata.CopyrightMarkdown)
+	data.DemoURL = types.StringValue(appResp.Metadata.DemoURL)
 
 	appIDItems := []attr.Value{}
 	for _, app := range appResp.Apps {
@@ -327,17 +308,10 @@ func (r *InstallerResource) Update(ctx context.Context, req resource.UpdateReque
 	data.HomepageURL = types.StringValue(appResp.Metadata.HomepageURL)
 	data.LogoURL = types.StringValue(appResp.Metadata.LogoURL)
 	data.FaviconURL = types.StringValue(appResp.Metadata.FaviconURL)
-
 	data.PostInstallMarkdown = types.StringValue(appResp.Metadata.PostInstallMarkdown)
-	if appResp.Metadata.FooterMarkdown != "" {
-		data.FooterMarkdown = types.StringValue(appResp.Metadata.FooterMarkdown)
-	}
-	if appResp.Metadata.CopyrightMarkdown != "" {
-		data.CopyrightMarkdown = types.StringValue(appResp.Metadata.CopyrightMarkdown)
-	}
-	if appResp.Metadata.DemoURL != "" {
-		data.DemoURL = types.StringValue(appResp.Metadata.DemoURL)
-	}
+	data.FooterMarkdown = types.StringValue(appResp.Metadata.FooterMarkdown)
+	data.CopyrightMarkdown = types.StringValue(appResp.Metadata.CopyrightMarkdown)
+	data.DemoURL = types.StringValue(appResp.Metadata.DemoURL)
 
 	// return populated terraform model
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)

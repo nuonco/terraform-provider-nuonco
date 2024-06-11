@@ -20,10 +20,6 @@ var (
 	_ resource.ResourceWithImportState = &AppInputResource{}
 )
 
-const (
-	defaultGroupName string = "default"
-)
-
 func NewAppInputResource() resource.Resource {
 	return &AppInputResource{}
 }
@@ -122,7 +118,7 @@ func (r *AppInputResource) Schema(ctx context.Context, req resource.SchemaReques
 						},
 						"group": schema.StringAttribute{
 							Description: "Add to a specific group",
-							Optional:    true,
+							Required:    true,
 						},
 						"required": schema.BoolAttribute{
 							Description: "Mark whether this input is required or not.",
@@ -173,29 +169,24 @@ func (r *AppInputResource) writeStateData(data *AppInputResourceModel, resp *mod
 	return
 	inputs := []AppInput{}
 	for _, inp := range resp.Inputs {
-		grpName := inp.Group.Name
-		if grpName == defaultGroupName {
-			grpName = ""
-		}
 
-		inputs = append(inputs, AppInput{
+		inpData := AppInput{
 			Name:        types.StringValue(inp.Name),
 			Description: types.StringValue(inp.Description),
 			DisplayName: types.StringValue(inp.DisplayName),
 			Default:     types.StringValue(inp.Default),
 			Required:    types.BoolValue(inp.Required),
 			Sensitive:   types.BoolValue(inp.Sensitive),
-			Group:       types.StringValue(grpName),
-		})
+		}
+		if inp.Group.Name != "" {
+			inpData.Group = types.StringValue(inp.Group.Name)
+		}
+		inputs = append(inputs, inpData)
 	}
 	data.Inputs = inputs
 
 	groups := []AppInputGroup{}
 	for _, grp := range resp.InputGroups {
-		if grp.IsDefault {
-			continue
-		}
-
 		groups = append(groups, AppInputGroup{
 			Name:        types.StringValue(grp.Name),
 			Description: types.StringValue(grp.Description),
