@@ -16,8 +16,10 @@ import (
 )
 
 // Ensure provider defined types fully satisfy framework interfaces.
-var _ resource.Resource = &AppSandboxResource{}
-var _ resource.ResourceWithImportState = &AppSandboxResource{}
+var (
+	_ resource.Resource                = &AppSandboxResource{}
+	_ resource.ResourceWithImportState = &AppSandboxResource{}
+)
 
 func NewAppSandboxResource() resource.Resource {
 	return &AppSandboxResource{}
@@ -158,9 +160,6 @@ func (r *AppSandboxResource) writeStateData(data *AppSandboxResourceModel, resp 
 			Directory: types.StringValue(public.Directory),
 			Repo:      types.StringValue(public.Repo),
 		}
-	}
-	if resp.SandboxReleaseID != "" {
-		data.BuiltinSandboxReleaseID = types.StringValue(resp.SandboxReleaseID)
 	}
 
 	inputs := []SandboxVar{}
