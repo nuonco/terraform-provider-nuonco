@@ -126,7 +126,6 @@ func (p *Provider) DataSources(ctx context.Context) []func() datasource.DataSour
 		NewAppDataSource,
 		NewConnectedRepoDataSource,
 		NewInstallDataSource,
-		NewBuiltinSandboxDataSource,
 	}
 }
 
