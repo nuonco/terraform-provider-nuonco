@@ -22,7 +22,6 @@ Sandbox configuration for an app.
 
 ### Optional
 
-- `builtin_sandbox_release_id` (String) release ID for a built in sandbox to use
 - `connected_repo` (Attributes) A repo accessible via your Nuon connected github account (see [below for nested schema](#nestedatt--connected_repo))
 - `public_repo` (Attributes) A publically-accessible git repo. (see [below for nested schema](#nestedatt--public_repo))
 - `var` (Block Set) default sandbox vars that will be used on each install. Can use Nuon interpolation language. (see [below for nested schema](#nestedblock--var))
