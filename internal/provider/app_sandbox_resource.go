@@ -69,12 +69,6 @@ func (r *AppSandboxResource) Schema(ctx context.Context, req resource.SchemaRequ
 				Computed:      true,
 				PlanModifiers: []planmodifier.String{},
 			},
-			"builtin_sandbox_release_id": schema.StringAttribute{
-				Description:   "release ID for a built in sandbox to use",
-				Optional:      true,
-				Required:      false,
-				PlanModifiers: []planmodifier.String{},
-			},
 			"terraform_version": schema.StringAttribute{
 				Description:   "terraform version to use with sandbox",
 				Optional:      false,
