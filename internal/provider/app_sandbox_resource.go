@@ -36,9 +36,8 @@ type AppSandboxResourceModel struct {
 	AppID types.String `tfsdk:"app_id"`
 
 	// one of the following sources must be set for the app sandbox
-	BuiltinSandboxReleaseID types.String   `tfsdk:"builtin_sandbox_release_id"`
-	PublicRepo              *PublicRepo    `tfsdk:"public_repo"`
-	ConnectedRepo           *ConnectedRepo `tfsdk:"connected_repo"`
+	PublicRepo    *PublicRepo    `tfsdk:"public_repo"`
+	ConnectedRepo *ConnectedRepo `tfsdk:"connected_repo"`
 
 	Variables        []SandboxVar `tfsdk:"var"`
 	TerraformVersion types.String `tfsdk:"terraform_version"`
@@ -106,8 +105,8 @@ func (r *AppSandboxResource) Schema(ctx context.Context, req resource.SchemaRequ
 }
 
 func (r *AppSandboxResource) getConfigRequest(data *AppSandboxResourceModel) (*models.ServiceCreateAppSandboxConfigRequest, error) {
-	if data.ConnectedRepo == nil && data.PublicRepo == nil && data.BuiltinSandboxReleaseID.ValueString() == "" {
-		return nil, fmt.Errorf("must set one of connected_repo, public_repo or builtin_sandbox_release_id")
+	if data.ConnectedRepo == nil && data.PublicRepo == nil {
+		return nil, fmt.Errorf("must set one of connected_repo, public_repo")
 	}
 
 	cfgReq := &models.ServiceCreateAppSandboxConfigRequest{
@@ -128,9 +127,6 @@ func (r *AppSandboxResource) getConfigRequest(data *AppSandboxResourceModel) (*m
 			Directory: data.ConnectedRepo.Directory.ValueStringPointer(),
 			Repo:      data.ConnectedRepo.Repo.ValueStringPointer(),
 		}
-	}
-	if data.BuiltinSandboxReleaseID.ValueString() != "" {
-		cfgReq.SandboxReleaseID = data.BuiltinSandboxReleaseID.ValueString()
 	}
 
 	// configure inputs
