@@ -46,13 +46,13 @@ type InstallerResourceModel struct {
 	PostInstallMarkdown types.String `tfsdk:"post_install_markdown"`
 	FooterMarkdown      types.String `tfsdk:"footer_markdown"`
 	CopyrightMarkdown   types.String `tfsdk:"copyright_markdown"`
+	DemoURL             types.String `tfsdk:"demo_url"`
 
 	DocumentationURL types.String `tfsdk:"documentation_url"`
 	HomepageURL      types.String `tfsdk:"homepage_url"`
 	CommunityURL     types.String `tfsdk:"community_url"`
 	GithubURL        types.String `tfsdk:"github_url"`
 	LogoURL          types.String `tfsdk:"logo_url"`
-	DemoURL          types.String `tfsdk:"demo_url"`
 	FaviconURL       types.String `tfsdk:"favicon_url"`
 }
 
@@ -163,10 +163,7 @@ func (r *InstallerResource) Create(ctx context.Context, req resource.CreateReque
 		AppIds: appIDs,
 		Name:   data.Name.ValueStringPointer(),
 		Metadata: &models.ServiceCreateInstallerRequestMetadata{
-			Description:         data.Description.ValueStringPointer(),
-			PostInstallMarkdown: data.PostInstallMarkdown.ValueString(),
-			FooterMarkdown:      data.FooterMarkdown.ValueString(),
-			CopyrightMarkdown:   data.CopyrightMarkdown.ValueString(),
+			Description: data.Description.ValueStringPointer(),
 
 			CommunityURL:     data.CommunityURL.ValueStringPointer(),
 			FaviconURL:       data.FaviconURL.ValueString(),
@@ -174,7 +171,11 @@ func (r *InstallerResource) Create(ctx context.Context, req resource.CreateReque
 			HomepageURL:      data.HomepageURL.ValueStringPointer(),
 			GithubURL:        data.GithubURL.ValueStringPointer(),
 			LogoURL:          data.LogoURL.ValueStringPointer(),
-			DemoURL:          data.DemoURL.ValueString(),
+
+			DemoURL:             data.DemoURL.ValueString(),
+			PostInstallMarkdown: data.PostInstallMarkdown.ValueString(),
+			FooterMarkdown:      data.FooterMarkdown.ValueString(),
+			CopyrightMarkdown:   data.CopyrightMarkdown.ValueString(),
 		},
 	})
 	if err != nil {
