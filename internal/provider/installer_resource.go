@@ -166,7 +166,7 @@ func (r *InstallerResource) Create(ctx context.Context, req resource.CreateReque
 			Description: data.Description.ValueStringPointer(),
 
 			CommunityURL:     data.CommunityURL.ValueStringPointer(),
-			FaviconURL:       data.FaviconURL.ValueString(),
+			FaviconURL:       data.FaviconURL.ValueStringPointer(),
 			DocumentationURL: data.DocumentationURL.ValueStringPointer(),
 			HomepageURL:      data.HomepageURL.ValueStringPointer(),
 			GithubURL:        data.GithubURL.ValueStringPointer(),

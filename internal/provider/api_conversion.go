@@ -5,6 +5,7 @@ const (
 	statusQueued         string = "queued"
 	statusProvisioning   string = "provisioning"
 	statusActive         string = "active"
+	statusOK                 string = "ok"
 	statusDeleteQueued   string = "delete_queued"
 	statusDeprovisioning string = "deprovisioning"
 

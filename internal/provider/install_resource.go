@@ -18,8 +18,10 @@ import (
 )
 
 // Ensure provider defined types fully satisfy framework interfaces.
-var _ resource.Resource = &InstallResource{}
-var _ resource.ResourceWithImportState = &InstallResource{}
+var (
+	_ resource.Resource                = &InstallResource{}
+	_ resource.ResourceWithImportState = &InstallResource{}
+)
 
 func NewInstallResource() resource.Resource {
 	return &InstallResource{}
@@ -232,7 +234,7 @@ func (r *InstallResource) Create(ctx context.Context, req resource.CreateRequest
 			tflog.Trace(ctx, "refreshing install status")
 			install, err := r.restClient.GetInstall(ctx, installResp.ID)
 			if err == nil {
-				return install.Status, install.Status, nil
+				return install.SandboxStatus, install.SandboxStatus, nil
 			}
 
 			logErr(ctx, err, "create install")
