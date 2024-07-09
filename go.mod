@@ -3,10 +3,9 @@ module github.com/nuonco/terraform-provider-nuon
 go 1.21
 
 require (
-	github.com/go-playground/validator/v10 v10.20.0
 	github.com/hashicorp/terraform-plugin-docs v0.16.0
-	github.com/hashicorp/terraform-plugin-framework v1.8.0
-	github.com/hashicorp/terraform-plugin-framework-validators v0.12.0
+	github.com/hashicorp/terraform-plugin-framework v1.10.0
+	github.com/hashicorp/terraform-plugin-framework-validators v0.13.0
 	github.com/hashicorp/terraform-plugin-go v0.23.0
 	github.com/hashicorp/terraform-plugin-log v0.9.0
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.34.0
@@ -48,6 +47,7 @@ require (
 	github.com/go-openapi/validate v0.24.0 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
+	github.com/go-playground/validator/v10 v10.20.0 // indirect
 	github.com/go-swagger/go-swagger v0.31.0 // indirect
 	github.com/golang/mock v1.6.0 // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
