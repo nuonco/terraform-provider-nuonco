@@ -47,6 +47,7 @@ type InstallerResourceModel struct {
 	FooterMarkdown      types.String `tfsdk:"footer_markdown"`
 	CopyrightMarkdown   types.String `tfsdk:"copyright_markdown"`
 	DemoURL             types.String `tfsdk:"demo_url"`
+	OgImageURL          types.String `tfsdk:"og_image_url"`
 
 	DocumentationURL types.String `tfsdk:"documentation_url"`
 	HomepageURL      types.String `tfsdk:"homepage_url"`
@@ -112,6 +113,11 @@ func (r *InstallerResource) Schema(ctx context.Context, req resource.SchemaReque
 				Optional:            false,
 				Required:            true,
 			},
+			"og_image_url": schema.StringAttribute{
+				MarkdownDescription: "Open Graph image url",
+				Optional:            true,
+				Required:            false,
+			},
 			"community_url": schema.StringAttribute{
 				MarkdownDescription: "Community url to a slack or discord, etc.",
 				Optional:            true,
@@ -166,12 +172,13 @@ func (r *InstallerResource) Create(ctx context.Context, req resource.CreateReque
 			Description: data.Description.ValueStringPointer(),
 
 			CommunityURL:     data.CommunityURL.ValueStringPointer(),
-			FaviconURL:       data.FaviconURL.ValueString(),
+			FaviconURL:       data.FaviconURL.ValueStringPointer(),
 			DocumentationURL: data.DocumentationURL.ValueStringPointer(),
 			HomepageURL:      data.HomepageURL.ValueStringPointer(),
 			GithubURL:        data.GithubURL.ValueStringPointer(),
 			LogoURL:          data.LogoURL.ValueStringPointer(),
 
+			OgImageURL:          data.OgImageURL.ValueString(),
 			DemoURL:             data.DemoURL.ValueString(),
 			PostInstallMarkdown: data.PostInstallMarkdown.ValueString(),
 			FooterMarkdown:      data.FooterMarkdown.ValueString(),
@@ -193,6 +200,8 @@ func (r *InstallerResource) Create(ctx context.Context, req resource.CreateReque
 	data.HomepageURL = types.StringValue(appResp.Metadata.HomepageURL)
 	data.LogoURL = types.StringValue(appResp.Metadata.LogoURL)
 	data.FaviconURL = types.StringValue(appResp.Metadata.FaviconURL)
+
+	data.OgImageURL = types.StringValue(appResp.Metadata.OgImageURL)
 	data.PostInstallMarkdown = types.StringValue(appResp.Metadata.PostInstallMarkdown)
 	data.FooterMarkdown = types.StringValue(appResp.Metadata.FooterMarkdown)
 	data.CopyrightMarkdown = types.StringValue(appResp.Metadata.CopyrightMarkdown)
@@ -230,6 +239,7 @@ func (r *InstallerResource) Read(ctx context.Context, req resource.ReadRequest, 
 	data.HomepageURL = types.StringValue(appResp.Metadata.HomepageURL)
 	data.LogoURL = types.StringValue(appResp.Metadata.LogoURL)
 	data.FaviconURL = types.StringValue(appResp.Metadata.FaviconURL)
+	data.OgImageURL = types.StringValue(appResp.Metadata.OgImageURL)
 	data.PostInstallMarkdown = types.StringValue(appResp.Metadata.PostInstallMarkdown)
 	data.FooterMarkdown = types.StringValue(appResp.Metadata.FooterMarkdown)
 	data.CopyrightMarkdown = types.StringValue(appResp.Metadata.CopyrightMarkdown)
@@ -271,6 +281,7 @@ func (r *InstallerResource) Update(ctx context.Context, req resource.UpdateReque
 		AppIds: appIDs,
 		Metadata: &models.ServiceUpdateInstallerRequestMetadata{
 			Description:         data.Description.ValueStringPointer(),
+			OgImageURL:          data.OgImageURL.ValueString(),
 			PostInstallMarkdown: data.PostInstallMarkdown.ValueString(),
 			CopyrightMarkdown:   data.CopyrightMarkdown.ValueString(),
 			FooterMarkdown:      data.FooterMarkdown.ValueString(),
@@ -309,6 +320,8 @@ func (r *InstallerResource) Update(ctx context.Context, req resource.UpdateReque
 	data.HomepageURL = types.StringValue(appResp.Metadata.HomepageURL)
 	data.LogoURL = types.StringValue(appResp.Metadata.LogoURL)
 	data.FaviconURL = types.StringValue(appResp.Metadata.FaviconURL)
+
+	data.OgImageURL = types.StringValue(appResp.Metadata.OgImageURL)
 	data.PostInstallMarkdown = types.StringValue(appResp.Metadata.PostInstallMarkdown)
 	data.FooterMarkdown = types.StringValue(appResp.Metadata.FooterMarkdown)
 	data.CopyrightMarkdown = types.StringValue(appResp.Metadata.CopyrightMarkdown)
