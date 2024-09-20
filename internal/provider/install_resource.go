@@ -314,7 +314,7 @@ func (r *InstallResource) Read(ctx context.Context, req resource.ReadRequest, re
 		resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 		return
 	}
-	for name, value := range inputs.Values {
+	for name, value := range inputs.RedactedValues {
 		data.Inputs = append(data.Inputs, InstallInput{
 			Name:  types.StringValue(name),
 			Value: types.StringValue(value),
@@ -389,12 +389,12 @@ func (r *InstallResource) Delete(ctx context.Context, req resource.DeleteRequest
 		Target:  []string{statusNotFound},
 		Refresh: func() (interface{}, string, error) {
 			tflog.Trace(ctx, "refreshing install status")
-			install, err := r.restClient.GetInstall(ctx, data.ID.ValueString())
+			_, err := r.restClient.GetInstall(ctx, data.ID.ValueString())
 			if err == nil {
-				return install.SandboxStatus, install.SandboxStatus, nil
+				logErr(ctx, err, "delete install")
+				return statusDeleteQueued, statusDeleteQueued, nil
 			}
 
-			logErr(ctx, err, "delete install")
 			if nuon.IsNotFound(err) {
 				return "", statusNotFound, nil
 			}
@@ -406,7 +406,7 @@ func (r *InstallResource) Delete(ctx context.Context, req resource.DeleteRequest
 		Delay:      time.Second * 10,
 		MinTimeout: 3 * time.Second,
 	}
-	_, err = stateConf.WaitForState()
+	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
 		writeDiagnosticsErr(ctx, &resp.Diagnostics, err, "delete install")
 		return

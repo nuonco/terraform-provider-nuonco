@@ -78,13 +78,13 @@ func (r *AppRunnerResource) getConfigRequest(data *AppRunnerResourceModel) (*mod
 
 	switch data.RunnerType.ValueString() {
 	case "aws-eks":
-		cfgReq.Type = models.AppAppRunnerTypeAwsDashEks
+		cfgReq.Type = models.NewAppAppRunnerType(models.AppAppRunnerTypeAwsDashEks)
 	case "aws-ecs":
-		cfgReq.Type = models.AppAppRunnerTypeAwsDashEcs
+		cfgReq.Type = models.NewAppAppRunnerType(models.AppAppRunnerTypeAwsDashEcs)
 	case "azure-aks":
-		cfgReq.Type = models.AppAppRunnerTypeAzureDashAks
+		cfgReq.Type = models.NewAppAppRunnerType(models.AppAppRunnerTypeAzureDashAks)
 	case "azure-acs":
-		cfgReq.Type = models.AppAppRunnerTypeAzureDashAcs
+		cfgReq.Type = models.NewAppAppRunnerType(models.AppAppRunnerTypeAzureDashAcs)
 	default:
 		return nil, fmt.Errorf("invalid runner-type, must be one of (aws-eks, aws-ecs, azure-aks, azure-acs)")
 	}

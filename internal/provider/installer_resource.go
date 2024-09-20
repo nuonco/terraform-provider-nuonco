@@ -276,6 +276,7 @@ func (r *InstallerResource) Update(ctx context.Context, req resource.UpdateReque
 	}
 
 	// update app
+	faviconURL := data.FaviconURL.ValueString()
 	_, err := r.restClient.UpdateInstaller(ctx, data.Id.ValueString(), &models.ServiceUpdateInstallerRequest{
 		Name:   data.Name.ValueStringPointer(),
 		AppIds: appIDs,
@@ -285,14 +286,13 @@ func (r *InstallerResource) Update(ctx context.Context, req resource.UpdateReque
 			PostInstallMarkdown: data.PostInstallMarkdown.ValueString(),
 			CopyrightMarkdown:   data.CopyrightMarkdown.ValueString(),
 			FooterMarkdown:      data.FooterMarkdown.ValueString(),
-
-			CommunityURL:     data.CommunityURL.ValueStringPointer(),
-			FaviconURL:       data.FaviconURL.ValueString(),
-			DocumentationURL: data.DocumentationURL.ValueStringPointer(),
-			HomepageURL:      data.HomepageURL.ValueStringPointer(),
-			GithubURL:        data.GithubURL.ValueStringPointer(),
-			LogoURL:          data.LogoURL.ValueStringPointer(),
-			DemoURL:          data.DemoURL.ValueString(),
+			CommunityURL:        data.CommunityURL.ValueStringPointer(),
+			FaviconURL:          &faviconURL,
+			DocumentationURL:    data.DocumentationURL.ValueStringPointer(),
+			HomepageURL:         data.HomepageURL.ValueStringPointer(),
+			GithubURL:           data.GithubURL.ValueStringPointer(),
+			LogoURL:             data.LogoURL.ValueStringPointer(),
+			DemoURL:             data.DemoURL.ValueString(),
 		},
 	})
 	if err != nil {
