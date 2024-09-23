@@ -385,14 +385,14 @@ func (r *InstallResource) Delete(ctx context.Context, req resource.DeleteRequest
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 
 	stateConf := &retry.StateChangeConf{
-		Pending: []string{statusDeleteQueued, statusDeprovisioning, statusTemporarilyUnavailable},
+		Pending: []string{statusActive, statusDeleteQueued, statusDeprovisioning, statusTemporarilyUnavailable},
 		Target:  []string{statusNotFound},
 		Refresh: func() (interface{}, string, error) {
 			tflog.Trace(ctx, "refreshing install status")
-			_, err := r.restClient.GetInstall(ctx, data.ID.ValueString())
+			install, err := r.restClient.GetInstall(ctx, data.ID.ValueString())
 			if err == nil {
 				logErr(ctx, err, "delete install")
-				return statusDeleteQueued, statusDeleteQueued, nil
+				return install.SandboxStatus, install.SandboxStatus, nil
 			}
 
 			if nuon.IsNotFound(err) {
