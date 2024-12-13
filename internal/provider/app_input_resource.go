@@ -284,6 +284,42 @@ func (r *AppInputResource) Update(ctx context.Context, req resource.UpdateReques
 }
 
 func (r *AppInputResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// get terraform model
+	var data *AppInputResourceModel
+	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	tflog.Trace(ctx, "updating app input config")
+
+	// update app
+	data.Inputs = []AppInput{}
+	data.Groups = []AppInputGroup{}
+	cfgReq, err := r.getConfigRequest(data)
+	if err != nil {
+		writeDiagnosticsErr(ctx, &resp.Diagnostics, err, "create app input config")
+		return
+	}
+
+	cfgResp, err := r.restClient.CreateAppInputConfig(ctx, data.AppID.ValueString(), cfgReq)
+	if err != nil {
+		writeDiagnosticsErr(ctx, &resp.Diagnostics, err, "update app input config")
+		return
+	}
+	if nuon.IsNotFound(err) {
+		resp.State.RemoveResource(ctx)
+		return
+	}
+	if err != nil {
+		writeDiagnosticsErr(ctx, &resp.Diagnostics, err, "read app input config")
+		return
+	}
+
+	r.writeStateData(data, cfgResp)
+	// return populated terraform model
+	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
+	tflog.Trace(ctx, "successfully updated app input config")
 }
 
 func (r *AppInputResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
